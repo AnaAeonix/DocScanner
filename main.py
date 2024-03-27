@@ -11,7 +11,6 @@ from PyQt5.QtWidgets import QApplication, QLabel
 from PyQt5.QtWidgets import QLabel, QScrollArea, QHBoxLayout, QWidget, QMenu, QFileDialog
 from PyQt5.QtCore import QTimer,  Qt
 from PyQt5.QtGui import QPixmap
-
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from PyQt5.QtCore import QTimer, QThread, pyqtSignal

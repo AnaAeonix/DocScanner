@@ -591,7 +591,6 @@ class VideoStream:
         self.video.release()
         
         # Wait for a moment before opening the new camera index
-        time.sleep(1)
 
         # Open the new camera capture
         self.video = cv2.VideoCapture(camera_index)

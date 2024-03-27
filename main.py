@@ -336,7 +336,7 @@ class MainWindow(QMainWindow):
     #     self.timer.timeout.connect(self.video_stream.display_camera_feed)  # Connect timer to display updated camera feed
         
     def switch_camera_async(self, index):
-        self.current_camera_index = index
+        # self.current_camera_index = index
         # video_stream = self.video_stream
         # # if cap is not None:
         # #     cap.release()

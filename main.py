@@ -337,68 +337,67 @@ class MainWindow(QMainWindow):
         
     def switch_camera_async(self, index):
         self.current_camera_index = index
-        cap = self.cap
-        video_stream = self.video_stream
-        if cap is not None:
-            cap.release()
-            if video_stream is not None:
-                video_stream.video.release()
-
-        camera_index = available_cameras[index][self.current_camera_index]
-        self.video_stream.change_camera(camera_index)
+        # video_stream = self.video_stream
+        # # if cap is not None:
+        # #     cap.release()
+        # #     if video_stream is not None:
+        # video_stream.video.release()
+        
+        # camera_index = available_cameras[index][self.current_camera_index]
+        self.video_stream.change_camera(index)
         # camera_thread = QThread()
         # camera_thread.start()
         # self.start_camera(camera_index, camera_thread)
 
-    def switch_camera(self, camera_index):
-        self.cap = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
-        if not self.cap.isOpened():
-            print(f"Error: Unable to open camera {camera_index}")
-            return
+    # def switch_camera(self, camera_index):
+    #     self.cap = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
+    #     if not self.cap.isOpened():
+    #         print(f"Error: Unable to open camera {camera_index}")
+    #         return
 
-        self.video_stream = VideoStream(self.ui.label, camera_index)
-        self.timer.timeout.connect(self.video_stream.display_camera_feed)
-        self.timer.start(1000 // 30)  # Adjust the frame rate as needed   
+    #     self.video_stream = VideoStream(self.ui.label, camera_index)
+    #     self.timer.timeout.connect(self.video_stream.display_camera_feed)
+    #     self.timer.start(1000 // 30)  # Adjust the frame rate as needed   
 
-    def update_camera_feed(self):
-        cap = self.cap
-        video_stream = self.video_stream
-        if cap is not None:
-            ret, frame = cap.read()
-            if ret:
-                rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                h, w, ch = rgb_image.shape
-                bytes_per_line = ch * w
-                q_img = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
-                pixmap = QPixmap.fromImage(q_img)
-                self.parent_label.setPixmap(pixmap.scaled(self.parent_label.size(), Qt.KeepAspectRatio))
-
-
-    def start_camera(self,camera_index,  camera_thread): 
-        cap = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
-        if not cap.isOpened():
-            print(f"Error: Unable to open camera {camera_index}")
-            return
-
-        video_stream = VideoStream(self.ui.label, camera_index)
-        self.timer = QTimer()  # Timer for periodic updates
-        self.timer.timeout.connect(lambda: self.update_camera_feed(self))
-        self.timer.moveToThread(camera_thread)  # Move the timer to the camera thread
-        self.timer.start(1000 // 30)  # Start the timer for periodic updates
-        self.cap = cap
-        self.video_stream = video_stream
+    # def update_camera_feed(self):
+    #     cap = self.cap
+    #     video_stream = self.video_stream
+    #     if cap is not None:
+    #         ret, frame = cap.read()
+    #         if ret:
+    #             rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    #             h, w, ch = rgb_image.shape
+    #             bytes_per_line = ch * w
+    #             q_img = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
+    #             pixmap = QPixmap.fromImage(q_img)
+    #             self.parent_label.setPixmap(pixmap.scaled(self.parent_label.size(), Qt.KeepAspectRatio))
 
 
-    def stop_camera(self):
-        timer = self.timer
-        cap = self.cap
-        video_stream = self.video_stream
-        if timer is not None:
-            timer.stop()
-        if cap is not None:
-            cap.release()
-        if video_stream is not None:
-            video_stream.video.release()
+    # def start_camera(self,camera_index,  camera_thread): 
+    #     cap = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
+    #     if not cap.isOpened():
+    #         print(f"Error: Unable to open camera {camera_index}")
+    #         return
+
+    #     video_stream = VideoStream(self.ui.label, camera_index)
+    #     self.timer = QTimer()  # Timer for periodic updates
+    #     self.timer.timeout.connect(lambda: self.update_camera_feed(self))
+    #     self.timer.moveToThread(camera_thread)  # Move the timer to the camera thread
+    #     self.timer.start(1000 // 30)  # Start the timer for periodic updates
+    #     self.cap = cap
+    #     self.video_stream = video_stream
+
+
+    # def stop_camera(self):
+    #     timer = self.timer
+    #     cap = self.cap
+    #     video_stream = self.video_stream
+    #     if timer is not None:
+    #         timer.stop()
+    #     if cap is not None:
+    #         cap.release()
+    #     if video_stream is not None:
+    #         video_stream.video.release()
 
 
 

@@ -574,7 +574,7 @@ class VideoStream:
             font = QFont()
             font.setPointSize(30)
             self.parent_label.setFont(font)
-            self.parent_label.setText("<p style='font-size:20pt'>Error opening camera</p>")
+            self.parent_label.setText("<p style='font-size:20pt'>Err opening camera</p>")
             return
 
         ret, frame = self.video.read()
@@ -587,7 +587,17 @@ class VideoStream:
             self.parent_label.setPixmap(pixmap.scaled(self.parent_label.size(), Qt.KeepAspectRatio))
 
     def change_camera(self, camera_index):
+        # Wait for 1 second before opening the new camera index
         self.video.release()
+        
+        # Wait for a moment before opening the new camera index
+        time.sleep(1)
+
+        # Open the new camera capture
         self.video = cv2.VideoCapture(camera_index)
         self.set_resolution()
-        self.display_camera_feed()
+
+        # Create a QTimer object with the appropriate parent widget
+        timer = QTimer()
+        timer.timeout.connect(self.display_camera_feed)
+        timer.start(10) 

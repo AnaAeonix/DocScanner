@@ -9,6 +9,7 @@ from Sidebar1 import VideoStream, Ui_MainWindow
 class CameraManager:
     def __init__(self):
         self.ui = Ui_MainWindow()
+        
         self.available_cameras = []
         self.cap = None
         self.video_stream = None

@@ -10,7 +10,7 @@
 import sys
 import cv2
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QImage, QPixmap, QFont
+from PyQt5.QtGui import QImage, QPixmap, QFont,QMovie
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QLabel, QWidget
@@ -543,11 +543,115 @@ import resourceNew_rc
 #         self.set_resolution()  # Set resolution for new camera
 #         self.display_camera_feed()
 
+# class VideoStream:
+#     def __init__(self, parent_label: QLabel, camera_index):
+#         self.video = cv2.VideoCapture(camera_index)
+#         self.parent_label = parent_label
+#         self.set_resolution()
+
+#     def set_resolution(self):
+#         # Check if camera is open
+#         if not self.video.isOpened():
+#             print("Error opening camera")
+#             return
+
+#         # Check if 4K resolution is supported
+#         # Typo fix in height value
+#         # self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+#         # self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+#         # width = int(self.video.get(cv2.CAP_PROP_FRAME_WIDTH))
+#         # height = int(self.video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+#         # if width == 3840 and height == 2160:
+#         #     print("Using 4K resolution")
+#         # else:
+#         #     self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+#         #     self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+#         #     print("Using 1080p resolution")
+
+#     def display_camera_feed(self):
+#         if not self.video.isOpened():
+#             # Display error message if camera not open
+#             font = QFont()
+#             font.setPointSize(30)
+#             self.parent_label.setFont(font)
+#             self.parent_label.setText("<p style='font-size:20pt'>Err opening camera</p>")
+#             return
+
+#         ret, frame = self.video.read()
+#         if ret:
+#             self.show_loader()
+
+#             rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+#             h, w, ch = rgb_image.shape
+#             bytes_per_line = ch * w
+#             q_img = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
+#             pixmap = QPixmap.fromImage(q_img)
+#             self.parent_label.setPixmap(pixmap.scaled(self.parent_label.size(), Qt.KeepAspectRatio))
+
+#             # Hide loader after setting the frame
+#             self.hide_loader()
+            
+#     def show_loader(self):
+#         # Display loader in parent_label while loading camera feed
+#         loader_movie = QMovie("loader.gif")  # Replace "loader.gif" with your loader image path
+#         self.loader_label.setMovie(loader_movie)
+#         loader_movie.start()
+
+#         # Set the loader label to the center of the parent label
+#         self.loader_label.setGeometry(
+#             self.parent_label.width() // 2 - 50,  # Adjust the loader position as needed
+#             self.parent_label.height() // 2 - 50,
+#             100,  # Width of the loader label
+#             100   # Height of the loader label
+#         )
+#         self.loader_label.setParent(self.parent_label)
+#         self.loader_label.show()
+
+#     # def change_camera(self, camera_index):
+#     #     # Wait for 1 second before opening the new camera index
+#     #     self.video.release()
+        
+#     #     # Wait for a moment before opening the new camera index
+
+#     #     # Open the new camera capture
+#     #     self.video = cv2.VideoCapture(camera_index)
+#     #     self.set_resolution()
+
+#     #     # Create a QTimer object with the appropriate parent widget
+#     #     timer = QTimer()
+#     #     timer.timeout.connect(self.display_camera_feed)
+#     #     timer.start(10) 
+#     def hide_loader(self):
+#         # Hide loader from parent_label
+#         self.parent_label.clear()
+#     def change_camera(self, camera_index):
+#         # Wait for 1 second before opening the new camera index
+#         self.video.release()
+        
+#         # Wait for a moment before opening the new camera index
+
+#         # Open the new camera capture
+#         self.video = cv2.VideoCapture(camera_index)
+#         self.set_resolution()
+
+#         # Create a QTimer object with the appropriate parent widget
+#         timer = QTimer()
+#         timer.timeout.connect(self.display_camera_feed)
+#         timer.start(10) 
+        
+        
+        
+        
+        
+import threading
+
 class VideoStream:
     def __init__(self, parent_label: QLabel, camera_index):
         self.video = cv2.VideoCapture(camera_index)
         self.parent_label = parent_label
         self.set_resolution()
+        self.timer = None
+        self.camera_change_thread = None  # Thread for camera switching
 
     def set_resolution(self):
         # Check if camera is open
@@ -561,42 +665,65 @@ class VideoStream:
         self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
         width = int(self.video.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(self.video.get(cv2.CAP_PROP_FRAME_HEIGHT))
-        if width == 3840 and height == 2160:
-            print("Using 4K resolution")
-        else:
-            self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-            self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-            print("Using 1080p resolution")
+
+        print(width)
+        print(height)
+        # if width == 3840 and height == 2160:
+        #     print("Using 4K resolution")
+        # else:
+        #     self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        #     self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        #     print("Using 1080p resolution")
+        # ... (rest of your set_resolution logic)
 
     def display_camera_feed(self):
         if not self.video.isOpened():
             # Display error message if camera not open
-            font = QFont()
-            font.setPointSize(30)
-            self.parent_label.setFont(font)
-            self.parent_label.setText("<p style='font-size:20pt'>Err opening camera</p>")
-            return
+          font = QFont()
+          font.setPointSize(30)
+          self.parent_label.setFont(font)
+          self.parent_label.setText("<p style='font-size:20pt'>Changing Camera...</p>")
+          return
 
         ret, frame = self.video.read()
         if ret:
             rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            h, w, ch = rgb_image.shape
+            frame_resized = cv2.resize(rgb_image, (640, 480))
+            h, w, ch = frame_resized.shape
             bytes_per_line = ch * w
-            q_img = QImage(rgb_image.data, w, h, bytes_per_line, QImage.Format_RGB888)
+            q_img = QImage(frame_resized.data, w, h, bytes_per_line, QImage.Format_RGB888)
             pixmap = QPixmap.fromImage(q_img)
             self.parent_label.setPixmap(pixmap.scaled(self.parent_label.size(), Qt.KeepAspectRatio))
+        else:
+            # Display loader while camera is changing
+            self.show_loader()
 
     def change_camera(self, camera_index):
-        # Wait for 1 second before opening the new camera index
+        # Stop the timer if it's running
+        if self.timer is not None:
+            self.timer.stop()
+
+        # Create a thread for camera switching (optional, but recommended for responsiveness)
+        self.camera_change_thread = threading.Thread(target=self._change_camera_in_thread, args=(camera_index,))
+        self.camera_change_thread.start()
+        # Display loader immediately
+        self.show_loader()
+
+    def _change_camera_in_thread(self, camera_index):
+        # Release the current video capture
         self.video.release()
-        
-        # Wait for a moment before opening the new camera index
 
         # Open the new camera capture
-        self.video = cv2.VideoCapture(camera_index)
+        self.video = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
         self.set_resolution()
 
-        # Create a QTimer object with the appropriate parent widget
-        timer = QTimer()
-        timer.timeout.connect(self.display_camera_feed)
-        timer.start(10) 
+        # Create a QTimer object and connect it to the display_camera_feed function (in main thread)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.display_camera_feed)
+        self.timer.start(10)  # Start the timer with a 10ms interval
+
+    def show_loader(self):
+        font = QFont()
+        font.setPointSize(30)
+        self.parent_label.setFont(font)
+        self.parent_label.setText("<p style='font-size:20pt'>Changing Camera...</p>")

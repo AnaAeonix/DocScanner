@@ -286,7 +286,12 @@ class MainWindow(QMainWindow):
                 del cap
         camera_names = [camera_name for _, camera_name in available_cameras]
         self.ui.dropdown_menu.addItems(camera_names)
-        self.ui.dropdown_menu.currentIndexChanged.connect(lambda index: self.switch_camera_async(index))
+        self.ui.dropdown_menu.currentIndexChanged.connect(lambda: self._handle_index_change())
+
+    def _handle_index_change(self):
+        self.current_camera_index = self.ui.dropdown_menu.currentIndex()  # Access the current index
+    # Do something with the new_index value
+        self.video_stream.change_camera(self.current_camera_index) # Call your function with the index
 
     # @staticmethod
     # def get_camera_serial_number(device_index):

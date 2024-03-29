@@ -28,7 +28,7 @@ class CameraApp(QWidget):
 
         self.timer = QTimer()
         self.timer.timeout.connect(self.update_frame)
-        self.timer.start(30)
+        self.timer.start(100)
 
         self.setLayout(self.layout)
 
@@ -61,15 +61,31 @@ class CameraApp(QWidget):
             self.cap.release()
         camera_index = self.available_cameras[self.camera_combobox.currentIndex()][0]
         self.cap = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
+        self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+        self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+        width = int(self.cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(self.cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        # if width == 3840 and height == 2160:
+        print(width)
+        print(height)
+        # else:
+        #     self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        #     self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        #     print("Using 1080p resolution")
+    #     self.set_fps(30)  # Set FPS to 60
 
+    # def set_fps(self, fps):
+    #     if self.cap is not None and self.cap.isOpened():
+    #         self.cap.set(cv2.CAP_PROP_FPS, fps)
     def update_frame(self):
         if self.cap is not None and self.cap.isOpened():
             ret, frame = self.cap.read()
             if ret:
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                h, w, ch = frame.shape
+                frame_resized = cv2.resize(frame, (640, 480))
+                h, w, ch = frame_resized.shape
                 bytes_per_line = ch * w
-                q_image = QImage(frame.data, w, h, bytes_per_line, QImage.Format_RGB888)
+                q_image = QImage(frame_resized.data, w, h, bytes_per_line, QImage.Format_RGB888)
                 self.camera_label.setPixmap(QPixmap.fromImage(q_image))
 
     def capture_image(self):

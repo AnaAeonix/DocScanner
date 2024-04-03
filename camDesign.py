@@ -9,9 +9,15 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import cv2
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QImage, QPixmap, QFont
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtWidgets import QLabel
 
 
-class Ui_MainWindow(object):
+
+class Ui_MainWindoww(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.resize(709, 579)
@@ -70,3 +76,87 @@ class Ui_MainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Scanner"))
 import camResource_rc
+import threading
+
+class VideoStream:
+    def __init__(self, parent_label: QLabel, camera_index):
+        self.video = cv2.VideoCapture(camera_index)
+        self.parent_label = parent_label
+        self.set_resolution()
+        self.timer = None
+        self.camera_change_thread = None  # Thread for camera switching
+
+    def set_resolution(self):
+        # Check if camera is open
+        if not self.video.isOpened():
+            print("Error opening camera")
+            return
+
+        # Check if 4K resolution is supported
+        # Typo fix in height value
+        self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+        self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+        width = int(self.video.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(self.video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        print(width)
+        print(height)
+        # if width == 3840 and height == 2160:
+        #     print("Using 4K resolution")
+        # else:
+        #     self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        #     self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        #     print("Using 1080p resolution")
+        # ... (rest of your set_resolution logic)
+
+    def display_camera_feed(self):
+        if not self.video.isOpened():
+            # Display error message if camera not open
+          font = QFont()
+          font.setPointSize(30)
+          self.parent_label.setFont(font)
+          self.parent_label.setText("<p style='font-size:20pt'>Changing Camera...</p>")
+          return
+
+        ret, frame = self.video.read()
+        if ret:
+            rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame_resized = cv2.resize(rgb_image, (640, 480))
+            h, w, ch = frame_resized.shape
+            bytes_per_line = ch * w
+            q_img = QImage(frame_resized.data, w, h, bytes_per_line, QImage.Format_RGB888)
+            pixmap = QPixmap.fromImage(q_img)
+            self.parent_label.setPixmap(pixmap.scaled(self.parent_label.size(), Qt.KeepAspectRatio))
+        else:
+            # Display loader while camera is changing
+            self.show_loader()
+
+    def change_camera(self, camera_index):
+        # Stop the timer if it's running
+        if self.timer is not None:
+            self.timer.stop()
+
+        # Create a thread for camera switching (optional, but recommended for responsiveness)
+        self.camera_change_thread = threading.Thread(target=self._change_camera_in_thread, args=(camera_index,))
+        self.camera_change_thread.start()
+        # Display loader immediately
+        self.show_loader()
+
+    def _change_camera_in_thread(self, camera_index):
+        # Release the current video capture
+        self.video.release()
+
+        # Open the new camera capture
+        self.video = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
+        self.set_resolution()
+
+        # Create a QTimer object and connect it to the display_camera_feed function (in main thread)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.display_camera_feed)
+        self.timer.start(10)  # Start the timer with a 10ms interval
+
+    def show_loader(self):
+        font = QFont()
+        font.setPointSize(30)
+        self.parent_label.setFont(font)
+        self.parent_label.setText("<p style='font-size:20pt'>Changing Camera...</p>")

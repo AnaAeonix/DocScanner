@@ -12,7 +12,7 @@ import tempfile
 from datetime import datetime
 import sys
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QCheckBox
 from StackDesign import Ui_MainWindow  # replace 'your_ui_file' with the name of your UI file
 from datetime import datetime
 import os
@@ -25,7 +25,7 @@ from PyQt5.QtCore import QTimer,  Qt
 from PyQt5.QtGui import QPixmap
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
-from PyQt5.QtCore import QTimer, QThread, pyqtSignal
+from PyQt5.QtCore import QTimer, QThread, pyqtSignal, QObject
 import tempfile
 import threading
 from functools import partial
@@ -35,16 +35,22 @@ from camDes1main import MainWindow1
 
 class ChildWindow(QMainWindow):
     imageCaptured = pyqtSignal(str)
+
+    windowClosed = pyqtSignal()
+
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindoww()
         self.ui.setupUi(self)
+        global image_list
+        image_list=[]
+        
 
         self.captured_images = []
         self.current_camera_index = 0
         self.video_stream = VideoStream(self.ui.cam_label,self.current_camera_index)  # Initialize video stream with default camera
         self.ui.shutter_btn.clicked.connect(self.capture_image) 
-        # self.ui.done_btn.clicked.connect(self.donee) 
+        self.ui.done_btn.clicked.connect(self.clicked_done_btn) 
         
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.video_stream.display_camera_feed)
@@ -163,6 +169,29 @@ class ChildWindow(QMainWindow):
         self.current_camera_index = self.ui.drop_down.currentIndex()  # Access the current index
     # Do something with the new_index value
         self.video_stream.change_camera(self.current_camera_index) # Call your function with the index
+
+
+    
+    def clicked_done_btn(self):
+        self.clear_displayed_images()
+        global image_list 
+        for i in self.captured_images:
+            image_list.append(i)
+        print(self.captured_images)
+        self.captured_images.clear()
+        print(image_list)
+
+
+    def closeEvent(self, event):
+        self.windowClosed.emit()
+        super().closeEvent(event)
+
+
+
+
+
+
+    
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -175,14 +204,17 @@ class MainWindow(QMainWindow):
         self.ui.back_btn_2.clicked.connect(self.clicked_back_btn)
         self.ui.back_btn_3.clicked.connect(self.clicked_back_btn)
         self.ui.pdf_btn.clicked.connect(self.make_pdf)
+        # self.ui.crop_btn.clicked.connect(self.clicked_crop_btn)
         self.ui.scan_btn.clicked.connect(self.toggle_child_window)
-        self.child_window = ChildWindow()
+        self.child_window = ChildWindow()     
         self.captured_imagesParent=[]
         # Thread to start the child window
         self.child_thread = QThread()
         self.child_window.moveToThread(self.child_thread)
         self.child_thread.started.connect(self.child_window.hide)
         self.child_thread.start()
+
+        self.child_window.windowClosed.connect(self.display_captured_images_main)
 
     def clicked_adjust_btn(self):
         self.ui.stackedWidget.setCurrentIndex(1)
@@ -239,6 +271,151 @@ class MainWindow(QMainWindow):
             self.child_thread.quit()
             self.child_thread.wait()
         event.accept()
+
+    def display_captured_images_main(self):
+        # print(image_list)
+        # # Clear existing images
+        # layout = self.ui.display_image_frame.layout()
+        # if layout is not None:
+        #     for i in reversed(range(layout.count())):
+        #         layout.itemAt(i).widget().setParent(None)
+
+        # # Ensure that show_label has a layout
+        # if layout is None:
+        #     layout = QVBoxLayout()
+        #     self.ui.display_image_frame.setLayout(layout)
+
+        # # Display captured images if the list is not empty
+        # if image_list:
+        #     # Create a scroll area
+        #     scroll_area = QScrollArea()
+        #     scroll_area.setWidgetResizable(True)
+        #     scroll_content = QWidget()
+        #     scroll_layout = QVBoxLayout(scroll_content) #QVBoxLayout(scroll_content)
+        #     scroll_area.setWidget(scroll_content)
+
+        #     # Display captured images
+        #     for index, image_path in enumerate(image_list):
+        #         label = QLabel()
+        #         pixmap = QPixmap(image_path)
+        #         pixmap = pixmap.scaledToHeight(150, Qt.SmoothTransformation)  # Adjust height
+        #         pixmap = pixmap.scaledToWidth(200, Qt.SmoothTransformation)  # Adjust width
+        #         label.setPixmap(pixmap)
+        #         scroll_layout.addWidget(label)
+
+        #     # Add the scroll area to the main layout
+        #     layout.addWidget(scroll_area)
+        # ---------------------------------------------
+
+        print(image_list)
+        # Clear existing images
+        layout = self.ui.display_image_frame.layout()
+        if layout is not None:
+            for i in reversed(range(layout.count())):
+                layout.itemAt(i).widget().setParent(None)
+
+        # Ensure that display_image_frame has a layout
+        if layout is None:
+            layout = QVBoxLayout()
+            self.ui.display_image_frame.setLayout(layout)
+
+        # Display captured images if the list is not empty
+        if image_list:
+            # Display captured images
+            for index, image_path in enumerate(image_list):
+                # Create a custom widget to display image, timestamp, and checkbox
+                image_widget = QWidget()
+                image_layout = QVBoxLayout(image_widget)
+
+                label = QLabel()
+                pixmap = QPixmap(image_path)
+                pixmap = pixmap.scaledToHeight(150, Qt.SmoothTransformation)  # Adjust height
+                pixmap = pixmap.scaledToWidth(200, Qt.SmoothTransformation)  # Adjust width
+                label.setPixmap(pixmap)
+
+                # Add timestamp label
+                timestamp_label = QLabel()
+                now = datetime.now()
+                timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+                timestamp_label.setText(timestamp)
+
+                # Add checkbox
+                checkbox = QCheckBox("Select")
+
+                # Add widgets to the layout
+                image_layout.addWidget(label)
+                image_layout.addWidget(timestamp_label)
+                image_layout.addWidget(checkbox)
+
+                # Add the custom widget to the main layout
+                layout.addWidget(image_widget)
+        #----------------------------------------------------
+
+        # print(image_list)
+        # # Clear existing images
+        # layout = self.ui.display_image_frame.layout()
+        # if layout is not None:
+        #     for i in reversed(range(layout.count())):
+        #         layout.itemAt(i).widget().setParent(None)
+
+        # # Ensure that display_image_frame has a layout
+        # if layout is None:
+        #     layout = QVBoxLayout()
+        #     self.ui.display_image_frame.setLayout(layout)
+
+        # # Display captured images if the list is not empty
+        # if image_list:
+        #     # Create a scroll area
+        #     scroll_area = QScrollArea()
+        #     scroll_area.setWidgetResizable(True)
+
+        #     # Create a widget to contain the layout
+        #     scroll_content = QWidget()
+        #     scroll_layout = QVBoxLayout(scroll_content)
+
+        #     # Display captured images
+        #     for index, image_path in enumerate(image_list):
+        #         # Create a custom widget to display image, timestamp, and checkbox
+        #         image_widget = QWidget()
+        #         image_layout = QVBoxLayout(image_widget)
+
+        #         label = QLabel()
+        #         pixmap = QPixmap(image_path)
+        #         pixmap = pixmap.scaledToHeight(150, Qt.SmoothTransformation)  # Adjust height
+        #         pixmap = pixmap.scaledToWidth(200, Qt.SmoothTransformation)  # Adjust width
+        #         label.setPixmap(pixmap)
+
+        #         # Add timestamp label
+        #         timestamp_label = QLabel()
+        #         now = datetime.now()
+        #         timestamp = now.strftime("%Y-%m-%d %H:%M:%S")
+        #         timestamp_label.setText(timestamp)
+
+        #         # Add checkbox
+        #         checkbox = QCheckBox("Select")
+
+        #         # Add widgets to the layout
+        #         image_layout.addWidget(label)
+        #         image_layout.addWidget(timestamp_label)
+        #         image_layout.addWidget(checkbox)
+
+        #         # Add the custom widget to the scroll layout
+        #         scroll_layout.addWidget(image_widget)
+
+        #     # Set the scroll content widget
+        #     scroll_area.setWidget(scroll_content)
+
+        #     # Add the scroll area to the main layout
+        #     layout.addWidget(scroll_area)
+
+
+
+
+
+
+    
+
+    
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

@@ -14,7 +14,7 @@ import Stackresource_rc
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(775, 605)
+        MainWindow.resize(775, 705) #605
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         MainWindow.setStyleSheet("background-color:white;")
         self.centralwidget.setObjectName("centralwidget")
@@ -626,7 +626,29 @@ class Ui_MainWindow(object):
         spacer_item = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.show_page_layout.addItem(spacer_item)
        
-        self.gridLayout.addWidget(self.show_image, 0, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
+        # self.gridLayout.addWidget(self.show_image, 0, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
+
+        # Create the display_image box
+        self.display_image_box = QtWidgets.QVBoxLayout()
+        self.display_image_box.setSpacing(0)
+        self.display_image_box.setContentsMargins(0, 0, 0, 0)
+
+        # Create a frame for the display_image box
+        self.display_image_frame = QtWidgets.QFrame(self.centralwidget)
+        self.display_image_frame.setFrameShape(QtWidgets.QFrame.Box)
+        # self.display_image_frame.setFrameShadow(QtWidgets.QFrame.Sunken)
+        self.display_image_frame.setMidLineWidth(2)
+        self.display_image_frame.setObjectName("display_image_frame")
+
+        # Set layout for the frame
+        self.display_image_frame.setLayout(self.display_image_box)
+
+        # Add the display_image frame to the show_page_layout
+        self.show_page_layout.addWidget(self.display_image_frame)
+        self.display_image_frame.setFixedHeight(600)
+        
+
+
         
         # Set central widget and layout
         MainWindow.setCentralWidget(self.centralwidget)

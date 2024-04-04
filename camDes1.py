@@ -11,6 +11,7 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 import cv2
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QVBoxLayout, QScrollArea, QWidget, QLabel
 from PyQt5.QtGui import QImage, QPixmap, QFont
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QLabel
@@ -32,7 +33,7 @@ class Ui_MainWindoww(object):
         # Add layouts to central widget
         self.mainLayout.addLayout(self.camLayout)
         self.mainLayout.addLayout(self.showLayout)
-
+        self.mainLayout = QVBoxLayout(self.centralwidget) 
 
 
 
@@ -43,7 +44,8 @@ class Ui_MainWindoww(object):
         self.cam_label.setObjectName("cam_label")
         self.cam_label.setFixedHeight(800)
         self.cam_label.setFixedWidth(800)
-        self.camLayout.addWidget(self.cam_label,alignment=QtCore.Qt.AlignCenter)
+        self.camLayout.addWidget(self.cam_label,alignment=Qt.AlignCenter)
+        self.mainLayout.addLayout(self.camLayout)
         self.show_label = QtWidgets.QLabel(self.centralwidget)
         # self.show_label.setGeometry(QtCore.QRect(610, 10, 151, 471))
         self.show_label.setFrameShape(QtWidgets.QFrame.Box)

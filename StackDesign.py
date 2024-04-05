@@ -609,6 +609,8 @@ class Ui_MainWindow(object):
         self.show_image.setGeometry(QtCore.QRect(250, 20, 391, 541))
         self.show_image.setText("")
         self.show_image.setObjectName("show_image")
+        
+        self.gridLayout.addWidget(self.show_image, 0, 0, 1, 1, alignment=QtCore.Qt.AlignCenter)
 
         # Add the show_page label to the grid layout with right alignment
         self.gridLayout.addWidget(self.show_page, 0, 1, 1, 1, alignment=QtCore.Qt.AlignRight)
@@ -626,7 +628,7 @@ class Ui_MainWindow(object):
         spacer_item = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.show_page_layout.addItem(spacer_item)
        
-        # self.gridLayout.addWidget(self.show_image, 0, 1, 1, 1, alignment=QtCore.Qt.AlignCenter)
+        
 
         # Create the display_image box
         self.display_image_box = QtWidgets.QVBoxLayout()

@@ -15,7 +15,7 @@ import Stackresource_rc
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(775, 705) #605
+        MainWindow.resize(975, 705) #605
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         MainWindow.setStyleSheet("background-color:white;")
         self.centralwidget.setObjectName("centralwidget")
@@ -470,18 +470,29 @@ class Ui_MainWindow(object):
         self.scan_btn.setFlat(True)
         self.scan_btn.setObjectName("scan_btn")
         self.show_image = QtWidgets.QLabel(self.centralwidget)
-        self.show_image.setGeometry(QtCore.QRect(250, 20, 391, 541))
+        self.show_image.setGeometry(QtCore.QRect(250, 20, 491, 641)) #391, 541
         self.show_image.setText("")
         self.show_image.setObjectName("show_image")
         
-        # self.gridLayout.addWidget(self.show_image, 0, 0, 1, 1, alignment=QtCore.Qt.AlignCenter)
+        # self.gridLayout.addWidget(self.show_image, 0, 0, 1, 1, alignment=QtCore.Qt.AlignHCenter)
 
-        # Create a grid layout
-        self.gridLayout1 = QGridLayout()
-        self.gridLayout1.addWidget(self.show_image, 0, 0, 1, 1, alignment=QtCore.Qt.AlignCenter)
+        # Create vertical box layout for show_image
+        self.show_image_layout = QtWidgets.QVBoxLayout(self.show_image)
+        self.show_image_layout.setContentsMargins(0, 0, 0, 0)
+        self.show_image_layout.setAlignment(QtCore.Qt.AlignHCenter)
+        self.show_image.setLayout(self.show_image_layout)
+
+        # Add spacer items to adjust position
+        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.show_image_layout.addItem(spacerItem)
+
+
+        # # Create a grid layout
+        # self.gridLayout1 = QGridLayout()
+        # self.gridLayout1.addWidget(self.show_image, 0, 0, 1, 1, alignment=QtCore.Qt.AlignRight)
 
         # Set the central widget's layout to the grid layout
-        self.centralwidget.setLayout(self.gridLayout1)
+        # self.centralwidget.setLayout(self.gridLayout1)
 
         # Add the show_page label to the grid layout with right alignment
         self.gridLayout.addWidget(self.show_page, 0, 1, 1, 1, alignment=QtCore.Qt.AlignRight)
@@ -519,7 +530,7 @@ class Ui_MainWindow(object):
 
         # Add the display_image frame to the show_page_layout
         self.show_page_layout.addWidget(self.display_image_frame)
-        self.display_image_frame.setFixedHeight(600)
+        self.display_image_frame.setFixedHeight(900)
         
 
 
@@ -556,4 +567,5 @@ class Ui_MainWindow(object):
         self.rotaterigth_btn.setText(_translate("MainWindow", "Rotate 90 right"))
         self.save_btn.setText(_translate("MainWindow", "Save"))
 
+        
     

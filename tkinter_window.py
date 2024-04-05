@@ -220,6 +220,9 @@ class MainWindow(QMainWindow):
         self.image_labels = {}
         self.current_displayed_image = None  # Track the currently displayed image
 
+        self.selected_images = []  # Store selected images
+        self.all_checkboxes = []   # Store references to all checkboxes
+
 
     def clicked_adjust_btn(self):
         self.ui.stackedWidget.setCurrentIndex(1)
@@ -228,9 +231,9 @@ class MainWindow(QMainWindow):
         # Ask the user for the save path
         save_path, _ = QFileDialog.getSaveFileName(None, "Save PDF", "", "PDF Files (*.pdf)")
         if save_path:
-            if self.captured_images:
+            if self.selected_images:
                 pdf_canvas = canvas.Canvas(save_path, pagesize=letter)
-                for image_path in self.captured_images:
+                for image_path in self.selected_images:
                     image = cv2.imread(image_path)
                     if image is not None:
                         height, width, _ = image.shape
@@ -239,8 +242,8 @@ class MainWindow(QMainWindow):
                         pdf_canvas.showPage()  # End current page
                 pdf_canvas.save()
                 print("PDF saved successfully.")
-                self.clear_displayed_images()
-                self.captured_images.clear()
+                # self.clear_displayed_images()
+                # self.captured_images.clear()
             else:
                 print("No images to save.")
         else:
@@ -378,6 +381,11 @@ class MainWindow(QMainWindow):
             scroll_content = QWidget()
             scroll_layout = QVBoxLayout(scroll_content)
 
+            # Create a "Select All" checkbox
+            select_all_checkbox = QCheckBox("Select All")
+            select_all_checkbox.stateChanged.connect(self.select_all_images)
+            scroll_layout.addWidget(select_all_checkbox)
+
             # Display captured images
             for index, image_path in enumerate(image_list):
                 # Create a custom widget to display image, timestamp, and checkbox
@@ -398,6 +406,8 @@ class MainWindow(QMainWindow):
 
                 # Add checkbox
                 checkbox = QCheckBox("Select")
+                checkbox.stateChanged.connect(lambda state, index=index: self.update_selected_images(state, index))
+                
 
                 # Add widgets to the layout
                 image_layout.addWidget(label)
@@ -406,6 +416,9 @@ class MainWindow(QMainWindow):
 
                 # Add the custom widget to the scroll layout
                 scroll_layout.addWidget(image_widget)
+
+                # Store a reference to the checkbox
+                self.all_checkboxes.append(checkbox)
 
                 # Store a reference to the label corresponding to the image path
                 
@@ -430,6 +443,34 @@ class MainWindow(QMainWindow):
         pixmap = QPixmap(image_list[index])
         pixmap = pixmap.scaled(391, 541, Qt.KeepAspectRatio)
         self.ui.show_image.setPixmap(pixmap)
+
+
+
+    def update_selected_images(self, state, index):
+        if state == Qt.Checked:
+            image_path = image_list[index]
+            if image_path not in self.selected_images:
+                self.selected_images.append(image_path)
+        else:
+            image_path = image_list[index]
+            if image_path in self.selected_images:
+                self.selected_images.remove(image_path)
+
+    def select_all_images(self, state):
+        for checkbox in self.all_checkboxes:
+            checkbox.setChecked(state == Qt.Checked)
+
+            if state == Qt.Checked:
+                image_path = image_list[self.all_checkboxes.index(checkbox)]
+                if image_path not in self.selected_images:
+                    self.selected_images.append(image_path)
+            else:
+                image_path = image_list[self.all_checkboxes.index(checkbox)]
+                if image_path in self.selected_images:
+                    self.selected_images.remove(image_path)
+
+    def get_selected_images(self):
+        return self.selected_images
             
 
 

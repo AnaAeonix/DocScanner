@@ -9,6 +9,7 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QGridLayout, QWidget
 import Stackresource_rc
 
 class Ui_MainWindow(object):
@@ -127,30 +128,42 @@ class Ui_MainWindow(object):
         font.setPointSize(12)
         self.crop_btn.setFont(font)
         self.verticalLayout_16.addWidget(self.crop_btn)
-        self.rename_btn = QtWidgets.QPushButton(self.menu)
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(":/newPrefix/icons/Rename.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        icon4.addPixmap(QtGui.QPixmap(":/newPrefix/icons/Rename.ico"), QtGui.QIcon.Normal, QtGui.QIcon.On)
-        self.rename_btn.setIcon(icon4)
-        self.rename_btn.setCheckable(True)
-        self.rename_btn.setAutoExclusive(True)
-        self.rename_btn.setObjectName("rename_btn")
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        self.rename_btn.setFont(font)
-        self.verticalLayout_16.addWidget(self.rename_btn)
         self.pdf_btn = QtWidgets.QPushButton(self.menu)
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(":/newPrefix/icons/pdf_icon-icons.com_70898.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        icon5.addPixmap(QtGui.QPixmap(":/newPrefix/icons/pdf_icon-icons.com_70898.ico"), QtGui.QIcon.Normal, QtGui.QIcon.On)
-        self.pdf_btn.setIcon(icon5)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap(":/newPrefix/icons/pdf_icon-icons.com_70898.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon4.addPixmap(QtGui.QPixmap(":/newPrefix/icons/pdf_icon-icons.com_70898.ico"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.pdf_btn.setIcon(icon4)
         self.pdf_btn.setCheckable(True)
         self.pdf_btn.setAutoExclusive(True)
-        self.pdf_btn.setObjectName("pdf_btn")
+        self.pdf_btn.setObjectName("pdf_btn") 
         font = QtGui.QFont()
         font.setPointSize(12)
         self.pdf_btn.setFont(font)
         self.verticalLayout_16.addWidget(self.pdf_btn)
+        self.undo_btn = QtWidgets.QPushButton(self.menu)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap(":/newPrefix/icons/undo.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon5.addPixmap(QtGui.QPixmap(":/newPrefix/icons/undo.ico"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.undo_btn.setIcon(icon5)
+        self.undo_btn.setCheckable(True)
+        self.undo_btn.setAutoExclusive(True)
+        self.undo_btn.setObjectName("undo_btn")
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.undo_btn.setFont(font)
+        self.verticalLayout_16.addWidget(self.undo_btn)
+        self.save_btn = QtWidgets.QPushButton(self.menu)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap(":/newPrefix/icons/save.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        icon6.addPixmap(QtGui.QPixmap(":/newPrefix/icons/save.ico"), QtGui.QIcon.Normal, QtGui.QIcon.On)
+        self.save_btn.setIcon(icon6)
+        self.save_btn.setCheckable(True)
+        self.save_btn.setAutoExclusive(True)
+        self.save_btn.setObjectName("save_btn")
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.save_btn.setFont(font)
+        self.verticalLayout_16.addWidget(self.save_btn)
         self.delete_btn = QtWidgets.QPushButton(self.menu)
         icon6 = QtGui.QIcon()
         icon6.addPixmap(QtGui.QPixmap(":/newPrefix/icons/Delete.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -429,155 +442,6 @@ class Ui_MainWindow(object):
 
 
 
-#         self.show_page = QtWidgets.QWidget(self.centralwidget)
-#         self.show_page.setGeometry(QtCore.QRect(570, 19, 201, 541))
-#         self.show_page.setObjectName("show_page")
-#         # Create show page layout
-#         self.show_page_layout = QtWidgets.QVBoxLayout()
-#         self.show_page_layout.setContentsMargins(0, 0, 0, 0)
-#         self.show_page_layout.setSpacing(0)
-#         self.show_page = QtWidgets.QWidget()
-#         self.show_page.setLayout(self.show_page_layout)
-#         # Set fixed width for show_page
-#         self.show_page.setFixedWidth(100)
-
-
-# #         self.camera_frame = QtWidgets.QFrame(self.show_page)
-# #         self.camera_frame.setGeometry(QtCore.QRect(10, 10, 141, 81))
-        
-# #         self.camera_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-# #         self.camera_frame.setFrameShadow(QtWidgets.QFrame.Raised)
-# #         self.camera_frame.setObjectName("camera_frame")
-# #         self.pushButton = QtWidgets.QPushButton(self.camera_frame)
-# #         self.pushButton.setGeometry(QtCore.QRect(0, 0, 141, 81))
-# #         self.pushButton.setText("")
-# #         icon12 = QtGui.QIcon()
-# #         icon12.addPixmap(QtGui.QPixmap(":/newPrefix/icons/camera48.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-# #         icon12.addPixmap(QtGui.QPixmap(":/newPrefix/icons/camera48.ico"), QtGui.QIcon.Normal, QtGui.QIcon.On)
-# #         self.pushButton.setIcon(icon12)
-# #         self.pushButton.setIconSize(QtCore.QSize(40, 40))
-# #         self.pushButton.setCheckable(True)
-# #         self.pushButton.setAutoExclusive(True)
-# #         self.pushButton.setFlat(True)
-# #         self.pushButton.setObjectName("pushButton")
-# #         self.camHor_line = QtWidgets.QFrame(self.show_page)
-# #         self.camHor_line.setGeometry(QtCore.QRect(0, 90, 181, 20))
-# #         self.camHor_line.setStyleSheet("#camHor_line{\n"
-# # "color: rgb(0, 0, 0),\n"
-# # "}")
-# #         self.camHor_line.setFrameShape(QtWidgets.QFrame.HLine)
-# #         self.camHor_line.setFrameShadow(QtWidgets.QFrame.Sunken)
-# #         self.camHor_line.setObjectName("camHor_line")
-# #         self.line = QtWidgets.QFrame(self.show_page)
-# #         self.line.setGeometry(QtCore.QRect(-21, -10, 61, 561))
-# #         self.line.setFrameShape(QtWidgets.QFrame.VLine)
-# #         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
-# #         self.line.setObjectName("line")
-# #         MainWindow.setCentralWidget(self.centralwidget)
-
-# #         # Set central widget and layout
-# #         MainWindow.setCentralWidget(self.centralwidget)
-
-# #         self.retranslateUi(MainWindow)
-# #         self.stackedWidget.setCurrentIndex(2)
-# #         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        
-        
-
-#         # Add camera_frame to show page
-#         self.camera_frame = QtWidgets.QFrame()
-#         self.camera_frame.setObjectName("camera_frame")
-#         self.camera_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-#         self.camera_frame.setFrameShadow(QtWidgets.QFrame.Raised)
-#         self.show_page_layout.addWidget(self.camera_frame)
-
-        
-
-#         # Add pushButton to camera_frame
-#         self.pushButton = QtWidgets.QPushButton(self.camera_frame)
-#         self.pushButton.setObjectName("pushButton")
-#         self.pushButton.setText("")
-#         icon12 = QtGui.QIcon()
-#         icon12.addPixmap(QtGui.QPixmap(":/newPrefix/icons/camera48.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-#         icon12.addPixmap(QtGui.QPixmap(":/newPrefix/icons/camera48.ico"), QtGui.QIcon.Normal, QtGui.QIcon.On)
-#         self.pushButton.setIcon(icon12)
-#         self.pushButton.setIconSize(QtCore.QSize(40, 40))
-#         self.pushButton.setCheckable(True)
-#         self.pushButton.setAutoExclusive(True)
-#         self.pushButton.setFlat(True)
-#         self.pushButton.setObjectName("pushButton")
-
-#         # Add camHor_line to camera_frame
-#         self.camHor_line = QtWidgets.QFrame()
-#         self.camHor_line.setObjectName("camHor_line")
-#         self.camHor_line.setStyleSheet("#camHor_line{\n"
-#                                     "color: black;\n"
-#                                     "border: 2px solid black;\n"
-#                                     "}")
-#         self.camHor_line.setFrameShape(QtWidgets.QFrame.HLine)
-#         self.camHor_line.setFrameShadow(QtWidgets.QFrame.Sunken)
-#         # Add spacer item to move camHor_line downwards
-#         # spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-#         # self.show_page_layout.addItem(spacerItem)
-#         self.show_page_layout.addWidget(self.camHor_line,0)
-
-#         # Add line to show page
-#         self.line = QtWidgets.QFrame()
-#         self.line.setObjectName("line")
-#         self.line.setMinimumWidth(100)  # Set minimum width for line
-#         self.line.setFrameShape(QtWidgets.QFrame.VLine)
-#         self.line.setFrameShadow(QtWidgets.QFrame.Sunken)
-#         # Add spacer item to move line to the right
-#         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-#         self.show_page_layout.addItem(spacerItem2)
-
-#         self.show_page_layout.addWidget(self.line)
-
-#         self.gridLayout.addWidget(self.show_page, 0, 1, 1, 1)
-        
-        # self.show_page_label = QtWidgets.QLabel(self.centralwidget)
-        # self.show_page_label.setObjectName("show_page_label")
-        # self.show_page_label.setStyleSheet("background-color: cyan;")  # Set background color to white
-
-        # # Set fixed width for the label
-        # self.show_page_label.setFixedWidth(200)
-
-        # # Create a QVBoxLayout for the show_page_label
-        # self.show_page_layout = QtWidgets.QVBoxLayout(self.show_page_label)
-        # self.show_page_layout.setContentsMargins(0, 0, 0, 0)
-        # self.show_page_layout.setSpacing(0)
-        # # Add camera_frame to show page
-        # self.camera_frame = QtWidgets.QFrame()
-        # self.camera_frame.setObjectName("camera_frame")
-        # self.camera_frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
-        # self.camera_frame.setFrameShadow(QtWidgets.QFrame.Raised)
-        # self.show_page_layout.addWidget(self.camera_frame)
-
-        # # Add layout to camera_frame
-        # camera_frame_layout = QtWidgets.QVBoxLayout(self.camera_frame)
-
-        # # Add pushButton to camera_frame_layout
-        # self.pushButton = QtWidgets.QPushButton()
-        # self.pushButton.setObjectName("pushButton")
-        # self.pushButton.setText("")
-        # icon12 = QtGui.QIcon()
-        # icon12.addPixmap(QtGui.QPixmap(":/newPrefix/icons/camera48.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        # icon12.addPixmap(QtGui.QPixmap(":/newPrefix/icons/camera48.ico"), QtGui.QIcon.Normal, QtGui.QIcon.On)
-        # self.pushButton.setIcon(icon12)
-        # self.pushButton.setIconSize(QtCore.QSize(40, 40))
-        # self.pushButton.setCheckable(True)
-        # self.pushButton.setAutoExclusive(True)
-        # self.pushButton.setFlat(True)
-        # self.pushButton.setObjectName("pushButton")
-        # camera_frame_layout.addWidget(self.pushButton)
-
-        # # Set alignment for the layout
-        # camera_frame_layout.setAlignment(QtCore.Qt.AlignRight)
-
-        # # Add push button to the layout
-        # self.show_page_layout.addWidget(self.pushButton, alignment=QtCore.Qt.AlignRight)
-        # # Add the show_page_label to the grid layout with right alignment
-        # self.gridLayout.addWidget(self.show_page_label, 0, 1, 1, 1, alignment=QtCore.Qt.AlignRight)
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setGeometry(QtCore.QRect(620, 10, 141, 571))
         self.label.setText("")
@@ -610,7 +474,14 @@ class Ui_MainWindow(object):
         self.show_image.setText("")
         self.show_image.setObjectName("show_image")
         
-        self.gridLayout.addWidget(self.show_image, 0, 0, 1, 1, alignment=QtCore.Qt.AlignCenter)
+        # self.gridLayout.addWidget(self.show_image, 0, 0, 1, 1, alignment=QtCore.Qt.AlignCenter)
+
+        # Create a grid layout
+        self.gridLayout1 = QGridLayout()
+        self.gridLayout1.addWidget(self.show_image, 0, 0, 1, 1, alignment=QtCore.Qt.AlignCenter)
+
+        # Set the central widget's layout to the grid layout
+        self.centralwidget.setLayout(self.gridLayout1)
 
         # Add the show_page label to the grid layout with right alignment
         self.gridLayout.addWidget(self.show_page, 0, 1, 1, 1, alignment=QtCore.Qt.AlignRight)
@@ -618,6 +489,7 @@ class Ui_MainWindow(object):
         self.show_page_layout = QtWidgets.QVBoxLayout(self.show_page)
         self.show_page_layout.setContentsMargins(0, 0, 0, 0)
         self.show_page_layout.setSpacing(0)
+        
 
         self.show_page_layout.addWidget(self.scan_btn)
         self.show_page_layout.addWidget(self.line)
@@ -667,7 +539,7 @@ class Ui_MainWindow(object):
         self.color_btn.setText(_translate("MainWindow", "Color Mode"))
         self.rotate_btn.setText(_translate("MainWindow", "Rotate"))
         self.crop_btn.setText(_translate("MainWindow", "Crop"))
-        self.rename_btn.setText(_translate("MainWindow", "Rename"))
+        self.undo_btn.setText(_translate("MainWindow", "Undo"))
         self.pdf_btn.setText(_translate("MainWindow", "PDF"))
         self.delete_btn.setText(_translate("MainWindow", "Delete"))
         self.label_10.setText(_translate("MainWindow", "Adjust"))
@@ -682,5 +554,6 @@ class Ui_MainWindow(object):
         self.label_12.setText(_translate("MainWindow", "Rotate"))
         self.rotateleft_btn.setText(_translate("MainWindow", "Rotate 90 left "))
         self.rotaterigth_btn.setText(_translate("MainWindow", "Rotate 90 right"))
+        self.save_btn.setText(_translate("MainWindow", "Save"))
 
     

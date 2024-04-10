@@ -219,6 +219,16 @@ class MainWindow(QMainWindow):
             self.crop_image(index)
         elif action == delete_action:
             self.delete_image(index)
+            
+    def open_context_menu(self, point, index, label):
+        menu = QMenu()
+        crop_action = menu.addAction("Crop")
+        delete_action = menu.addAction("Delete")
+        action = menu.exec_(label.mapToGlobal(point))
+        if action == crop_action:
+            self.crop_image(index)
+        elif action == delete_action:
+            self.delete_image(index)
 
     def image_clicked(self, index):
         print("Clicked on image:", index)

@@ -32,7 +32,7 @@ class Ui_MainWindow(object):
         # Creating a QVBoxLayout for the central widget
         # self.centralLayout = QtWidgets.QVBoxLayout(self.centralwidget)
         # self.centralLayout.setObjectName("centralLayout")
-         # Add widgets to the centralLayout
+         # Add widgets to the centralLayout  8100525416
         
 
         self.stackedWidget.setObjectName("stackedWidget")
@@ -165,6 +165,8 @@ class Ui_MainWindow(object):
         self.save_btn.setFont(font)
         self.verticalLayout_16.addWidget(self.save_btn)
         self.delete_btn = QtWidgets.QPushButton(self.menu)
+        self.delete_btn = RoundedButtonWithRing(self.delete_btn)
+        self.delete_btn.setStyleSheet("background-color: lightblue; border-radius: 50px;")
         icon6 = QtGui.QIcon()
         icon6.addPixmap(QtGui.QPixmap(":/newPrefix/icons/Delete.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         icon6.addPixmap(QtGui.QPixmap(":/newPrefix/icons/Delete.ico"), QtGui.QIcon.Normal, QtGui.QIcon.On)
@@ -470,7 +472,7 @@ class Ui_MainWindow(object):
         self.scan_btn.setFlat(True)
         self.scan_btn.setObjectName("scan_btn")
         self.show_image = QtWidgets.QLabel(self.centralwidget)
-        self.show_image.setGeometry(QtCore.QRect(250, 20, 491, 641)) #391, 541
+        self.show_image.setGeometry(QtCore.QRect(600, 20, 491, 641)) #391, 541
         self.show_image.setText("")
         self.show_image.setObjectName("show_image")
         
@@ -478,9 +480,14 @@ class Ui_MainWindow(object):
 
         # Create vertical box layout for show_image
         self.show_image_layout = QtWidgets.QVBoxLayout(self.show_image)
+        # Create vertical box layout for show_image
+        # self.show_image_layout = QtWidgets.QVBoxLayout()/
         self.show_image_layout.setContentsMargins(0, 0, 0, 0)
-        self.show_image_layout.setAlignment(QtCore.Qt.AlignHCenter)
+        self.show_image_layout.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)  # Center both horizontally and vertically
+
+        # Set the layout for show_image
         self.show_image.setLayout(self.show_image_layout)
+
 
         # Add spacer items to adjust position
         spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
@@ -569,3 +576,18 @@ class Ui_MainWindow(object):
 
         
     
+from PyQt5.QtWidgets import QPushButton
+from PyQt5.QtGui import QPainter, QPen
+
+class RoundedButtonWithRing(QPushButton):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def paintEvent(self, event):
+        super().paintEvent(event)
+
+        # Draw black ring
+        painter = QPainter(self)
+        pen = QPen(Qt.black, 3)  # Adjust pen width as needed
+        painter.setPen(pen)
+        painter.drawEllipse(self.rect().adjusted(1, 1, -2, -2))  # Account for padding

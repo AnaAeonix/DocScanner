@@ -9,6 +9,15 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+import threading
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5 import QtCore, QtGui, QtWidgets
+import cv2
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QVBoxLayout, QScrollArea, QWidget, QLabel
+from PyQt5.QtGui import QImage, QPixmap, QFont
+from PyQt5.QtCore import Qt, QTimer
+from PyQt5.QtWidgets import QLabel
 
 
 class Ui_MainWindow(object):
@@ -27,21 +36,25 @@ class Ui_MainWindow(object):
         # self.show_page.setGeometry(QtCore.QRect(700, 10, 231, 601))
         self.show_page.setFrameShape(QtWidgets.QFrame.Box)
         self.show_page.setText("")
+        self.show_page.setStyleSheet("QLabel {"
+                             "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
+                             "border-radius: 10px;"   # Adjust the value for desired curve
+                             "}")
         # Set fixed width and height
-        self.show_page.setFixedSize(231, 801)
+        self.show_page.setFixedSize(231, 980)
         self.show_page.setObjectName("show_page")
         # Create QVBoxLayout for buttons
         self.buttons_layout = QtWidgets.QVBoxLayout()
         # Add QLabel to layout
         self.layout.addWidget(self.show_page, alignment=QtCore.Qt.AlignRight)
         # Set layout to central widget
-        self.centralwidget.setLayout(self.layout)
-        self.btn_label = QtWidgets.QLabel(self.centralwidget)
-        self.btn_label.setGeometry(QtCore.QRect(206, 479, 381, 41))
-        self.btn_label.setFrameShape(QtWidgets.QFrame.NoFrame)
-        self.btn_label.setText("")
-        self.btn_label.setObjectName("btn_label")
-        self.buttons_layout.addWidget(self.btn_label)
+        # self.centralwidget.setLayout(self.layout)
+        # self.btn_label = QtWidgets.QLabel(self.centralwidget)
+        # self.btn_label.setGeometry(QtCore.QRect(206, 479, 381, 41))
+        # self.btn_label.setFrameShape(QtWidgets.QFrame.NoFrame)
+        # self.btn_label.setText("")
+        # self.btn_label.setObjectName("btn_label")
+        # self.buttons_layout.addWidget(self.btn_label)
         self.pdf_btn = QtWidgets.QPushButton(self.centralwidget)
         self.pdf_btn.setGeometry(QtCore.QRect(710, 20, 211, 31))
         self.pdf_btn.setStyleSheet("QPushButton {\n"
@@ -139,6 +152,10 @@ class Ui_MainWindow(object):
         self.hor_line = QtWidgets.QFrame(self.centralwidget)
         self.hor_line.setGeometry(QtCore.QRect(730, 100, 171, 16))
         self.hor_line.setFrameShadow(QtWidgets.QFrame.Plain)
+        self.hor_line.setStyleSheet("QFrame {"
+                             "border: 2px solid #0e86f6;"  # Change '#0e86f6' to desired border color
+                             "border-radius: 10px;"   # Adjust the value for desired curve
+                             "}")
         self.hor_line.setFrameShape(QtWidgets.QFrame.HLine)
         self.hor_line.setObjectName("hor_line")
         self.buttons_layout.addWidget(self.hor_line, alignment=QtCore.Qt.AlignTop)
@@ -151,21 +168,25 @@ class Ui_MainWindow(object):
         self.centralwidget.setLayout(self.layout)
 
         self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
-        self.stackedWidget.setGeometry(QtCore.QRect(0, 0, 861, 851))
+        self.stackedWidget.setGeometry(QtCore.QRect(0, 0, 1800, 1051))
         self.stackedWidget.setObjectName("stackedWidget")
         self.page = QtWidgets.QWidget()
         self.page.setObjectName("page")
         self.cam_label = QtWidgets.QLabel(self.page)
-        self.cam_label.setGeometry(QtCore.QRect(200, 80, 591, 431))
+        self.cam_label.setGeometry(QtCore.QRect(300, 80, 991, 731))
         self.cam_label.setFrameShape(QtWidgets.QFrame.Box)
         self.cam_label.setText("")
         self.cam_label.setAlignment(QtCore.Qt.AlignCenter)
         self.cam_label.setObjectName("cam_label")
+        self.cam_label.setStyleSheet("QLabel {"
+                             "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
+                             "border-radius: 10px;"   # Adjust the value for desired curve
+                             "}")
         self.cam_drop_down = QtWidgets.QComboBox(self.page)
-        self.cam_drop_down.setGeometry(QtCore.QRect(400, 20, 181, 22))
+        self.cam_drop_down.setGeometry(QtCore.QRect(700, 20, 181, 22))
         self.cam_drop_down.setObjectName("cam_drop_down")
         self.shutter_btn = QtWidgets.QPushButton(self.page)
-        self.shutter_btn.setGeometry(QtCore.QRect(450, 540, 81, 41))
+        self.shutter_btn.setGeometry(QtCore.QRect(750, 880, 81, 41))
         self.shutter_btn.setText("")
         icon3 = QtGui.QIcon()
         icon3.addPixmap(QtGui.QPixmap(":/newPrefix/icons/camera48.ico"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -182,7 +203,7 @@ class Ui_MainWindow(object):
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setObjectName("page_2")
         self.menu = QtWidgets.QWidget(self.page_2)
-        self.menu.setGeometry(QtCore.QRect(0, 0, 151, 741))
+        self.menu.setGeometry(QtCore.QRect(0, 0, 200, 1041))
         self.menu.setStyleSheet("#menu {\n"
 "        background-color:#0e86f6 ;\n"
 "        width:50px;\n"
@@ -298,12 +319,16 @@ class Ui_MainWindow(object):
         spacerItem = QtWidgets.QSpacerItem(20, 322, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_15.addItem(spacerItem)
         self.show_image = QtWidgets.QLabel(self.page_2)
-        self.show_image.setGeometry(QtCore.QRect(230, 30, 371, 361))
+        self.show_image.setGeometry(QtCore.QRect(680, 30, 571, 461))
         self.show_image.setFrameShape(QtWidgets.QFrame.Box)
         self.show_image.setText("")
+        self.show_image.setStyleSheet("QLabel {"
+                             "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
+                             "border-radius: 10px;"   # Adjust the value for desired curve
+                             "}")
         self.show_image.setObjectName("show_image")
         self.edit_stack = QtWidgets.QStackedWidget(self.page_2)
-        self.edit_stack.setGeometry(QtCore.QRect(230, 420, 371, 81))
+        self.edit_stack.setGeometry(QtCore.QRect(780, 520, 371, 81))
         self.edit_stack.setObjectName("edit_stack")
         self.page_3 = QtWidgets.QWidget()
         self.page_3.setObjectName("page_3")
@@ -337,7 +362,7 @@ class Ui_MainWindow(object):
         self.page_4.setObjectName("page_4")
         self.edit_stack.addWidget(self.page_4)
         self.undo_btn = QtWidgets.QPushButton(self.page_2)
-        self.undo_btn.setGeometry(QtCore.QRect(200, 520, 91, 31))
+        self.undo_btn.setGeometry(QtCore.QRect(650, 650, 91, 31))
         self.undo_btn.setStyleSheet("QPushButton {\n"
 "background-color: #0e86f6;\n"
 "        border-radius: 20px; \n"
@@ -366,7 +391,7 @@ class Ui_MainWindow(object):
         self.undo_btn.setIcon(icon8)
         self.undo_btn.setObjectName("undo_btn")
         self.discard_btn = QtWidgets.QPushButton(self.page_2)
-        self.discard_btn.setGeometry(QtCore.QRect(370, 520, 101, 31))
+        self.discard_btn.setGeometry(QtCore.QRect(940, 650, 101, 31))
         self.discard_btn.setStyleSheet("QPushButton {\n"
 "background-color: #0e86f6;\n"
 "        border-radius: 20px; \n"
@@ -395,7 +420,7 @@ class Ui_MainWindow(object):
         self.discard_btn.setIcon(icon9)
         self.discard_btn.setObjectName("discard_btn")
         self.save_btn = QtWidgets.QPushButton(self.page_2)
-        self.save_btn.setGeometry(QtCore.QRect(540, 520, 91, 31))
+        self.save_btn.setGeometry(QtCore.QRect(1200, 650, 91, 31))
         self.save_btn.setStyleSheet("QPushButton {\n"
 "background-color: #0e86f6;\n"
 "        border-radius: 20px; \n"
@@ -450,3 +475,91 @@ class Ui_MainWindow(object):
         self.save_btn.setText(_translate("MainWindow", "Save"))
 import Stackresource_rc
 import camResource_rc
+
+
+class VideoStream:
+    def __init__(self, parent_label: QLabel, camera_index):
+        self.video = cv2.VideoCapture(cv2.CAP_ANY)
+
+        self.parent_label = parent_label
+        self.set_resolution()
+        self.timer = None
+        self.camera_change_thread = None  # Thread for camera switching
+
+    def set_resolution(self):
+        # Check if camera is open
+        if not self.video.isOpened():
+            print("Error opening camera")
+            return
+
+        # Check if 4K resolution is supported
+        # Typo fix in height value
+        self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 3840)
+        self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
+        width = int(self.video.get(cv2.CAP_PROP_FRAME_WIDTH))
+        height = int(self.video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+
+        print(width)
+        print(height)
+        # if width == 3840 and height == 2160:
+        #     print("Using 4K resolution")
+        # else:
+        #     self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
+        #     self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
+        #     print("Using 1080p resolution")
+        # ... (rest of your set_resolution logic)
+
+    def display_camera_feed(self):
+        if not self.video.isOpened():
+            # Display error message if camera not open
+          font = QFont()
+          font.setPointSize(30)
+          self.parent_label.setFont(font)
+          self.parent_label.setText("<p style='font-size:20pt'>Changing Camera...</p>")
+          return
+
+        ret, frame = self.video.read()
+        if ret:
+            rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame_resized = cv2.resize(rgb_image, (640, 480))
+            h, w, ch = frame_resized.shape
+            bytes_per_line = ch * w
+            q_img = QImage(frame_resized.data, w, h, bytes_per_line, QImage.Format_RGB888)
+            pixmap = QPixmap.fromImage(q_img)
+            self.parent_label.setPixmap(pixmap.scaled(self.parent_label.size(), Qt.KeepAspectRatio))
+            
+            # self.parent_label.setFixedSize(w, h)
+        else:
+            # Display loader while camera is changing
+            self.show_loader()
+
+    def change_camera(self, camera_index):
+        # Stop the timer if it's running
+        if self.timer is not None:
+            self.timer.stop()
+
+        # Create a thread for camera switching (optional, but recommended for responsiveness)
+        self.camera_change_thread = threading.Thread(target=self._change_camera_in_thread, args=(camera_index,))
+        self.camera_change_thread.start()
+        # Display loader immediately
+        self.show_loader()
+
+    def _change_camera_in_thread(self, camera_index):
+        # Release the current video capture
+        self.video.release()
+
+        # Open the new camera capture
+        self.video = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
+        self.set_resolution()
+
+        # Create a QTimer object and connect it to the display_camera_feed function (in main thread)
+        self.timer = QTimer()
+        self.timer.timeout.connect(self.display_camera_feed)
+        self.timer.start(10)  # Start the timer with a 10ms interval
+
+    def show_loader(self):
+        font = QFont()
+        font.setPointSize(30)
+        self.parent_label.setFont(font)
+        self.parent_label.setAlignment(Qt.AlignCenter) 
+        self.parent_label.setText("<p style='font-size:20pt'>Changing Camera...</p>")

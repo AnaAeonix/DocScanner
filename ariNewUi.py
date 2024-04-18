@@ -468,6 +468,8 @@ class Ui_MainWindow(object):
                                       "border-radius: 10px;"   # Adjust the value for desired curve
                                       "}")
         self.show_image.setObjectName("show_image")
+        label_focus_policy = self.show_image.focusPolicy()
+        print(label_focus_policy)
         self.edit_stack = QtWidgets.QStackedWidget(self.page_2)
         self.edit_stack.setGeometry(QtCore.QRect(480, 820, 871, 150))
         self.edit_stack.setObjectName("edit_stack")

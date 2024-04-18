@@ -1,6 +1,7 @@
 <RCC>
   <qresource prefix="newPrefix">
     <file>shutter.svg</file>
+    <file>logo (1).svg</file>
     <file>settings.svg</file>
     <file>undo1.svg</file>
     <file>adjust.svg</file>

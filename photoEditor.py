@@ -6,7 +6,6 @@ import cv2
 import numpy as np
 from PyQt5.QtGui import QPixmap, QPainter
 from PyQt5.QtCore import Qt
-import keyboard
 
 class PhotoEditorApp(QMainWindow):
     def __init__(self):
@@ -46,16 +45,10 @@ class PhotoEditorApp(QMainWindow):
         self.rotate_right_button = QPushButton("Rotate 90° Right", self)
         self.rotate_right_button.setGeometry(220, 550, 150, 30)
         self.rotate_right_button.clicked.connect(self.rotate_image_right)
-        
-        self.undo_button = QPushButton("Undo", self)
-        self.undo_button.setGeometry(390, 550, 150, 30)
-        self.undo_button.clicked.connect(self.undo)
 
         self.image_path = None
         self.image = None
-        self.latestImage = []
         self.rotation_state = 0  # Initial rotation state
-        keyboard.add_hotkey('ctrl+z', self.undo)
 
 
     def upload_photo(self):
@@ -68,11 +61,15 @@ class PhotoEditorApp(QMainWindow):
     def load_image(self):
         if self.image_path:
             self.image = cv2.imread(self.image_path)
-            self.latestImage.append(self.image)
             pixmap = QPixmap(self.image_path)
             self.image_label.setPixmap(pixmap.scaled(600, 400))
 
     def adjust_contrast(self):
+        # if self.image is not None:
+        #     contrast_value = 1.5
+        #     contrast_enhancer = ImageEnhance.Contrast(self.image)
+        #     enhanced_image = contrast_enhancer.enhance(contrast_value)
+        #     self.display_image(enhanced_image)
 
         if self.image is not None:
             # Convert NumPy array to PIL image
@@ -87,16 +84,9 @@ class PhotoEditorApp(QMainWindow):
             enhanced_image_np = cv2.cvtColor(np.array(enhanced_image), cv2.COLOR_RGB2BGR)
             
             # Display the enhanced image
-            self.latestImage.append(enhanced_image_np)
-            self.image = enhanced_image_np
-            self.display_image()
+            self.display_image(enhanced_image_np)
 
 
-    def undo(self):
-        if self.latestImage:
-            self.latestImage.pop()
-            self.image = self.latestImage[-1]
-            self.display_image()
     def adjust_sharpness(self):
         # if self.image is not None:
         #     sharpness_value = 2.0
@@ -117,9 +107,7 @@ class PhotoEditorApp(QMainWindow):
             enhanced_image_np = cv2.cvtColor(np.array(enhanced_image), cv2.COLOR_RGB2BGR)
             
             # Display the enhanced image
-            self.latestImage.append(enhanced_image_np)
-            self.image = enhanced_image_np
-            self.display_image()
+            self.display_image(enhanced_image_np)
 
 
     def adjust_color_mode(self):
@@ -152,24 +140,17 @@ class PhotoEditorApp(QMainWindow):
                 enhanced_image_np = cv2.cvtColor(np.array(enhanced_image), cv2.COLOR_RGB2BGR)
                 
                 # Display the enhanced image
-                self.latestImage.append(enhanced_image_np)
-                self.image = enhanced_image_np
-                self.display_image()
+                self.display_image(enhanced_image_np)
             elif choice == "Color":
-                self.display_image()
+                self.display_image(self.image)
             elif choice == "Black and White":
                 bw_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-                self.latestImage.append(bw_image)
-                self.image = bw_image
-                self.display_image()
+                self.display_image(bw_image)
             elif choice == "Grayscale":
                 grayscale_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-                self.latestImage.append(grayscale_image)
-                self.image = grayscale_image
-                self.display_image()
+                self.display_image(grayscale_image)
             elif choice == "No Filters":
-                self.display_image()
-                
+                self.display_image(self.image)
 
 
     # def rotate_image_left(self):
@@ -191,9 +172,7 @@ class PhotoEditorApp(QMainWindow):
             rotated_image = self.image.copy()
             for _ in range(self.rotation_state // 90):
                 rotated_image = cv2.rotate(rotated_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-            self.latestImage.append(rotated_image)
-            self.image = rotated_image
-            self.display_image()
+            self.display_image(rotated_image)
 
 
     def rotate_image_right(self):
@@ -204,12 +183,9 @@ class PhotoEditorApp(QMainWindow):
             rotated_image = self.image.copy()
             for _ in range(abs(self.rotation_state // 90)):
                 rotated_image = cv2.rotate(rotated_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-            self.latestImage.append(rotated_image)
-            self.image = rotated_image
-            self.display_image()
+            self.display_image(rotated_image)
 
-    def display_image(self):
-        image = self.latestImage[-1]
+    def display_image(self, image):
         # temp_image_path = "temp_image.png"
         # cv2.imwrite(temp_image_path, image)
         # pixmap = QPixmap(temp_image_path)
@@ -233,8 +209,6 @@ class PhotoEditorApp(QMainWindow):
 
         temp_image_path = "temp_image.png"
         cv2.imwrite(temp_image_path, image)
-
-
 
         # Load the image using PIL to get the original dimensions
         original_image = Image.open(self.image_path)

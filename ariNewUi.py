@@ -26,7 +26,7 @@ from PyQt5.QtWidgets import QLabel
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1166, 725)
+        MainWindow.resize(1366, 768)
         MainWindow.setStyleSheet("# MainWindow{\n"
                                  "display: flex;\n"
                                  "flex-direction: column;\n"
@@ -83,8 +83,8 @@ class Ui_MainWindow(object):
         # self.show_page.setFixedSize(231, 980)
 
         # Adjust the size of show_page to accommodate buttons
-        self.show_page.setMinimumSize(231, 980)  # Set minimum size
-        self.show_page.setMaximumSize(231, 980)  # Set maximum size
+        self.show_page.setMinimumSize(231, 880)  # Set minimum size
+        self.show_page.setMaximumSize(231, 880)  # Set maximum size
         self.show_page.setObjectName("show_page")
         # Create QVBoxLayout for buttons
         self.buttons_layout = QtWidgets.QVBoxLayout()
@@ -258,7 +258,7 @@ class Ui_MainWindow(object):
                                      "border: 2px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);"
                                      "border-radius: 10px;"   # Adjust the value for desired curve
                                      "}")
-        self.additional_label.setFixedSize(210, 775)
+        self.additional_label.setFixedSize(210, 675)
         self.buttons_layout.addWidget(
             self.additional_label, alignment=QtCore.Qt.AlignTop)
 
@@ -274,7 +274,7 @@ class Ui_MainWindow(object):
         self.centralwidget.setLayout(self.layout)
 
         self.stackedWidget = QtWidgets.QStackedWidget(self.centralwidget)
-        self.stackedWidget.setGeometry(QtCore.QRect(0, 0, 1650, 1051))
+        self.stackedWidget.setGeometry(QtCore.QRect(0, 40, 1650, 1051))
         self.stackedWidget.setObjectName("stackedWidget")
         self.page = QtWidgets.QWidget()
         self.page.setObjectName("page")
@@ -334,10 +334,11 @@ class Ui_MainWindow(object):
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setObjectName("page_2")
         self.menu = QtWidgets.QWidget(self.page_2)
-        self.menu.setGeometry(QtCore.QRect(0, 0, 200, 1041))
+        self.menu.setGeometry(QtCore.QRect(10, 25, 200, 880))
         self.menu.setStyleSheet("#menu {\n"
                                 "        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                 "        width:50px;\n"
+                                "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
                                 "    }\n"
                                 "\n"
                                 "    /* style for QPushButton and QLabel */\n"
@@ -459,7 +460,7 @@ class Ui_MainWindow(object):
             20, 322, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_15.addItem(spacerItem)
         self.show_image = QtWidgets.QLabel(self.page_2)
-        self.show_image.setGeometry(QtCore.QRect(480, 30, 921, 761))
+        self.show_image.setGeometry(QtCore.QRect(480, 30, 921, 661))
         self.show_image.setFrameShape(QtWidgets.QFrame.Box)
         self.show_image.setText("")
         self.show_image.setStyleSheet("QLabel {"
@@ -471,7 +472,7 @@ class Ui_MainWindow(object):
         label_focus_policy = self.show_image.focusPolicy()
         print(label_focus_policy)
         self.edit_stack = QtWidgets.QStackedWidget(self.page_2)
-        self.edit_stack.setGeometry(QtCore.QRect(480, 820, 871, 150))
+        self.edit_stack.setGeometry(QtCore.QRect(480, 720, 871, 150))
         self.edit_stack.setObjectName("edit_stack")
         self.page_3 = QtWidgets.QWidget()
         self.page_3.setObjectName("page_3")
@@ -487,7 +488,7 @@ class Ui_MainWindow(object):
         self.label.setGeometry(QtCore.QRect(180, 10, 81, 41))
         self.label.setStyleSheet("QLabel {\n"
                                  "    font-size: 16px; /* Change the font size to 16 pixels */\n"
-                                 "    color: #0e86f6; /* Change the font color to red */\n"
+                                 "    color: #3020ee; /* Change the font color to red */\n"
                                  "}")
         self.label.setScaledContents(False)
         self.label.setAlignment(QtCore.Qt.AlignCenter)
@@ -496,7 +497,7 @@ class Ui_MainWindow(object):
         self.label_2.setGeometry(QtCore.QRect(680, 10, 71, 41))
         self.label_2.setStyleSheet("QLabel {\n"
                                    "    font-size: 16px; /* Change the font size to 16 pixels */\n"
-                                   "    color: #0e86f6; /* Change the font color to red */\n"
+                                   "    color: #3020ee; /* Change the font color to red */\n"
                                    "}")
         self.label_2.setAlignment(QtCore.Qt.AlignCenter)
         self.label_2.setObjectName("label_2")
@@ -675,7 +676,7 @@ class Ui_MainWindow(object):
         self.page_6.setObjectName("page_6")
         self.edit_stack.addWidget(self.page_6)
         self.undo_btn = QtWidgets.QPushButton(self.page_2)
-        self.undo_btn.setGeometry(QtCore.QRect(350, 920, 211, 41))
+        self.undo_btn.setGeometry(QtCore.QRect(350, 850, 211, 41))
         self.undo_btn.setStyleSheet("QPushButton {\n"
                                     "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                     "        border-radius: 20px; \n"
@@ -705,7 +706,7 @@ class Ui_MainWindow(object):
         self.undo_btn.setIcon(icon8)
         self.undo_btn.setObjectName("undo_btn")
         self.discard_btn = QtWidgets.QPushButton(self.page_2)
-        self.discard_btn.setGeometry(QtCore.QRect(840, 920, 211, 41))
+        self.discard_btn.setGeometry(QtCore.QRect(840, 850, 211, 41))
         self.discard_btn.setStyleSheet("QPushButton {\n"
                                        "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                        "        border-radius: 20px; \n"
@@ -735,7 +736,7 @@ class Ui_MainWindow(object):
         self.discard_btn.setIcon(icon9)
         self.discard_btn.setObjectName("discard_btn")
         self.save_btn = QtWidgets.QPushButton(self.page_2)
-        self.save_btn.setGeometry(QtCore.QRect(1350, 920, 211, 41))
+        self.save_btn.setGeometry(QtCore.QRect(1350, 850, 211, 41))
         self.save_btn.setStyleSheet("QPushButton {\n"
                                     "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                     "        border-radius: 20px; \n"
@@ -766,6 +767,62 @@ class Ui_MainWindow(object):
         self.save_btn.setIcon(icon10)
         self.save_btn.setObjectName("save_btn")
         self.stackedWidget.addWidget(self.page_2)
+        self.nav = QtWidgets.QWidget(self.centralwidget)
+        self.nav.setGeometry(QtCore.QRect(0, 0, 2000, 40))
+        self.nav.setStyleSheet("#nav {\n"
+                               "        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa) ;\n"
+                               "        width:50px;\n"
+                               "    }\n"
+                               "\n"
+                               "    /* style for QPushButton and QLabel */\n"
+                               "    #nav QPushButton {\n"
+                               "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                               "    color: white; /* Text color */\n"
+                               "    font-weight: bold;\n"
+                               " border: 2px solid #4CAF50; /* Border color */\n"
+                               "    padding: 10px 20px;\n"
+                               "        /height:50px;/\n"
+                               "margin: 10px;\n"
+                               "        \n"
+                               "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                               "    }\n"
+                               "#name{\n"
+                               "border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                               "    color: white; /* Text color */\n"
+                               "    font-weight: bold;\n"
+                               "/* border: 2px solid #4CAF50; /* Border color */\n"
+                               "    padding: 10px 20px;\n"
+                               "        /height:50px;/\n"
+                               "margin: 10px;\n"
+                               "}\n"
+                               "\n"
+                               "    #nav QPushButton:hover {\n"
+                               "        background-color:#073c6d\n"
+                               "    }\n"
+                               "")
+        self.nav.setObjectName("nav")
+        self.label_3 = QtWidgets.QLabel(self.nav)
+        self.label_3.setGeometry(QtCore.QRect(10, 0, 41, 40))
+        self.label_3.setMinimumSize(QtCore.QSize(20, 20))
+        self.label_3.setText("")
+        self.label_3.setPixmap(QtGui.QPixmap(":/newPrefix/shutter.svg"))
+        self.label_3.setScaledContents(True)
+        self.label_3.setObjectName("label_3")
+        self.name = QtWidgets.QLabel(self.nav)
+        self.name.setGeometry(QtCore.QRect(60, -10, 261, 40))
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        font.setBold(True)
+        font.setWeight(75)
+        self.name.setFont(font)
+        self.name.setStyleSheet( "#name{\n"
+                               "    color: white; /* Text color */\n"
+                               "    font-weight: bold;\n"
+                               "}\n"
+                               "\n"
+                               "")
+        self.name.setAlignment(QtCore.Qt.AlignBottom | QtCore.Qt.AlignJustify)
+        self.name.setObjectName("name")
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)
@@ -796,6 +853,7 @@ class Ui_MainWindow(object):
         self.discard_btn.setText(_translate("MainWindow", "Discard"))
         self.save_btn.setText(_translate("MainWindow", "Save"))
         self.settings_btn.setText(_translate("MainWindow", "Settings"))
+        self.name.setText(_translate("MainWindow", "DocScanner"))
 
 
 class VideoStream:

@@ -75,9 +75,8 @@ class MainWindow(QMainWindow):
         global image_list
 
         self.image_click_counter = {}
-
         image_list = []
-        self.crop_size=[]
+        self.crop_size = []
         self.latestImage = []
 
         # Create a dictionary to store references to labels corresponding to image paths
@@ -91,7 +90,7 @@ class MainWindow(QMainWindow):
         self.all_checkboxes = []   # Store references to all checkboxes
         self.current_camera_index = 0
         self.captured_images = []
-        self.ui.edit_btn.clicked.connect(self.image_double_clicked)
+        self.ui.edit_btn.clicked.connect(self.editing)
         # Initialize video stream with default camera
         self.video_stream = VideoStream(
             self.ui.cam_label, self.current_camera_index)
@@ -107,6 +106,7 @@ class MainWindow(QMainWindow):
         self.ui.enhance_btn.clicked.connect(self.AutoEnhance)
         self.ui.crop_btn.clicked.connect(self.crop_image)
         self.ui.settings_btn.clicked.connect(self.crop_image_settings)
+        self.ui.delete_btn.clicked.connect(self.delete_image)
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.video_stream.display_camera_feed)
@@ -114,6 +114,7 @@ class MainWindow(QMainWindow):
 
         self.cap = None
         self.populate_camera_dropdown()
+        
 
     def clicked_done_btn(self):
         self.ui.stackedWidget.setCurrentIndex(1)
@@ -180,15 +181,28 @@ class MainWindow(QMainWindow):
         # Call your function with the index
         self.video_stream.change_camera(self.current_camera_index)
 
+    # def rotate_image_right(self):
+    #     if self.read() is not None:
+    #         self.rotation_state -= 90
+    #         if self.rotation_state < 0:
+    #             self.rotation_state = 270
+    #         rotated_image = self.read().copy()
+    #         for _ in range(abs(self.rotation_state // 90)):
+    #             rotated_image = cv2.rotate(
+    #                 rotated_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    #         self.latestImage.append(rotated_image)
+    #         # self.image = rotated_image
+    #         self.write(rotated_image)
+    #         self.load_image()
+
     def rotate_image_right(self):
         if self.read() is not None:
             self.rotation_state -= 90
             if self.rotation_state < 0:
                 self.rotation_state = 270
             rotated_image = self.read().copy()
-            for _ in range(abs(self.rotation_state // 90)):
-                rotated_image = cv2.rotate(
-                    rotated_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            rotated_image = cv2.rotate(
+                    rotated_image, cv2.ROTATE_90_CLOCKWISE)
             self.latestImage.append(rotated_image)
             # self.image = rotated_image
             self.write(rotated_image)
@@ -233,6 +247,11 @@ class MainWindow(QMainWindow):
 
             try:
                 # Save the cropped image with timestamp
+                if self.crop_size != []:
+                    print(frame)
+                    frame = frame[self.crop_size[0][1]:self.crop_size[1]
+                                  [1], self.crop_size[0][0]:self.crop_size[1][0]]
+                    print(frame)
                 cv2.imwrite(filepath, frame)
                 print("Image saved successfully.")
 
@@ -411,6 +430,21 @@ class MainWindow(QMainWindow):
     #     # Add the scroll area to additional_label
     #     layout.addWidget(scroll_area)
 
+    # def rotate_image_left(self):
+    #     if self.read() is not None:
+    #         if self.rotation_state == 270:
+    #             self.rotation_state = 0
+    #         else:
+    #             self.rotation_state += 90
+    #         rotated_image = self.read().copy()
+    #         for _ in range(self.rotation_state // 90):
+    #             rotated_image = cv2.rotate(
+    #                 rotated_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    #         self.latestImage.append(rotated_image)
+    #         # self.image = rotated_image
+    #         self.write(rotated_image)
+    #         self.load_image()
+
     def rotate_image_left(self):
         if self.read() is not None:
             if self.rotation_state == 270:
@@ -418,9 +452,7 @@ class MainWindow(QMainWindow):
             else:
                 self.rotation_state += 90
             rotated_image = self.read().copy()
-            for _ in range(self.rotation_state // 90):
-                rotated_image = cv2.rotate(
-                    rotated_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+            rotated_image = cv2.rotate(rotated_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
             self.latestImage.append(rotated_image)
             # self.image = rotated_image
             self.write(rotated_image)
@@ -532,6 +564,8 @@ class MainWindow(QMainWindow):
             # Add "Select All" checkbox
             select_all_checkbox = QtWidgets.QCheckBox("Select All")
             select_all_checkbox.stateChanged.connect(self.select_all_images)
+            select_all_checkbox.setStyleSheet(
+                "color: #3020ee; font-weight: bold; font-family: Arial;")  # Add this line
             scroll_layout.addWidget(
                 select_all_checkbox, alignment=QtCore.Qt.AlignLeft)
 
@@ -556,6 +590,13 @@ class MainWindow(QMainWindow):
                     checkbox.stateChanged.connect(
                         lambda state, idx=index: self.update_selected_images(state, idx))
                     self.all_checkboxes.append(checkbox)
+                    # checkbox.setStyleSheet(
+                    #     "QCheckBox::indicator { width: 20px; height: 20px; border: 10px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa); }")
+                    checkbox.setStyleSheet(
+                        "QCheckBox::indicator { width: 20px; height: 20px; border: none; background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa); }")
+
+                    checkbox.setStyleSheet(
+                        "color: #3020ee; font-weight: bold; font-family: Arial;")  # Add this line
                     # label.mouseDoubleClickEvent = lambda event, index=index: self.image_double_clicked(
                     # image_path)
 
@@ -584,10 +625,17 @@ class MainWindow(QMainWindow):
             # Add the scroll area to additional_label
             layout.addWidget(scroll_area)
 
-    def image_double_clicked(self):
+    def editing(self):
         # Increment the click counter for the clicked image
         if self.selected_images:
             self.image = self.selected_images[0]
+            self.ui.stackedWidget.setCurrentIndex(1)
+            self.load_image()
+
+    def image_double_clicked(self, path):
+        # Increment the click counter for the clicked image
+        # if self.selected_images:
+            self.image = path
             self.ui.stackedWidget.setCurrentIndex(1)
             self.load_image()
 
@@ -614,7 +662,7 @@ class MainWindow(QMainWindow):
 
     def load_image(self):
         pixmap = QPixmap(self.image)
-        pixmap = pixmap.scaled(391, 541, Qt.KeepAspectRatio)
+        # pixmap = pixmap.scaled(391, 541, Qt.KeepAspectRatio)
 
         # Set alignment to center
         self.ui.show_image.setAlignment(Qt.AlignCenter)
@@ -650,10 +698,9 @@ class MainWindow(QMainWindow):
                     self.selected_images.remove(image_path)
 
     def delete_image(self):
-        global image_list
-        image_list = [
+        self.captured_images = [
             elem for elem in image_list if elem not in self.selected_images]
-        self.revert_image_clicked()
+        self.display_captured_images_main()
 
     def adjust_contrast(self):
 
@@ -700,64 +747,66 @@ class MainWindow(QMainWindow):
             self.delete_image(index)
 
     def crop_image(self):
-            if self.image:
-                # Load the image using the stored path
-                image = cv2.imread(self.image)
-                if image is not None:
-                    # Clone the image
-                    clone = image.copy()
+        if self.image:
+            # Load the image using the stored path
+            image = cv2.imread(self.image)
+            if image is not None:
+                # Clone the image
+                clone = image.copy()
 
-                    # Initialize the list of reference points and boolean indicating cropping
-                    refPt = []
-                    cropping = False
+                # Initialize the list of reference points and boolean indicating cropping
+                refPt = []
+                cropping = False
 
-                    def click_and_crop(event, x, y, flags, param):
-                        nonlocal refPt, cropping, image
-                        # If the left mouse button was clicked, record the starting (x, y) coordinates
-                        if event == cv2.EVENT_LBUTTONDOWN:
-                            refPt = [(x, y)]
-                            cropping = True
-                        # If the left mouse button was released, record the ending (x, y) coordinates
-                        elif event == cv2.EVENT_LBUTTONUP:
-                            refPt.append((x, y))
-                            cropping = False
-                            # Draw a rectangle around the region of interest
-                            cv2.rectangle(image, refPt[0], refPt[1], (0, 255, 0), 2)
-                            cv2.imshow("image", image)
-
-                    # Setup the mouse callback function
-                    cv2.namedWindow("image")
-                    cv2.setMouseCallback("image", click_and_crop)
-
-                    while True:
-                        # Display the image and wait for a keypress
+                def click_and_crop(event, x, y, flags, param):
+                    nonlocal refPt, cropping, image
+                    # If the left mouse button was clicked, record the starting (x, y) coordinates
+                    if event == cv2.EVENT_LBUTTONDOWN:
+                        refPt = [(x, y)]
+                        cropping = True
+                    # If the left mouse button was released, record the ending (x, y) coordinates
+                    elif event == cv2.EVENT_LBUTTONUP:
+                        refPt.append((x, y))
+                        cropping = False
+                        # Draw a rectangle around the region of interest
+                        cv2.rectangle(
+                            image, refPt[0], refPt[1], (0, 255, 0), 2)
                         cv2.imshow("image", image)
-                        key = cv2.waitKey(1) & 0xFF
-                        # If the 'r' key is pressed, reset the cropping region
-                        if key == ord("r"):
-                            image = clone.copy()
-                            cv2.destroyAllWindows()
-                            break
 
-                    # If there are two reference points, crop the region of interest from the image and display it
-                    if len(refPt) == 2:
-                        roi = clone[refPt[0][1]:refPt[1][1], refPt[0][0]:refPt[1][0]]
-                        cv2.imshow("ROI", roi)
-                        cv2.waitKey(0)
+                # Setup the mouse callback function
+                cv2.namedWindow("image")
+                cv2.setMouseCallback("image", click_and_crop)
 
-                        # Save the cropped image
-                        cropped_image_path = "cropped_image.jpg"  # Modify the path as needed
-                        cv2.imwrite(cropped_image_path, roi)
+                while True:
+                    # Display the image and wait for a keypress
+                    cv2.imshow("image", image)
+                    key = cv2.waitKey(1) & 0xFF
+                    # If the 'r' key is pressed, reset the cropping region
+                    if key == ord("r"):
+                        image = clone.copy()
+                        cv2.destroyAllWindows()
+                        break
 
-                        # Update self.image with the path to the cropped image
-                        self.image = cropped_image_path
-                        self.load_image()
-                        self.selected_images[0]=self.image
-                        # global image_list
-                        self.display_captured_images_main()
-                        
+                # If there are two reference points, crop the region of interest from the image and display it
+                if len(refPt) == 2:
+                    roi = clone[refPt[0][1]:refPt[1]
+                                [1], refPt[0][0]:refPt[1][0]]
+                    cv2.imshow("ROI", roi)
+                    cv2.waitKey(0)
 
-                    # Close all open windows
+                    # Save the cropped image
+                    cropped_image_path = "cropped_image.jpg"  # Modify the path as needed
+                    cv2.imwrite(cropped_image_path, roi)
+
+                    # Update self.image with the path to the cropped image
+                    self.image = cropped_image_path
+                    self.load_image()
+                    self.selected_images[0] = self.image
+                    # global image_list
+                    self.display_captured_images_main()
+
+                # Close all open windows
+
     def crop_image_settings(self):
         ret, frame = self.video_stream.video.read()
 
@@ -799,10 +848,10 @@ class MainWindow(QMainWindow):
                 # Save the cropped image with timestamp
                 cv2.imwrite(filepath, frame)
                 print("Image saved successfully.")
-                          # Load the image using the stored path
+                # Load the image using the stored path
                 image = cv2.imread(filepath)
                 if image is not None:
-                # Clone the image
+                    # Clone the image
                     clone = image.copy()
 
                 # Initialize the list of reference points and boolean indicating cropping
@@ -810,33 +859,36 @@ class MainWindow(QMainWindow):
                 cropping = False
 
                 def click_and_crop(event, x, y, flags, param):
-                        nonlocal refPt, cropping, image
-                        # If the left mouse button was clicked, record the starting (x, y) coordinates
-                        if event == cv2.EVENT_LBUTTONDOWN:
-                            refPt = [(x, y)]
-                            cropping = True
-                        # If the left mouse button was released, record the ending (x, y) coordinates
-                        elif event == cv2.EVENT_LBUTTONUP:
-                            refPt.append((x, y))
-                            cropping = False
-                            # Draw a rectangle around the region of interest
-                            cv2.rectangle(
-                                image, refPt[0], refPt[1], (0, 255, 0), 2)
-                            cv2.imshow("image", image)
+                    nonlocal refPt, cropping, image
+                    # If the left mouse button was clicked, record the starting (x, y) coordinates
+                    if event == cv2.EVENT_LBUTTONDOWN:
+                        refPt = [(x, y)]
+                        cropping = True
+                    # If the left mouse button was released, record the ending (x, y) coordinates
+                    elif event == cv2.EVENT_LBUTTONUP:
+                        refPt.append((x, y))
+                        cropping = False
+                        # Draw a rectangle around the region of interest
+                        if not np.array_equal(image, clone):
+                            image[:] = clone[:]
+                            print("changed")
+                        cv2.rectangle(
+                            image, refPt[0], refPt[1], (0, 255, 0), 2)
+                        cv2.imshow("image", image)
 
                     # Setup the mouse callback function
                 cv2.namedWindow("image")
                 cv2.setMouseCallback("image", click_and_crop)
 
                 while True:
-                        # Display the image and wait for a keypress
-                        cv2.imshow("image", image)
-                        key = cv2.waitKey(1) & 0xFF
-                        # If the 'r' key is pressed, reset the cropping region
-                        if key == ord("r"):
-                            image = clone.copy()
-                            cv2.destroyAllWindows()
-                            break
+                    # Display the image and wait for a keypress
+                    cv2.imshow("image", image)
+                    key = cv2.waitKey(1) & 0xFF
+                    # If the 'r' key is pressed, reset the cropping region
+                    if key == ord("r"):
+                        image = clone.copy()
+                        cv2.destroyAllWindows()
+                        break
                     # If there are two reference points, crop the region of interest from the image and display it
                 if len(refPt) == 2:
                     self.crop_size = refPt

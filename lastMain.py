@@ -94,6 +94,9 @@ class MainWindow(QMainWindow):
         self.ui.rotateleft_btn.clicked.connect(self.rotate_image_left)
         self.ui.rotateright_btn.clicked.connect(self.rotate_image_right)
         # self.ui.done_btn.clicked.connect(self.clicked_done_btn)
+        self.ui.adjust_btn.clicked.connect(self.clicked_adjust_btn)
+        self.ui.color_btn.clicked.connect(self.clicked_color_btn)
+        self.ui.rotate_btn.clicked.connect(self.clicked_rotate_btn)
         self.ui.pdf_btn.clicked.connect(self.make_pdf)
         self.ui.cam_back.clicked.connect(self.returntocamera)
         self.ui.enhance_btn.clicked.connect(self.AutoEnhance)
@@ -103,7 +106,10 @@ class MainWindow(QMainWindow):
         self.ui.save_btn.clicked.connect(self.save)
         self.ui.undo_btn.clicked.connect(self.undo)
         self.ui.discard_btn.clicked.connect(self.discard)
-        
+        self.ui.jpeg_btn.clicked.connect(self.export_image)
+        # self.p = r"C:\Users\sdas\OneDrive\Desktop\aeonix\DocScanner\temp_image.png"
+        self.ui.mag1_btn.clicked.connect(self.magic1)
+        self.ui.mag2_btn.clicked.connect(self.magic2)
         self.ui.horizontalSlider.valueChanged.connect(self.adjust_contrast)
 
         self.timer = QTimer(self)
@@ -142,10 +148,13 @@ class MainWindow(QMainWindow):
 
     def make_pdf(self):
         # Ask the user for the save path
-        save_path, _ = QFileDialog.getSaveFileName(
-            None, "Save PDF", "", "PDF Files (*.pdf)")
-        if save_path:
+        # save_path, _ = QFileDialog.getSaveFileName(
+        #     None, "Save PDF", "", "PDF Files (*.pdf)")
+        # if save_path:
             if self.selected_images:
+                # Ask the user for the save path
+                save_path, _ = QFileDialog.getSaveFileName(
+                None, "Save PDF", "", "PDF Files (*.pdf)")
                 self.selected_images = sorted(
                     self.selected_images, key=lambda x: x[0])
                 pdf_canvas = canvas.Canvas(save_path, pagesize=letter)
@@ -158,24 +167,63 @@ class MainWindow(QMainWindow):
                         # Place image on PDF
                         pdf_canvas.drawImage(image_path, 0, 0, width, height)
                         pdf_canvas.showPage()  # End current page
-                pdf_canvas.save()
-                print("PDF saved successfully.")
-                # self.captured_images.clear()
+                if save_path!='':
+                    pdf_canvas.save()
             else:
-                print("No images to save.")
+                # Inform the user if no images are selected
+                
+                QMessageBox.information(self, "No Selection",
+                                    "No image selected for making PDF.")
+                
+    def export_image(self):
+        # Check the number of selected images
+        if len(self.selected_images) == 1:
+            # Ask the user for the save path
+            save_path, _ = QFileDialog.getSaveFileName(
+                None, "Save Image", "", "JPEG Files (*.jpg)")
+            if save_path:
+                image = QImage(self.selected_images[0][1])
+
+                # Convert the QImage to a QPixmap
+                pixmap = QPixmap.fromImage(image)
+                if pixmap and save_path!='':
+                    pixmap.save(save_path, "JPEG")
+                    print("Image saved as", save_path)
+                else:
+                    print("No image to save.")
+            else :
+                print("Save operation cancelled by the user.")
+        elif len(self.selected_images) == 0:
+            QMessageBox.information(self, "No Selection",
+                                    "No image selected for making JPG.")
         else:
-            print("Save operation cancelled by the user.")
+            # Show a message box indicating more than one image is selected
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Warning)
+            msg_box.setText("More than one image is selected.")
+            msg_box.setWindowTitle("Multiple Images Selected")
+            msg_box.setStandardButtons(QMessageBox.Ok)
+            msg_box.exec_()
 
 
     def editing(self):
             # Increment the click counter for the clicked image
-        if self.selected_images:
+        if len(self.selected_images) ==1:
             self.image = self.selected_images[0][1]
             self.latestImage.clear()
             self.latestImage.append(self.read())
             self.imageIndex = self.selected_images[0][0]
             self.ui.stackedWidget.setCurrentIndex(1)
             self.load_image()
+        elif len(self.selected_images) >1:
+            # Inform the user if no images are selected
+            QMessageBox.information(self, " Selection",
+                                    "More than one image is selected")
+        else:
+            
+            # Inform the user if no images are selected
+            QMessageBox.information(self, "No Selection",
+                                    "No image selected for editing.")
 
     def image_double_clicked(self, path, index):
         # Increment the click counter for the clicked image
@@ -306,19 +354,38 @@ class MainWindow(QMainWindow):
                 if (index, image_path) in self.selected_images:
                     self.selected_images.remove((index, image_path))
 
+    
     def delete_image(self):
-        self.captured_images = [elem for elem in self.captured_images if elem not in [
-            x[1] for x in self.selected_images]]
-        self.selected_images.clear()
-        self.display_captured_images_main()
+            # Check if there are selected images
+        if self.selected_images:
+            # Ask for confirmation
+            confirm_dialog = QMessageBox()
+            confirm_dialog.setIcon(QMessageBox.Question)
+            confirm_dialog.setText(
+                "Are you sure you want to delete the selected image(s)?")
+            confirm_dialog.setWindowTitle("Confirmation")
+            confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+
+            # Execute based on user's choice
+            choice = confirm_dialog.exec_()
+            if choice == QMessageBox.Yes:
+                # Delete selected images from captured_images
+                self.captured_images = [elem for elem in self.captured_images if elem not in [
+                    x[1] for x in self.selected_images]]
+                # Clear the list of selected images
+                self.selected_images.clear()
+                # Update the display
+                self.display_captured_images_main()
+        else:
+            # Inform the user if no images are selected
+            QMessageBox.information(self, "No Selection",
+                                    "No images selected for deletion.")
 
     def crop_image_settings(self):
         ret, frame = self.video_stream.video.read()
 
         if ret:
             image_resolution = frame.shape[:2]  # Get only the rows and columns
-
-            print("Image resolution:", image_resolution)
 
             now = datetime.now()
             timestamp = now.strftime("%Y%m%d_%H%M%S")  # Format timestamp
@@ -333,7 +400,6 @@ class MainWindow(QMainWindow):
             try:
                 # Save the cropped image with timestamp
                 cv2.imwrite(filepath, frame)
-                print("Image saved successfully.")
                 # Load the image using the stored path
                 image = cv2.imread(filepath)
                 if image is not None:
@@ -357,7 +423,6 @@ class MainWindow(QMainWindow):
                         # Draw a rectangle around the region of interest
                         if not np.array_equal(image, clone):
                             image[:] = clone[:]
-                            print("changed")
                         cv2.rectangle(
                             image, refPt[0], refPt[1], (0, 255, 0), 2)
                         cv2.imshow("image", image)
@@ -441,7 +506,6 @@ class MainWindow(QMainWindow):
         if ret:
             image_resolution = frame.shape[:2]  # Get only the rows and columns
 
-            print("Image resolution:", image_resolution)
 
             now = datetime.now()
             timestamp = now.strftime("%Y%m%d_%H%M%S")  # Format timestamp
@@ -456,12 +520,9 @@ class MainWindow(QMainWindow):
             try:
                 # Save the cropped image with timestamp
                 if self.crop_size != []:
-                    print(frame)
                     frame = frame[self.crop_size[0][1]:self.crop_size[1]
                                   [1], self.crop_size[0][0]:self.crop_size[1][0]]
-                    print(frame)
                 cv2.imwrite(filepath, frame)
-                print("Image saved successfully.")
 
                 # Append the filepath to the captured images list
                 self.captured_images.append(filepath)
@@ -491,6 +552,20 @@ class MainWindow(QMainWindow):
 
 
 ##for editing purpose
+
+
+    def returntocamera(self):
+        self.ui.stackedWidget.setCurrentIndex(0)
+
+    def clicked_adjust_btn(self):
+        self.ui.edit_stack.setCurrentIndex(0)
+
+    def clicked_color_btn(self):
+        self.ui.edit_stack.setCurrentIndex(1)
+
+    def clicked_rotate_btn(self):
+        self.ui.edit_stack.setCurrentIndex(2)
+
     def rotate_image_right(self):
         if self.read() is not None:
             self.rotation_state -= 90
@@ -504,10 +579,6 @@ class MainWindow(QMainWindow):
             self.write(rotated_image)
             self.load_image()
 
-
-
-    def returntocamera(self):
-        self.ui.stackedWidget.setCurrentIndex(0)
 
     def rotate_image_left(self):
         if self.read() is not None:
@@ -523,16 +594,36 @@ class MainWindow(QMainWindow):
             self.load_image()
 
 
-
-
-
-
     def adjust_contrast(self, value):
-        if self.image is not None:
-            contrast_factor = (value + 100) / 100.0
-            adjusted_image = cv2.multiply(self.image, contrast_factor)
-            self.display_image(adjusted_image)
-            
+        try:
+            if self.image is not None:
+                # Load the image from the file path
+                image = cv2.imread(self.image)
+
+                if image is not None:
+                    # Convert the image to grayscale if it's not already
+                    if len(image.shape) == 3:
+                        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+                    else:
+                        gray_image = image
+
+                    # Calculate the contrast factor
+                    contrast_factor = (value + 100) / 100.0
+
+                    # Adjust the contrast using convertScaleAbs
+                    adjusted_image = cv2.convertScaleAbs(
+                        gray_image, alpha=contrast_factor, beta=0)
+
+                    # Display the adjusted image
+                    self.write(adjusted_image)
+                    self.load_image()
+                else:
+                    raise ValueError("Unable to load the image.")
+            else:
+                raise ValueError("No image path provided.")
+        except Exception as e:
+            print("Error:", e)
+
     def display_image(self, image):
         pixmap = QPixmap.fromImage(QImage(
             image.data, image.shape[1], image.shape[0], image.strides[0], QImage.Format_RGB888))
@@ -540,10 +631,10 @@ class MainWindow(QMainWindow):
             self.ui.show_image.size(), Qt.KeepAspectRatio))
 
     def undo(self):
+        self.write(self.latestImage[-1])
         if len(self.latestImage) > 1:
             self.latestImage.pop()
-            self.write(self.latestImage[-1])
-            self.load_image()
+        self.load_image()
 
     def discard(self):
         if len(self.latestImage) > 1:
@@ -576,7 +667,6 @@ class MainWindow(QMainWindow):
                         # Draw a rectangle around the region of interest
                         if not np.array_equal(image, clone):
                             image[:] = clone[:]
-                            print("changed")
                         cv2.rectangle(
                             image, refPt[0], refPt[1], (0, 255, 0), 2)
                         cv2.imshow("image", image)
@@ -617,6 +707,8 @@ class MainWindow(QMainWindow):
             self.captured_images[self.imageIndex] = self.image
         self.display_captured_images_main()
         self.load_image()
+        
+        
     def adjust_sharpness(self):
 
         if self.image is not None:
@@ -651,19 +743,73 @@ class MainWindow(QMainWindow):
         self.write(enhanced_image_np)
         self.load_image()
 
-    def blackAndWhite(self):
-        bw_image = cv2.cvtColor(self.read(), cv2.COLOR_BGR2GRAY)
-        # self.latestImage.append(bw_image)
-        # self.image = bw_image
-        self.write(bw_image)
+
+    def magic1(self,image_path):
+        # Read the image
+        image = cv2.imread(self.image, cv2.IMREAD_GRAYSCALE)
+
+        # Check if the image was read successfully
+        if image is None:
+            print("Error: Unable to read the image.")
+            return None
+
+        # Apply Gaussian blur to reduce noise
+        blurred = cv2.GaussianBlur(image, (5, 5), 0)
+
+        # Apply adaptive thresholding with inverted binary threshold
+        enhanced_image = cv2.adaptiveThreshold(
+            blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 4)
+
+        self.write(enhanced_image)
         self.load_image()
 
-    def grayscale(self):
-        grayscale_image = cv2.cvtColor(self.read(), cv2.COLOR_BGR2GRAY)
-        # self.latestImage.append(grayscale_image)
-        # self.image = grayscale_image
-        self.write(grayscale_image)
-        self.load_image()
+
+    # def magic2(self,image, alpha=1.1, beta=0):
+    #     """
+    #     Enhance the contrast of an image using brightness and contrast adjustments.
+    #     :param image: Input image
+    #     :param alpha: Contrast control (1.0-3.0)
+    #     :param beta: Brightness control (0-100)
+    #     :return: Enhanced image
+    #     """
+    #     # input_image = cv2.imread(str(self.image))
+    #     enhanced_image = cv2.convertScaleAbs(self.read, alpha=alpha, beta=beta)
+    #     self.write(enhanced_image)
+    #     self.load_image()
+        
+
+    def magic2(self, image, alpha=1.1, beta=0):
+        """
+        Enhance the contrast of an image using brightness and contrast adjustments.
+        :param image: Input image
+        :param alpha: Contrast control (1.0-3.0)
+        :param beta: Brightness control (0-100)
+        :return: Enhanced image
+        """
+        try:
+            # Load the image from the file path
+            input_image = cv2.imread(str(self.image))
+
+            if input_image is not None:
+                # Convert the image to grayscale if it's not already
+                if len(input_image.shape) == 3:
+                    gray_image = cv2.cvtColor(input_image, cv2.COLOR_BGR2GRAY)
+                else:
+                    gray_image = input_image
+
+                # Adjust contrast and brightness
+                enhanced_image = cv2.convertScaleAbs(
+                    gray_image, alpha=alpha, beta=beta)
+
+                # Write the enhanced image
+                self.write(enhanced_image)
+
+                # Reload the image
+                self.load_image()
+            else:
+                print("Error: Unable to load the image.")
+        except Exception as e:
+            print("Error:", e)
 
 
 if __name__ == "__main__":

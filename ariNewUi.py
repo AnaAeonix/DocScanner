@@ -134,6 +134,39 @@ class Ui_MainWindow(object):
         # self.pdf_btn.setObjectName("pdf_btn")
         self.buttons_layout.addWidget(
             self.pdf_btn, alignment=QtCore.Qt.AlignTop)
+        self.jpeg_btn = QtWidgets.QPushButton(self.centralwidget)
+        self.jpeg_btn.setGeometry(QtCore.QRect(710, 60, 101, 31))
+        self.jpeg_btn.setStyleSheet("QPushButton {\n"
+                                    "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+                                    "        border-radius: 20px; \n"
+                                    "    color: white; /* Text color */\n"
+                                    "    font-weight: bold;\n"
+                                    "border:none; /* Border color */\n"
+                                    "    padding: 10px 10px; /* Adjust padding as needed */\n"
+                                    "    margin:0px; /* Margin to create distance between buttons */\n"
+                                    "}\n"
+                                    " QPushButton {\n"
+                                    "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                                    "    color: white; /* Text color */\n"
+                                    "    font-weight: bold;\n"
+                                    "\n"
+                                    "    padding: 10px 20px;\n"
+                                    "        /*height:50px;*/\n"
+                                    "margin: 0px;\n"
+                                    "        \n"
+                                    "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                                    "    }\n"
+                                    " QPushButton:hover {\n"
+                                    "        background-color:#073c6d\n"
+                                    "    }")
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(":/newPrefix/pdf.svg"),
+                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.jpeg_btn.setIcon(icon1)
+        self.jpeg_btn.setIconSize(QtCore.QSize(20, 20))
+        self.jpeg_btn.setObjectName("jpeg_btn")
+        self.buttons_layout.addWidget(
+            self.jpeg_btn, alignment=QtCore.Qt.AlignTop)
         self.edit_btn = QtWidgets.QPushButton(self.centralwidget)
         self.edit_btn.setGeometry(QtCore.QRect(710, 60, 101, 31))
         self.edit_btn.setStyleSheet("QPushButton {\n"
@@ -258,7 +291,7 @@ class Ui_MainWindow(object):
                                      "border: 2px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);"
                                      "border-radius: 10px;"   # Adjust the value for desired curve
                                      "}")
-        self.additional_label.setFixedSize(210, 675)
+        self.additional_label.setFixedSize(210, 635)
         self.buttons_layout.addWidget(
             self.additional_label, alignment=QtCore.Qt.AlignTop)
 
@@ -478,7 +511,7 @@ class Ui_MainWindow(object):
         self.page_3.setObjectName("page_3")
         self.horizontalSlider = QtWidgets.QSlider(self.page_3)
         self.horizontalSlider.setGeometry(QtCore.QRect(100, 50, 260, 22))
-        self.horizontalSlider.setRange(0, 100)
+        self.horizontalSlider.setRange(-100, 100)
         self.horizontalSlider.setValue(0)
         self.horizontalSlider.setTickPosition(QtWidgets.QSlider.TicksBelow)
         self.horizontalSlider.setTickInterval(10)
@@ -810,14 +843,14 @@ class Ui_MainWindow(object):
                                "")
         self.nav.setObjectName("nav")
         self.label_3 = QtWidgets.QLabel(self.nav)
-        self.label_3.setGeometry(QtCore.QRect(10, 0, 41, 40))
+        self.label_3.setGeometry(QtCore.QRect(10, 5, 31, 30))
         self.label_3.setMinimumSize(QtCore.QSize(20, 20))
         self.label_3.setText("")
-        self.label_3.setPixmap(QtGui.QPixmap(":/newPrefix/shutter.svg"))
+        self.label_3.setPixmap(QtGui.QPixmap(":/newPrefix/logo (1).svg"))
         self.label_3.setScaledContents(True)
         self.label_3.setObjectName("label_3")
         self.name = QtWidgets.QLabel(self.nav)
-        self.name.setGeometry(QtCore.QRect(60, -10, 261, 40))
+        self.name.setGeometry(QtCore.QRect(50, -10, 261, 40))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)
@@ -841,8 +874,9 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "DocScanner"))
-        self.pdf_btn.setText(_translate("MainWindow", " Convert to PDF"))
+        self.pdf_btn.setText(_translate("MainWindow", " Export to PDF"))
         self.edit_btn.setText(_translate("MainWindow", "Edit"))
+        self.jpeg_btn.setText(_translate("MainWindow", "Export to JPEG"))
         self.delete_btn.setText(_translate("MainWindow", "Delete"))
         self.dash_label.setText(_translate("MainWindow", "Customize"))
         self.adjust_btn.setText(_translate("MainWindow", "Adjust"))
@@ -861,7 +895,7 @@ class Ui_MainWindow(object):
         self.discard_btn.setText(_translate("MainWindow", "Discard"))
         self.save_btn.setText(_translate("MainWindow", "Save"))
         self.settings_btn.setText(_translate("MainWindow", "Settings"))
-        self.name.setText(_translate("MainWindow", "DocScanner"))
+        self.name.setText(_translate("MainWindow", "Aeonix Document Scanner"))
 
 
 class VideoStream:

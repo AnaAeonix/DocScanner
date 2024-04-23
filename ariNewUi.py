@@ -809,38 +809,39 @@ class Ui_MainWindow(object):
         self.save_btn.setObjectName("save_btn")
         self.stackedWidget.addWidget(self.page_2)
         self.nav = QtWidgets.QWidget(self.centralwidget)
-        self.nav.setGeometry(QtCore.QRect(0, 0, 2000, 40))
+        self.nav.setGeometry(QtCore.QRect(0, 0, 1980, 40))
         self.nav.setStyleSheet("#nav {\n"
-                               "        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa) ;\n"
-                               "        width:50px;\n"
-                               "    }\n"
-                               "\n"
-                               "    /* style for QPushButton and QLabel */\n"
-                               "    #nav QPushButton {\n"
-                               "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-                               "    color: white; /* Text color */\n"
-                               "    font-weight: bold;\n"
-                               " border: 2px solid #4CAF50; /* Border color */\n"
-                               "    padding: 10px 20px;\n"
-                               "        /height:50px;/\n"
-                               "margin: 10px;\n"
-                               "        \n"
-                               "        /* border-bottom: 1px solid #b0b0b0; */\n"
-                               "    }\n"
-                               "#name{\n"
-                               "border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-                               "    color: white; /* Text color */\n"
-                               "    font-weight: bold;\n"
-                               "/* border: 2px solid #4CAF50; /* Border color */\n"
-                               "    padding: 10px 20px;\n"
-                               "        /height:50px;/\n"
-                               "margin: 10px;\n"
-                               "}\n"
-                               "\n"
-                               "    #nav QPushButton:hover {\n"
-                               "        background-color:#073c6d\n"
-                               "    }\n"
-                               "")
+                                "        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+                                "        width:50px;\n"
+                                "        /*border-radius: 10px; *//* Adjust the value to change the curve radius */\n"
+                                "    }\n"
+                                "\n"
+                                "    /* style for QPushButton and QLabel */\n"
+                                "    #nav QPushButton {\n"
+                                "        border-radius: 1px; /* Adjust the value to change the curve radius */\n"
+                                "    color: white; /* Text color */\n"
+                                "    font-weight: bold;\n"
+                                " /*border: 2px solid #4CAF50; *//* Border color */\n"
+                                "    padding: 10px 20px;\n"
+                                "        /*height:50px;*/\n"
+                                "margin: 10px;\n"
+                                "        \n"
+                                "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                                "    }\n"
+                                "#nav Qlabel{\n"
+                                "border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                                "    color: white; /* Text color */\n"
+                                "    font-weight: bold;\n"
+                                " border: 2px solid #4CAF50; /* Border color */\n"
+                                "    padding: 10px 20px;\n"
+                                "        /*height:50px;*/\n"
+                                "margin: 10px;\n"
+                                "}\n"
+                                "\n"
+                                "    #nav QPushButton:hover {\n"
+                                "        background-color:#073c6d\n"
+                                "    }\n"
+                                "")
         self.nav.setObjectName("nav")
         self.label_3 = QtWidgets.QLabel(self.nav)
         self.label_3.setGeometry(QtCore.QRect(10, 5, 31, 30))
@@ -864,6 +865,24 @@ class Ui_MainWindow(object):
                                "")
         self.name.setAlignment(QtCore.Qt.AlignBottom | QtCore.Qt.AlignJustify)
         self.name.setObjectName("name")
+        self.minimize = QtWidgets.QPushButton(self.nav)
+        self.minimize.setGeometry(QtCore.QRect(1830, -10, 51, 61))
+        self.minimize.setText("")
+        icon13 = QtGui.QIcon()
+        icon13.addPixmap(QtGui.QPixmap(":/newPrefix/minimize.svg"),
+                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.minimize.setIcon(icon13)
+        self.minimize.setIconSize(QtCore.QSize(18, 18))
+        self.minimize.setObjectName("minimize")
+        self.close = QtWidgets.QPushButton(self.nav)
+        self.close.setGeometry(QtCore.QRect(1870, -10, 51, 61))
+        self.close.setText("")
+        icon14 = QtGui.QIcon()
+        icon14.addPixmap(QtGui.QPixmap(":/newPrefix/close.svg"),
+                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.close.setIcon(icon14)
+        self.close.setIconSize(QtCore.QSize(20, 20))
+        self.close.setObjectName("close")
         MainWindow.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(MainWindow)

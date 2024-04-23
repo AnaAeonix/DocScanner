@@ -66,9 +66,10 @@ from PyQt5.QtGui import QPixmap, QPainter
 from PyQt5.QtCore import Qt
 
 
-class MainWindow(QMainWindow):
-    def __init__(self):
+class MainWindow(QtWidgets.QMainWindow):
+    def __init__(self, parent=None):
         super(MainWindow, self).__init__()
+        super().__init__(parent)
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
         # self.showMaximized()
@@ -111,6 +112,9 @@ class MainWindow(QMainWindow):
         self.ui.mag1_btn.clicked.connect(self.magic1)
         self.ui.mag2_btn.clicked.connect(self.magic2)
         self.ui.horizontalSlider.valueChanged.connect(self.adjust_contrast)
+        self.setWindowFlags(Qt.FramelessWindowHint)  # Hide default title bar
+        self.ui.minimize.clicked.connect(self.showMinimized)
+        self.ui.close.clicked.connect(self.close)
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.video_stream.display_camera_feed)
@@ -493,6 +497,14 @@ class MainWindow(QMainWindow):
         self.ui.show_image.setAlignment(Qt.AlignCenter)
         self.ui.show_image.setPixmap(pixmap)
 
+        # Set alignment to center
+        self.ui.show_image.setAlignment(Qt.AlignCenter)
+
+        # Set aspect ratio mode to keep the aspect ratio
+        self.ui.show_image.setScaledContents(True)
+        self.ui.show_image.setPixmap(pixmap.scaled(
+            self.ui.show_image.size(), Qt.KeepAspectRatio))
+
     def _handle_index_change(self):
         # Access the current index
         self.current_camera_index = self.ui.cam_drop_down.currentIndex()
@@ -754,7 +766,7 @@ class MainWindow(QMainWindow):
             return None
 
         # Apply Gaussian blur to reduce noise
-        blurred = cv2.GaussianBlur(image, (5, 5), 0)
+        blurred = cv2.GaussianBlur(image, (1, 1), 0)
 
         # Apply adaptive thresholding with inverted binary threshold
         enhanced_image = cv2.adaptiveThreshold(

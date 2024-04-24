@@ -106,8 +106,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.settings_btn.clicked.connect(self.crop_image_settings)
         self.ui.delete_btn.clicked.connect(self.delete_image)
 
-
-
+        self.setFocusPolicy(Qt.StrongFocus)
         self.ui.save_btn.clicked.connect(self.save)
         self.ui.undo_btn.clicked.connect(self.undo)
         self.ui.discard_btn.clicked.connect(self.discard)
@@ -133,11 +132,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def read(self):
         return cv2.imread(self.image)
 
+
     def keyPressEvent(self, event):
-        if event.key() == 16777220 and self.ui.stackedWidget.currentIndex()==0:  # Key code for Enter key
+        if event.key() == Qt.Key_C and self.ui.stackedWidget.currentIndex() == 0:
             self.capture_image()  # Call your function here
         else:
             super().keyPressEvent(event)
+
 
 
 
@@ -468,7 +469,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     cv2.imshow("image", image)
                     key = cv2.waitKey(1) & 0xFF
                     # If the 'r' key is pressed, reset the cropping region
-                    if key == ord("c") or cv2.getWindowProperty("image", cv2.WND_PROP_VISIBLE) < 1:
+                    if key == 13 or cv2.getWindowProperty("image", cv2.WND_PROP_VISIBLE) < 1:
                         image = clone.copy()
                         cv2.destroyAllWindows()
                         show_window = False  # Exit the loop and close the window
@@ -613,6 +614,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def returntocamera(self):
+        self.imageIndex = None
+        self.image = None
         self.ui.stackedWidget.setCurrentIndex(0)
 
     def clicked_adjust_btn(self):
@@ -695,10 +698,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.load_image()
 
     def discard(self):
-        if len(self.latestImage) > 1:
+        self.write(self.latestImage[0])
+        while len(self.latestImage) > 1:
             self.latestImage.pop()
-            self.write(self.latestImage[0])
-            self.load_image()
+        self.load_image()
+
             
     def crop_image(self):
         if self.image:
@@ -740,7 +744,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     cv2.imshow("image", image)
                     key = cv2.waitKey(1) & 0xFF
                     # If the 'r' key is pressed, reset the cropping region
-                    if key == ord("c") or cv2.getWindowProperty("image", cv2.WND_PROP_VISIBLE) < 1:
+                    if key == 13 or cv2.getWindowProperty("image", cv2.WND_PROP_VISIBLE) < 1:
                         image = clone.copy()
                         cv2.destroyAllWindows()
                         show_window = False  # Exit the loop and close the window

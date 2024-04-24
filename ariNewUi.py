@@ -851,7 +851,7 @@ class Ui_MainWindow(object):
         self.label_3.setScaledContents(True)
         self.label_3.setObjectName("label_3")
         self.name = QtWidgets.QLabel(self.nav)
-        self.name.setGeometry(QtCore.QRect(50, -10, 261, 40))
+        self.name.setGeometry(QtCore.QRect(50, -10, 461, 40))
         font = QtGui.QFont()
         font.setPointSize(12)
         font.setBold(True)

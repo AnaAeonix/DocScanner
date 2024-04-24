@@ -919,8 +919,9 @@ class Ui_MainWindow(object):
 
 class VideoStream:
     def __init__(self, parent_label: QLabel, camera_index):
-        self.video = cv2.VideoCapture(cv2.CAP_ANY)
+        self.video = cv2.VideoCapture()
 
+        self.firstTime = True
         self.parent_label = parent_label
         self.set_resolution()
         self.timer = None
@@ -955,12 +956,21 @@ class VideoStream:
             font = QFont()
             font.setPointSize(30)
             self.parent_label.setFont(font)
-            self.parent_label.setText(
-                "<p style='font-size:20pt'>Changing Camera...</p>")
+            if self.firstTime:
+                self.parent_label.setText(
+                "<p style='font-size:20pt'>Please Select the Camera...</p>")
+            else:
+                self.parent_label.setText(
+                    "<p style='font-size:20pt'>Changing Camera...</p>")
             return
 
         ret, frame = self.video.read()
         if ret:
+            self.firstTime = False
+            # (h, w) = frame.shape[:2]
+            # center = (w / 2, h / 2)
+            # M = cv2.getRotationMatrix2D(center, 45, 1.0)
+            # rotated_frame = cv2.warpAffine(frame, M, (w, h))
             rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame_resized = cv2.resize(rgb_image, (640, 480))
             h, w, ch = frame_resized.shape

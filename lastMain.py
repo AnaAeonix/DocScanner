@@ -77,7 +77,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.image_click_counter = {}
         self.crop_size = []
         self.latestImage = []
-
+        # self.prevlab = None
+        # self.prevlabIndex = None
         # Create a dictionary to store references to labels corresponding to image paths
         self.image = None  # Track the currently displayed image
         self.imageIndex = None
@@ -104,6 +105,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.crop_btn.clicked.connect(self.crop_image)
         self.ui.settings_btn.clicked.connect(self.crop_image_settings)
         self.ui.delete_btn.clicked.connect(self.delete_image)
+
+
+
         self.ui.save_btn.clicked.connect(self.save)
         self.ui.undo_btn.clicked.connect(self.undo)
         self.ui.discard_btn.clicked.connect(self.discard)
@@ -229,15 +233,22 @@ class MainWindow(QtWidgets.QMainWindow):
             QMessageBox.information(self, "No Selection",
                                     "No image selected for editing.")
 
-    def image_double_clicked(self, path, index):
+    def image_double_clicked(self,label, path, index):
         # Increment the click counter for the clicked image
         # if self.selected_images:
+        # self.display_captured_images_main()
+        # if self.prevlab!=None:
+        #     self.prevlab.setFrameShape(QtWidgets.QFrame.NoFrame)
+        # label.setFrameShape(QtWidgets.QFrame.Box)
+        # label.setLineWidth(2)  # Set line width to 2 pixels
         self.image = path
         self.imageIndex = index
         self.latestImage.clear()
         self.latestImage.append(self.read())
         self.ui.stackedWidget.setCurrentIndex(1)
         self.load_image()
+        # self.prevlab = label
+        # self.prevlabIndex = index
         
     def display_captured_images_main(self):
         self.all_checkboxes = []
@@ -286,6 +297,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
                     # Create QLabel for image
                     label = QtWidgets.QLabel()
+                    # if self.prevlabIndex!=None:
+                    #     label.setFrameShape(QtWidgets.QFrame.Box)
+                    #     label.setLineWidth(2)  # Set line width to 2 pixels
                     pixmap = QtGui.QPixmap(image_path)
                     # Scale image to fit additional_label
                     pixmap = pixmap.scaledToHeight(
@@ -323,7 +337,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                     # Add image widget to the scroll layout
                     scroll_layout.addWidget(image_widget)
-                    label.mouseDoubleClickEvent = lambda event, ind = index, path=image_path: self.image_double_clicked(
+                    label.mouseDoubleClickEvent = lambda state, ind = index,lab = label, path=image_path: self.image_double_clicked(lab,
                         path, ind)
                     # label.customContextMenuRequested.connect(
                     #     lambda point, index=index, label=label: self.open_context_menu(point, index, label))
@@ -376,7 +390,12 @@ class MainWindow(QtWidgets.QMainWindow):
                 # Delete selected images from captured_images
                 self.captured_images = [elem for elem in self.captured_images if elem not in [
                     x[1] for x in self.selected_images]]
+
                 # Clear the list of selected images
+                if any(index == self.imageIndex for index, _ in self.selected_images):
+                    print("ok")
+                    self.ui.stackedWidget.setCurrentIndex(0)
+                    
                 self.selected_images.clear()
                 # Update the display
                 self.display_captured_images_main()
@@ -387,6 +406,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def crop_image_settings(self):
         ret, frame = self.video_stream.video.read()
+        show_window = True
 
         if ret:
             image_resolution = frame.shape[:2]  # Get only the rows and columns
@@ -409,7 +429,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 if image is not None:
                     # Clone the image
                     clone = image.copy()
-
                 # Initialize the list of reference points and boolean indicating cropping
                 refPt = []
                 cropping = False
@@ -428,22 +447,27 @@ class MainWindow(QtWidgets.QMainWindow):
                         if not np.array_equal(image, clone):
                             image[:] = clone[:]
                         cv2.rectangle(
-                            image, refPt[0], refPt[1], (0, 255, 0), 2)
+                            image, refPt[0], refPt[1], (0, 0, 255), 2)
                         cv2.imshow("image", image)
 
                     # Setup the mouse callback function
-                cv2.namedWindow("image")
-                cv2.setMouseCallback("image", click_and_crop)
+                cv2.namedWindow("image", cv2.WINDOW_NORMAL)
 
-                while True:
+
+                cv2.resizeWindow("image", 1000, 800)
+
+                cv2.setMouseCallback("image", click_and_crop)
+                
+
+                while show_window :
                     # Display the image and wait for a keypress
                     cv2.imshow("image", image)
                     key = cv2.waitKey(1) & 0xFF
                     # If the 'r' key is pressed, reset the cropping region
-                    if key == ord("r"):
+                    if key == ord("c") or cv2.getWindowProperty("image", cv2.WND_PROP_VISIBLE) < 1:
                         image = clone.copy()
                         cv2.destroyAllWindows()
-                        break
+                        show_window = False  # Exit the loop and close the window
                     # If there are two reference points, crop the region of interest from the image and display it
                 if len(refPt) == 2:
                     self.crop_size = refPt
@@ -453,6 +477,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     # Save the cropped image
                     cropped_image_path = "cropped_image.jpg"  # Modify the path as needed
                     cv2.imwrite(cropped_image_path, roi)
+                    
+                cv2.destroyAllWindows()
 
             except Exception as e:
                 print(f"Error saving image: {e}")
@@ -484,10 +510,26 @@ class MainWindow(QtWidgets.QMainWindow):
                 camera_name = f"Camera {i} - Backend: {backend_id}"
                 available_cameras.append((i, camera_name))
                 del cap
+
+
+        # Clear any selected item in the dropdown
+        self.ui.cam_drop_down.clear()
+
+        # Set the placeholder text
+        self.ui.cam_drop_down.setPlaceholderText("Please select a camera")
+
+        # Assuming available_cameras is a list of tuples containing camera indices and names
         camera_names = [camera_name for _, camera_name in available_cameras]
+
+        # Add camera names to the dropdown
         self.ui.cam_drop_down.addItems(camera_names)
+
+        # Connect the currentIndexChanged signal
         self.ui.cam_drop_down.currentIndexChanged.connect(
             lambda: self._handle_index_change())
+
+
+
         
     def load_image(self):
         pixmap = QPixmap(self.image)
@@ -684,19 +726,20 @@ class MainWindow(QtWidgets.QMainWindow):
                         cv2.imshow("image", image)
 
                 # Setup the mouse callback function
-                cv2.namedWindow("image")
-                cv2.setMouseCallback("image", click_and_crop)
+                cv2.namedWindow("image", cv2.WINDOW_NORMAL)
 
-                while True:
+                cv2.resizeWindow("image", 1000, 800)
+                cv2.setMouseCallback("image", click_and_crop)
+                show_window = True
+                while show_window:
                     # Display the image and wait for a keypress
                     cv2.imshow("image", image)
                     key = cv2.waitKey(1) & 0xFF
                     # If the 'r' key is pressed, reset the cropping region
-                    if key == ord("r"):
+                    if key == ord("c") or cv2.getWindowProperty("image", cv2.WND_PROP_VISIBLE) < 1:
                         image = clone.copy()
                         cv2.destroyAllWindows()
-                        break
-
+                        show_window = False  # Exit the loop and close the window
                 # If there are two reference points, crop the region of interest from the image and display it
                 if len(refPt) == 2:
                     roi = clone[refPt[0][1]:refPt[1]
@@ -711,7 +754,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.load_image()
 
                 # Close all open windows
-
+                cv2.destroyAllWindows()
 
     def save(self):
         self.latestImage.append(self.read())

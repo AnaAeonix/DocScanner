@@ -133,7 +133,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def read(self):
         return cv2.imread(self.image)
 
-
+    def keyPressEvent(self, event):
+        if event.key() == 16777220 and self.ui.stackedWidget.currentIndex()==0:  # Key code for Enter key
+            self.capture_image()  # Call your function here
+        else:
+            super().keyPressEvent(event)
 
 
 

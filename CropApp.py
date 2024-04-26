@@ -80,14 +80,15 @@ class CornerBox():
 
 
 class CropApp:
-    def __init__(self, master, img, inplace= False, coordinates=[[0,0], [0,0], [0,0], [0,0]]):
+
+    def __init__(self, master, img_array, inplace=False, coordinates=[[0, 0], [0, 0], [0, 0], [0, 0]]):
         self.master = master
 
-        self.screen_width = root.winfo_screenwidth()
-        self.screen_height = root.winfo_screenheight()
+        self.screen_width = master.winfo_screenwidth()
+        self.screen_height = master.winfo_screenheight()
 
-        self.img_file_name = img
-        self.im = Image.open(img)
+        self.img_array = img_array
+        self.im = Image.fromarray(self.img_array)
         self.img_width, self.img_height = self.im.size
 
         f1 = 0
@@ -104,7 +105,7 @@ class CropApp:
             self.scale_factor = max(f1, f2)
             self.scale_factor += 1
             self.im = self.im.resize(
-                (self.img_width//self.scale_factor, self.img_height//self.scale_factor), Image.Resampling.LANCZOS)
+                (self.img_width//self.scale_factor, self.img_height//self.scale_factor), Image.LANCZOS)
             self.img_width, self.img_height = self.im.size
 
         self.c_width = self.img_width + 10
@@ -117,31 +118,35 @@ class CropApp:
         self.img_canvas = ImageTk.PhotoImage(self.im)
         self.img_canvas_img_id = self.canvas.create_image(
             5, 5, image=self.img_canvas, anchor=tk.NW)
-        if inplace==False:
+        if inplace == False:
             self.NW = CornerBox('NW', self.canvas, self.c_height, self.c_width)
             self.NE = CornerBox('NE', self.canvas, self.c_height, self.c_width)
             self.SE = CornerBox('SE', self.canvas, self.c_height, self.c_width)
             self.SW = CornerBox('SW', self.canvas, self.c_height, self.c_width)
         else:
-            self.NW = CornerBox('NW', self.canvas, self.c_height, self.c_width, True, coordinates[0][0], coordinates[0][1])
-            self.NE = CornerBox('NE', self.canvas, self.c_height, self.c_width, True, coordinates[1][0], coordinates[1][1])
-            self.SE = CornerBox('SE', self.canvas, self.c_height, self.c_width, True, coordinates[2][0], coordinates[2][1])
-            self.SW = CornerBox('SW', self.canvas, self.c_height, self.c_width, True, coordinates[3][0], coordinates[3][1])
+            self.NW = CornerBox('NW', self.canvas, self.c_height,
+                                self.c_width, True, coordinates[0][0]//self.scale_factor, coordinates[0][1]//self.scale_factor)
+            self.NE = CornerBox('NE', self.canvas, self.c_height,
+                                self.c_width, True, coordinates[1][0]//self.scale_factor, coordinates[1][1]//self.scale_factor)
+            self.SE = CornerBox('SE', self.canvas, self.c_height,
+                                self.c_width, True, coordinates[2][0]//self.scale_factor, coordinates[2][1]//self.scale_factor)
+            self.SW = CornerBox('SW', self.canvas, self.c_height,
+                                self.c_width, True, coordinates[3][0]//self.scale_factor, coordinates[3][1]//self.scale_factor)
 
         self.but_frame = tk.Frame(self.master)
         self.but_frame.pack()
 
         # self.coord_butt = tk.Button(
-        #     self.but_frame, text="Show Cordinates", command=self.printBoxDetails)
+        #     self.but_frame, text="Show Coordinates", command=self.printBoxDetails)
         # self.coord_butt.pack(side=tk.LEFT)
 
         self.reset_butt = tk.Button(
             self.but_frame, text="Reset", command=self.restCorners)
-        self.reset_butt.pack(side=tk.LEFT)
+        self.reset_butt.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.crop_butt = tk.Button(
             self.but_frame, text="Crop")
-        self.crop_butt.pack(side=tk.LEFT)
+        self.crop_butt.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.box_id = None
         self.p1_id = None
@@ -201,21 +206,20 @@ class CropApp:
         self.canvas.after(1, self.drawBox)
 
 
-if __name__ == "__main__":
-    root = tk.Tk()
-    img_file_name = 'notepad.jpg'
-    coordinates = [[79,120], [792, 73], [789, 583], [83,530]]
-    App = CropApp(root, img_file_name)
+# if __name__ == "__main__":
+#     root = tk.Tk()
+#     img_file_name = cv2.imread(r'C:\Users\sdas\OneDrive\Desktop\aeonix\DocScanner\test.jpg')
+#     coordinates = [[5,5], [1029, 5], [742, 209], [5,773]]
+#     App = CropApp(root, img_file_name)
 
-    root.mainloop()
+#     root.mainloop()
 
-    A = App.NW.coords
-    B = App.NE.coords
-    C = App.SE.coords
-    D = App.SW.coords
+#     A = App.NW.coords
+#     B = App.NE.coords
+#     C = App.SE.coords
+#     D = App.SW.coords
 
-    print(A)
-    print(B)
-    print(C)
-    print(D)
-
+#     print(A)
+#     print(B)
+#     print(C)
+#     print(D)

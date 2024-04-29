@@ -115,7 +115,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.adjust_btn.clicked.connect(self.clicked_adjust_btn)
         self.ui.color_btn.clicked.connect(self.clicked_color_btn)
         self.ui.rotate_btn.clicked.connect(self.clicked_rotate_btn)
-        self.ui.pdf_btn.clicked.connect(self.make_pdf)
+        self.ui.pdf_btn.clicked.connect(self.create_pdf_with_images)
         self.ui.cam_back.clicked.connect(self.returntocamera)
         self.ui.enhance_btn.clicked.connect(self.AutoEnhance)
         self.ui.crop_btn.clicked.connect(self.askQuestion)
@@ -184,6 +184,41 @@ class MainWindow(QtWidgets.QMainWindow):
 
             QMessageBox.information(self, "No Selection",
                                     "No image selected for making PDF.")
+            
+            
+    def create_pdf_with_images(self):
+        save_path, _ = QFileDialog.getSaveFileName(
+            None, "Save PDF", "", "PDF Files (*.pdf)")
+        if self.selected_images:
+                # Determine maximum image size
+                max_width = max([Image.open(image_path).width for _,
+                                image_path in self.selected_images])
+                max_height = max(
+                    [Image.open(image_path).height for _, image_path in self.selected_images])
+
+                # Create PDF with page size matching the largest image
+                pdf_canvas = canvas.Canvas(
+                    save_path, pagesize=(max_width, max_height))
+                for _, image_path in self.selected_images:
+                    img = Image.open(image_path)
+                    img_width, img_height = img.size
+                    x_offset = (max_width - img_width) / 2
+                    y_offset = (max_height - img_height) / 2
+
+                    # Draw white background
+                    pdf_canvas.setFillGray(1)
+                    pdf_canvas.rect(0, 0, max_width, max_height, fill=1)
+
+                    # Draw image
+                    pdf_canvas.drawImage(
+                        image_path, x_offset, y_offset, width=img_width, height=img_height)
+                    pdf_canvas.showPage()  # End current page
+                if save_path != '':
+                    pdf_canvas.save()
+        else:
+                # Inform the user if no images are selected
+                QMessageBox.information(None, "No Selection",
+                                        "No image selected for making PDF.")
 
     def export_image(self):
         # Check the number of selected images

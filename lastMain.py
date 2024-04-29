@@ -117,7 +117,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.rotate_btn.clicked.connect(self.clicked_rotate_btn)
         self.ui.pdf_btn.clicked.connect(self.create_pdf_with_images)
         self.ui.cam_back.clicked.connect(self.returntocamera)
-        self.ui.enhance_btn.clicked.connect(self.AutoEnhance) 
+        self.ui.enhance_btn.clicked.connect(self.AutoEnhance)
         self.ui.crop_btn.clicked.connect(self.askQuestion)
         self.ui.settings_btn.clicked.connect(self.crop_settings)
         self.ui.delete_btn.clicked.connect(self.delete_image)
@@ -184,41 +184,40 @@ class MainWindow(QtWidgets.QMainWindow):
 
             QMessageBox.information(self, "No Selection",
                                     "No image selected for making PDF.")
-            
-            
+
     def create_pdf_with_images(self):
         save_path, _ = QFileDialog.getSaveFileName(
             None, "Save PDF", "", "PDF Files (*.pdf)")
         if self.selected_images:
-                # Determine maximum image size
-                max_width = max([Image.open(image_path).width for _,
-                                image_path in self.selected_images])
-                max_height = max(
-                    [Image.open(image_path).height for _, image_path in self.selected_images])
+            # Determine maximum image size
+            max_width = max([Image.open(image_path).width for _,
+                            image_path in self.selected_images])
+            max_height = max(
+                [Image.open(image_path).height for _, image_path in self.selected_images])
 
-                # Create PDF with page size matching the largest image
-                pdf_canvas = canvas.Canvas(
-                    save_path, pagesize=(max_width, max_height))
-                for _, image_path in self.selected_images:
-                    img = Image.open(image_path)
-                    img_width, img_height = img.size
-                    x_offset = (max_width - img_width) / 2
-                    y_offset = (max_height - img_height) / 2
+            # Create PDF with page size matching the largest image
+            pdf_canvas = canvas.Canvas(
+                save_path, pagesize=(max_width, max_height))
+            for _, image_path in self.selected_images:
+                img = Image.open(image_path)
+                img_width, img_height = img.size
+                x_offset = (max_width - img_width) / 2
+                y_offset = (max_height - img_height) / 2
 
-                    # Draw white background
-                    pdf_canvas.setFillGray(1)
-                    pdf_canvas.rect(0, 0, max_width, max_height, fill=1)
+                # Draw white background
+                pdf_canvas.setFillGray(1)
+                pdf_canvas.rect(0, 0, max_width, max_height, fill=1)
 
-                    # Draw image
-                    pdf_canvas.drawImage(
-                        image_path, x_offset, y_offset, width=img_width, height=img_height)
-                    pdf_canvas.showPage()  # End current page
-                if save_path != '':
-                    pdf_canvas.save()
+                # Draw image
+                pdf_canvas.drawImage(
+                    image_path, x_offset, y_offset, width=img_width, height=img_height)
+                pdf_canvas.showPage()  # End current page
+            if save_path != '':
+                pdf_canvas.save()
         else:
-                # Inform the user if no images are selected
-                QMessageBox.information(None, "No Selection",
-                                        "No image selected for making PDF.")
+            # Inform the user if no images are selected
+            QMessageBox.information(None, "No Selection",
+                                    "No image selected for making PDF.")
 
     def export_image(self):
         # Check the number of selected images
@@ -831,7 +830,7 @@ class MainWindow(QtWidgets.QMainWindow):
     #             cv2.destroyAllWindows()
 
     def askQuestion(self):
-        if self.captured_images_crop[self.imageIndex]==[0,0]:
+        if self.captured_images_crop[self.imageIndex] == [0, 0]:
             msgBox = QMessageBox()
             msgBox.setWindowTitle("Crop Type")
             msgBox.setText("What type of crop do you want?")
@@ -846,11 +845,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.crop_image_4()
             elif msgBox.clickedButton() == no_button:
                 self.crop_image_6()
-        elif len(self.captured_images_crop[self.imageIndex])==6:
+        elif len(self.captured_images_crop[self.imageIndex]) == 6:
             self.crop_image_6()
-        else :
+        else:
             self.crop_image_4()
-            
 
     def crop_image_4(self):
         root = tk.Tk()
@@ -884,9 +882,8 @@ class MainWindow(QtWidgets.QMainWindow):
         print(final)
 
     def crop_image_6(self):
-        image = Image.fromarray(
-            cv2.cvtColor(
-                self.captured_images_main[self.imageIndex], cv2.COLOR_BGR2RGB))
+        image = Image.fromarray(cv2.cvtColor(
+            self.captured_images_main[self.imageIndex], cv2.COLOR_BGR2RGB))
         root = tk.Tk()
         if self.captured_images_crop[self.imageIndex] == [0, 0]:
             obj = SmartCrop(image, root)
@@ -930,7 +927,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #     self.captured_images_main[self.imageIndex], A, B, C, D)
         # cv2.imwrite('DistortSample1Output.jpg', final)
         self.captured_images_crop[self.imageIndex] = corners
-        self.image = warpped_image
+        self.image = cv2.cvtColor(warpped_image, cv2.COLOR_RGB2BGR)
         self.load_image()
         print(warpped_image)
 
@@ -1027,7 +1024,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if len(self.image.shape) == 3 and self.image.shape[2] == 3:
             # Image is in BGR format, convert to grayscale
             image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
-
 
         elif len(self.image.shape) == 2:
             # Image is already grayscale

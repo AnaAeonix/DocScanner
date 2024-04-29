@@ -117,7 +117,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.rotate_btn.clicked.connect(self.clicked_rotate_btn)
         self.ui.pdf_btn.clicked.connect(self.create_pdf_with_images)
         self.ui.cam_back.clicked.connect(self.returntocamera)
-        self.ui.enhance_btn.clicked.connect(self.AutoEnhance)
+        self.ui.enhance_btn.clicked.connect(self.AutoEnhance) 
         self.ui.crop_btn.clicked.connect(self.askQuestion)
         self.ui.settings_btn.clicked.connect(self.crop_settings)
         self.ui.delete_btn.clicked.connect(self.delete_image)

@@ -798,8 +798,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def askQuestion(self):
         if self.captured_images_crop[self.imageIndex]==[0,0]:
             msgBox = QMessageBox()
-            msgBox.setWindowTitle("Question Box Example")
-            msgBox.setText("What type of crop don you want?")
+            msgBox.setWindowTitle("Crop Type")
+            msgBox.setText("What type of crop do you want?")
             yes_button = msgBox.addButton(QMessageBox.Yes)
             yes_button.setText("Single Page Crop")
             no_button = msgBox.addButton(QMessageBox.No)
@@ -988,7 +988,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def magic1(self, image_path):
         # Read the image
-        image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+        # image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+        if len(self.image.shape) == 3 and self.image.shape[2] == 3:
+            # Image is in BGR format, convert to grayscale
+            image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+
+
+        elif len(self.image.shape) == 2:
+            # Image is already grayscale
+            image = self.image
 
         # Check if the image was read successfully
         if image is None:

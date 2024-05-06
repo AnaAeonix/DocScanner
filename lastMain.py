@@ -66,9 +66,8 @@ import cv2
 import numpy as np
 from PyQt5.QtGui import QPixmap, QPainter
 from PyQt5.QtCore import Qt
-
+import tkinter as tk
 from smartCrop import SmartCrop
-
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -130,7 +129,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.p = r"C:\Users\sdas\OneDrive\Desktop\aeonix\DocScanner\temp_image.png"
         self.ui.mag1_btn.clicked.connect(self.magic1)
         self.ui.mag2_btn.clicked.connect(self.magic2)
-        self.ui.horizontalSlider.valueChanged.connect(self.adjust_contrast)
+        # self.ui.horizontalSlider.valueChanged.connect(self.adjust_contrast)
         self.setWindowFlags(Qt.FramelessWindowHint)  # Hide default title bar
         self.ui.minimize.clicked.connect(self.showMinimized)
         self.ui.close.clicked.connect(self.close)
@@ -156,7 +155,7 @@ class MainWindow(QtWidgets.QMainWindow):
 # common section code
 
 
-    def make_pdf(self):
+    def  make_pdf(self):
         # Ask the user for the save path
         # save_path, _ = QFileDialog.getSaveFileName(
         #     None, "Save PDF", "", "PDF Files (*.pdf)")
@@ -544,6 +543,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def crop_settings(self):
         ret, frame = self.video_stream.video.read()
         show_window = True
+        print(tk.TkVersion)
 
         if ret:
             image_resolution = frame.shape[:2]  # Get only the rows and columns
@@ -838,6 +838,27 @@ class MainWindow(QtWidgets.QMainWindow):
 
     #             # Close all open windows
     #             cv2.destroyAllWindows()
+
+    def askQuestion_settings(self):
+            if self.captured_images_crop[self.imageIndex] == [0, 0]:
+                msgBox = QMessageBox()
+                msgBox.setWindowTitle("Crop Type")
+                msgBox.setText("What type of crop do you want?")
+                yes_button = msgBox.addButton(QMessageBox.Yes)
+                yes_button.setText("Single Page Crop")
+                no_button = msgBox.addButton(QMessageBox.No)
+                no_button.setText("Double Page Crop")
+
+                msgBox.exec()
+
+                if msgBox.clickedButton() == yes_button:
+                    self.crop_settings()
+                elif msgBox.clickedButton() == no_button:
+                    self.crop_image_6()
+            elif len(self.captured_images_crop[self.imageIndex]) == 6:
+                self.crop_image_6()
+            else:
+                self.crop_settings()
 
     def askQuestion(self):
         if self.captured_images_crop[self.imageIndex] == [0, 0]:

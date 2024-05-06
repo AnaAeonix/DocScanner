@@ -167,6 +167,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 None, "Save PDF", "", "PDF Files (*.pdf)")
             self.selected_images = sorted(
                 self.selected_images, key=lambda x: x[0])
+            # temp = temp.reverse()
             pdf_canvas = canvas.Canvas(save_path, pagesize=letter)
             for (index, image_path) in self.selected_images:
                 image = cv2.imread(image_path)
@@ -189,6 +190,8 @@ class MainWindow(QtWidgets.QMainWindow):
         save_path, _ = QFileDialog.getSaveFileName(
             None, "Save PDF", "", "PDF Files (*.pdf)")
         if self.selected_images:
+            temp = self.selected_images.copy()
+            temp.reverse()
             # Determine maximum image size
             max_width = max([Image.open(image_path).width for _,
                             image_path in self.selected_images])
@@ -198,7 +201,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # Create PDF with page size matching the largest image
             pdf_canvas = canvas.Canvas(
                 save_path, pagesize=(max_width, max_height))
-            for _, image_path in self.selected_images:
+            for _, image_path in temp:
                 img = Image.open(image_path)
                 img_width, img_height = img.size
                 x_offset = (max_width - img_width) / 2
@@ -221,33 +224,40 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def export_image(self):
         # Check the number of selected images
-        if len(self.selected_images) == 1:
-            # Ask the user for the save path
-            save_path, _ = QFileDialog.getSaveFileName(
-                None, "Save Image", "", "JPEG Files (*.jpg)")
-            if save_path:
-                image = QImage(self.selected_images[0][1])
+        if self.selected_images:
+            temp = self.selected_images.copy()
+            temp.reverse()
+            # Ask the user for the save directory
+            save_directory = QFileDialog.getExistingDirectory(
+                None, "Select Save Directory", "")
+            i = 0
+            if save_directory:
+                try:
+                    for (index, filepath) in temp:
+                        # Generate the filename with sequential numbering and .jpeg extension
+                        filename = f"{i}.jpeg"
+                        i+=1
+                        save_path = os.path.join(save_directory, filename)
 
-                # Convert the QImage to a QPixmap
-                pixmap = QPixmap.fromImage(image)
-                if pixmap and save_path != '':
-                    pixmap.save(save_path, "JPEG")
-                    print("Image saved as", save_path)
-                else:
-                    print("No image to save.")
+                        image = QImage(filepath)
+
+                        # Convert the QImage to a QPixmap
+                        pixmap = QPixmap.fromImage(image)
+                        if pixmap:
+                            # Save the QPixmap as JPEG
+                            pixmap.save(save_path, "JPEG")
+                            print(f"Image {index} saved as", save_path)
+                        else:
+                            print(f"Failed to convert image {index}.")
+                except Exception as e:
+                    print(f"Error exporting images: {e}")
             else:
                 print("Save operation cancelled by the user.")
-        elif len(self.selected_images) == 0:
-            QMessageBox.information(self, "No Selection",
-                                    "No image selected for making JPG.")
         else:
-            # Show a message box indicating more than one image is selected
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Warning)
-            msg_box.setText("More than one image is selected.")
-            msg_box.setWindowTitle("Multiple Images Selected")
-            msg_box.setStandardButtons(QMessageBox.Ok)
-            msg_box.exec_()
+            # Inform the user if no images are selected
+            QMessageBox.information(self, "No Selection", "No images selected for export.")
+
+
 
     def editing(self):
         # Increment the click counter for the clicked image
@@ -650,10 +660,10 @@ class MainWindow(QtWidgets.QMainWindow):
                         frame, self.auto_crop[0], self.auto_crop[1], self.auto_crop[2], self.auto_crop[3])
                 cv2.imwrite(filepath, frame)
 
-                self.captured_images_main.append(frame)
-                self.captured_images_crop.append([0, 0])
+                self.captured_images_main.insert(0,frame)
+                self.captured_images_crop.insert(0,[0, 0])
                 # Append the filepath to the captured images list
-                self.captured_images.append(filepath)
+                self.captured_images.insert(0,filepath)
                 self.selected_images.clear()
                 # Call display_captured_images to update the display
                 self.display_captured_images_main()
@@ -841,6 +851,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
             msgBox.exec()
 
+            msgBox.rejected.connect(self.handle_msg_box_closed)
+
             if msgBox.clickedButton() == yes_button:
                 self.crop_image_4()
             elif msgBox.clickedButton() == no_button:
@@ -849,7 +861,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.crop_image_6()
         else:
             self.crop_image_4()
-
+    def handle_msg_box_closed(self):
+        # Implement this function to handle the case when the message box is closed without any button being clicked
+        pass  # You can leave it empty or provide any specific behavior you want
     def crop_image_4(self):
         root = tk.Tk()
         img_file_name = cv2.cvtColor(

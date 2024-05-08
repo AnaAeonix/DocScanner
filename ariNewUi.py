@@ -21,6 +21,7 @@ from PyQt5.QtWidgets import QVBoxLayout, QScrollArea, QWidget, QLabel
 from PyQt5.QtGui import QImage, QPixmap, QFont
 from PyQt5.QtCore import Qt, QTimer
 from PyQt5.QtWidgets import QLabel
+import numpy as np
 
 
 class Ui_MainWindow(object):
@@ -69,13 +70,13 @@ class Ui_MainWindow(object):
         self.pdf_btn.setAutoExclusive(True)
         self.pdf_btn.setFlat(False)
         self.pdf_btn.setObjectName("pdf_btn")
-        
+
         self.show_page = QtWidgets.QLabel(self.centralwidget)
         # self.show_page.setGeometry(QtCore.QRect(700, 10, 231, 601))
         self.show_page.setFrameShape(QtWidgets.QFrame.Box)
         self.show_page.setText("")
         self.show_page.setStyleSheet("#show_page {"
-                                    #  "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
+                                     #  "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
                                      "border: 2px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);"
                                      "border-radius: 10px;"   # Adjust the value for desired curve
                                      "}")
@@ -287,10 +288,10 @@ class Ui_MainWindow(object):
         #                                      "}")
         self.additional_label.setObjectName("additional_label")
         self.additional_label.setStyleSheet("#additional_label {"
-                                    #  "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
-                                     "border: 2px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);"
-                                     "border-radius: 10px;"   # Adjust the value for desired curve
-                                     "}")
+                                            #  "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
+                                            "border: 2px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);"
+                                            "border-radius: 10px;"   # Adjust the value for desired curve
+                                            "}")
         self.additional_label.setFixedSize(210, 635)
         self.buttons_layout.addWidget(
             self.additional_label, alignment=QtCore.Qt.AlignTop)
@@ -318,7 +319,7 @@ class Ui_MainWindow(object):
         self.cam_label.setAlignment(QtCore.Qt.AlignCenter)
         self.cam_label.setObjectName("cam_label")
         self.cam_label.setStyleSheet("QLabel {"
-                                    #  "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
+                                     #  "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
                                      "border: 2px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);"
                                      "border-radius: 10px;"   # Adjust the value for desired curve
                                      "}")
@@ -329,28 +330,28 @@ class Ui_MainWindow(object):
         self.shutter_btn.setGeometry(QtCore.QRect(750, 880, 101, 61))
         self.shutter_btn.setText("")
         self.shutter_btn.setStyleSheet("QPushButton {\n"
-                                        "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
-                                        "        border-radius: 20px; \n"
-                                        "    color: white; /* Text color */\n"
-                                        "    font-weight: bold;\n"
-                                        "border:none; /* Border color */\n"
-                                        "    padding: 10px 10px; /* Adjust padding as needed */\n"
-                                        "    margin:0px; /* Margin to create distance between buttons */\n"
-                                        "}\n"
-                                        " QPushButton {\n"
-                                        "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-                                        "    color: white; /* Text color */\n"
-                                        "    font-weight: bold;\n"
-                                        "\n"
-                                        "    padding: 10px 20px;\n"
-                                        "        /*height:50px;*/\n"
-                                        "margin: 0px;\n"
-                                        "        \n"
-                                        "        /* border-bottom: 1px solid #b0b0b0; */\n"
-                                        "    }\n"
-                                        " QPushButton:hover {\n"
-                                        "        background-color:#073c6d\n"
-                                        "    }")
+                                       "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+                                       "        border-radius: 20px; \n"
+                                       "    color: white; /* Text color */\n"
+                                       "    font-weight: bold;\n"
+                                       "border:none; /* Border color */\n"
+                                       "    padding: 10px 10px; /* Adjust padding as needed */\n"
+                                       "    margin:0px; /* Margin to create distance between buttons */\n"
+                                       "}\n"
+                                       " QPushButton {\n"
+                                       "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                                       "    color: white; /* Text color */\n"
+                                       "    font-weight: bold;\n"
+                                       "\n"
+                                       "    padding: 10px 20px;\n"
+                                       "        /*height:50px;*/\n"
+                                       "margin: 0px;\n"
+                                       "        \n"
+                                       "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                                       "    }\n"
+                                       " QPushButton:hover {\n"
+                                       "        background-color:#073c6d\n"
+                                       "    }")
         icon3 = QtGui.QIcon()
         icon3.addPixmap(QtGui.QPixmap(
             ":/newPrefix/shutter.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -497,7 +498,7 @@ class Ui_MainWindow(object):
         self.show_image.setFrameShape(QtWidgets.QFrame.Box)
         self.show_image.setText("")
         self.show_image.setStyleSheet("QLabel {"
-                                    #   "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
+                                      #   "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
                                       "border: 2px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);"
                                       "border-radius: 10px;"   # Adjust the value for desired curve
                                       "}")
@@ -511,7 +512,7 @@ class Ui_MainWindow(object):
         self.page_3.setObjectName("page_3")
         self.horizontalSlider = QtWidgets.QSlider(self.page_3)
         self.horizontalSlider.setGeometry(QtCore.QRect(100, 50, 260, 22))
-        self.horizontalSlider.setRange(-100, 100)
+        self.horizontalSlider.setRange(0, 100)
         self.horizontalSlider.setValue(0)
         self.horizontalSlider.setTickPosition(QtWidgets.QSlider.TicksBelow)
         self.horizontalSlider.setTickInterval(10)
@@ -548,28 +549,28 @@ class Ui_MainWindow(object):
         self.enhance_btn = QtWidgets.QPushButton(self.page_4)
         self.enhance_btn.setGeometry(QtCore.QRect(100, 0, 211, 41))
         self.enhance_btn.setStyleSheet("QPushButton {\n"
-                                    "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
-                                    "        border-radius: 20px; \n"
-                                    "    color: white; /* Text color */\n"
-                                    "    font-weight: bold;\n"
-                                    "border:none; /* Border color */\n"
-                                    "    padding: 10px 10px; /* Adjust padding as needed */\n"
-                                    "    margin:0px; /* Margin to create distance between buttons */\n"
-                                    "}\n"
-                                    " QPushButton {\n"
-                                    "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-                                    "    color: white; /* Text color */\n"
-                                    "    font-weight: bold;\n"
-                                    "\n"
-                                    "    padding: 10px 20px;\n"
-                                    "        /*height:50px;*/\n"
-                                    "margin: 0px;\n"
-                                    "        \n"
-                                    "        /* border-bottom: 1px solid #b0b0b0; */\n"
-                                    "    }\n"
-                                    " QPushButton:hover {\n"
-                                    "        background-color:#073c6d\n"
-                                    "    }")
+                                       "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+                                       "        border-radius: 20px; \n"
+                                       "    color: white; /* Text color */\n"
+                                       "    font-weight: bold;\n"
+                                       "border:none; /* Border color */\n"
+                                       "    padding: 10px 10px; /* Adjust padding as needed */\n"
+                                       "    margin:0px; /* Margin to create distance between buttons */\n"
+                                       "}\n"
+                                       " QPushButton {\n"
+                                       "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                                       "    color: white; /* Text color */\n"
+                                       "    font-weight: bold;\n"
+                                       "\n"
+                                       "    padding: 10px 20px;\n"
+                                       "        /*height:50px;*/\n"
+                                       "margin: 0px;\n"
+                                       "        \n"
+                                       "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                                       "    }\n"
+                                       " QPushButton:hover {\n"
+                                       "        background-color:#073c6d\n"
+                                       "    }")
         self.enhance_btn.setObjectName("enhance_btn")
         self.mag1_btn = QtWidgets.QPushButton(self.page_4)
         self.mag1_btn.setGeometry(QtCore.QRect(604, 0, 211, 41))
@@ -600,61 +601,32 @@ class Ui_MainWindow(object):
         self.color_btn_2 = QtWidgets.QPushButton(self.page_4)
         self.color_btn_2.setGeometry(QtCore.QRect(100, 50, 211, 41))
         self.color_btn_2.setStyleSheet("QPushButton {\n"
-                                   "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
-                                   "        border-radius: 20px; \n"
-                                   "    color: white; /* Text color */\n"
-                                   "    font-weight: bold;\n"
-                                   "border:none; /* Border color */\n"
-                                   "    padding: 10px 10px; /* Adjust padding as needed */\n"
-                                   "    margin:0px; /* Margin to create distance between buttons */\n"
-                                   "}\n"
-                                   " QPushButton {\n"
-                                   "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-                                   "    color: white; /* Text color */\n"
-                                   "    font-weight: bold;\n"
-                                   "\n"
-                                   "    padding: 10px 20px;\n"
-                                   "        /*height:50px;*/\n"
-                                   "margin: 0px;\n"
-                                   "        \n"
-                                   "        /* border-bottom: 1px solid #b0b0b0; */\n"
-                                   "    }\n"
-                                   " QPushButton:hover {\n"
-                                   "        background-color:#073c6d\n"
-                                   "    }")
+                                       "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+                                       "        border-radius: 20px; \n"
+                                       "    color: white; /* Text color */\n"
+                                       "    font-weight: bold;\n"
+                                       "border:none; /* Border color */\n"
+                                       "    padding: 10px 10px; /* Adjust padding as needed */\n"
+                                       "    margin:0px; /* Margin to create distance between buttons */\n"
+                                       "}\n"
+                                       " QPushButton {\n"
+                                       "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                                       "    color: white; /* Text color */\n"
+                                       "    font-weight: bold;\n"
+                                       "\n"
+                                       "    padding: 10px 20px;\n"
+                                       "        /*height:50px;*/\n"
+                                       "margin: 0px;\n"
+                                       "        \n"
+                                       "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                                       "    }\n"
+                                       " QPushButton:hover {\n"
+                                       "        background-color:#073c6d\n"
+                                       "    }")
         self.color_btn_2.setObjectName("color_btn_2")
         self.mag2_btn = QtWidgets.QPushButton(self.page_4)
         self.mag2_btn.setGeometry(QtCore.QRect(604, 50, 211, 41))
         self.mag2_btn.setStyleSheet("QPushButton {\n"
-                                   "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
-                                   "        border-radius: 20px; \n"
-                                   "    color: white; /* Text color */\n"
-                                   "    font-weight: bold;\n"
-                                   "border:none; /* Border color */\n"
-                                   "    padding: 10px 10px; /* Adjust padding as needed */\n"
-                                   "    margin:0px; /* Margin to create distance between buttons */\n"
-                                   "}\n"
-                                   " QPushButton {\n"
-                                   "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-                                   "    color: white; /* Text color */\n"
-                                   "    font-weight: bold;\n"
-                                   "\n"
-                                   "    padding: 10px 20px;\n"
-                                   "        /*height:50px;*/\n"
-                                   "margin: 0px;\n"
-                                   "        \n"
-                                   "        /* border-bottom: 1px solid #b0b0b0; */\n"
-                                   "    }\n"
-                                   " QPushButton:hover {\n"
-                                   "        background-color:#073c6d\n"
-                                   "    }")
-        self.mag2_btn.setObjectName("mag2_btn")
-        self.edit_stack.addWidget(self.page_4)
-        self.page_5 = QtWidgets.QWidget()
-        self.page_5.setObjectName("page_5")
-        self.rotateleft_btn = QtWidgets.QPushButton(self.page_5)
-        self.rotateleft_btn.setGeometry(QtCore.QRect(100, 30, 211, 41))
-        self.rotateleft_btn.setStyleSheet("QPushButton {\n"
                                     "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                     "        border-radius: 20px; \n"
                                     "    color: white; /* Text color */\n"
@@ -677,6 +649,35 @@ class Ui_MainWindow(object):
                                     " QPushButton:hover {\n"
                                     "        background-color:#073c6d\n"
                                     "    }")
+        self.mag2_btn.setObjectName("mag2_btn")
+        self.edit_stack.addWidget(self.page_4)
+        self.page_5 = QtWidgets.QWidget()
+        self.page_5.setObjectName("page_5")
+        self.rotateleft_btn = QtWidgets.QPushButton(self.page_5)
+        self.rotateleft_btn.setGeometry(QtCore.QRect(100, 30, 211, 41))
+        self.rotateleft_btn.setStyleSheet("QPushButton {\n"
+                                          "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+                                          "        border-radius: 20px; \n"
+                                          "    color: white; /* Text color */\n"
+                                          "    font-weight: bold;\n"
+                                          "border:none; /* Border color */\n"
+                                          "    padding: 10px 10px; /* Adjust padding as needed */\n"
+                                          "    margin:0px; /* Margin to create distance between buttons */\n"
+                                          "}\n"
+                                          " QPushButton {\n"
+                                          "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                                          "    color: white; /* Text color */\n"
+                                          "    font-weight: bold;\n"
+                                          "\n"
+                                          "    padding: 10px 20px;\n"
+                                          "        /*height:50px;*/\n"
+                                          "margin: 0px;\n"
+                                          "        \n"
+                                          "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                                          "    }\n"
+                                          " QPushButton:hover {\n"
+                                          "        background-color:#073c6d\n"
+                                          "    }")
         icon9 = QtGui.QIcon()
         icon9.addPixmap(QtGui.QPixmap(":/newPrefix/rotateLeft.svg"),
                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -685,28 +686,28 @@ class Ui_MainWindow(object):
         self.rotateright_btn = QtWidgets.QPushButton(self.page_5)
         self.rotateright_btn.setGeometry(QtCore.QRect(604, 30, 211, 41))
         self.rotateright_btn.setStyleSheet("QPushButton {\n"
-                                    "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
-                                    "        border-radius: 20px; \n"
-                                    "    color: white; /* Text color */\n"
-                                    "    font-weight: bold;\n"
-                                    "border:none; /* Border color */\n"
-                                    "    padding: 10px 10px; /* Adjust padding as needed */\n"
-                                    "    margin:0px; /* Margin to create distance between buttons */\n"
-                                    "}\n"
-                                    " QPushButton {\n"
-                                    "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-                                    "    color: white; /* Text color */\n"
-                                    "    font-weight: bold;\n"
-                                    "\n"
-                                    "    padding: 10px 20px;\n"
-                                    "        /*height:50px;*/\n"
-                                    "margin: 0px;\n"
-                                    "        \n"
-                                    "        /* border-bottom: 1px solid #b0b0b0; */\n"
-                                    "    }\n"
-                                    " QPushButton:hover {\n"
-                                    "        background-color:#073c6d\n"
-                                    "    }")
+                                           "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+                                           "        border-radius: 20px; \n"
+                                           "    color: white; /* Text color */\n"
+                                           "    font-weight: bold;\n"
+                                           "border:none; /* Border color */\n"
+                                           "    padding: 10px 10px; /* Adjust padding as needed */\n"
+                                           "    margin:0px; /* Margin to create distance between buttons */\n"
+                                           "}\n"
+                                           " QPushButton {\n"
+                                           "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                                           "    color: white; /* Text color */\n"
+                                           "    font-weight: bold;\n"
+                                           "\n"
+                                           "    padding: 10px 20px;\n"
+                                           "        /*height:50px;*/\n"
+                                           "margin: 0px;\n"
+                                           "        \n"
+                                           "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                                           "    }\n"
+                                           " QPushButton:hover {\n"
+                                           "        background-color:#073c6d\n"
+                                           "    }")
         icon10 = QtGui.QIcon()
         icon10.addPixmap(QtGui.QPixmap(
             ":/newPrefix/rotateRight.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -811,37 +812,37 @@ class Ui_MainWindow(object):
         self.nav = QtWidgets.QWidget(self.centralwidget)
         self.nav.setGeometry(QtCore.QRect(0, 0, 1980, 40))
         self.nav.setStyleSheet("#nav {\n"
-                                "        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
-                                "        width:50px;\n"
-                                "        /*border-radius: 10px; *//* Adjust the value to change the curve radius */\n"
-                                "    }\n"
-                                "\n"
-                                "    /* style for QPushButton and QLabel */\n"
-                                "    #nav QPushButton {\n"
-                                "        border-radius: 1px; /* Adjust the value to change the curve radius */\n"
-                                "    color: white; /* Text color */\n"
-                                "    font-weight: bold;\n"
-                                " /*border: 2px solid #4CAF50; *//* Border color */\n"
-                                "    padding: 10px 20px;\n"
-                                "        /*height:50px;*/\n"
-                                "margin: 10px;\n"
-                                "        \n"
-                                "        /* border-bottom: 1px solid #b0b0b0; */\n"
-                                "    }\n"
-                                "#nav Qlabel{\n"
-                                "border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-                                "    color: white; /* Text color */\n"
-                                "    font-weight: bold;\n"
-                                " border: 2px solid #4CAF50; /* Border color */\n"
-                                "    padding: 10px 20px;\n"
-                                "        /*height:50px;*/\n"
-                                "margin: 10px;\n"
-                                "}\n"
-                                "\n"
-                                "    #nav QPushButton:hover {\n"
-                                "        background-color:#073c6d\n"
-                                "    }\n"
-                                "")
+                               "        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+                               "        width:50px;\n"
+                               "        /*border-radius: 10px; *//* Adjust the value to change the curve radius */\n"
+                               "    }\n"
+                               "\n"
+                               "    /* style for QPushButton and QLabel */\n"
+                               "    #nav QPushButton {\n"
+                               "        border-radius: 1px; /* Adjust the value to change the curve radius */\n"
+                               "    color: white; /* Text color */\n"
+                               "    font-weight: bold;\n"
+                               " /*border: 2px solid #4CAF50; *//* Border color */\n"
+                               "    padding: 10px 20px;\n"
+                               "        /*height:50px;*/\n"
+                               "margin: 10px;\n"
+                               "        \n"
+                               "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                               "    }\n"
+                               "#nav Qlabel{\n"
+                               "border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                               "    color: white; /* Text color */\n"
+                               "    font-weight: bold;\n"
+                               " border: 2px solid #4CAF50; /* Border color */\n"
+                               "    padding: 10px 20px;\n"
+                               "        /*height:50px;*/\n"
+                               "margin: 10px;\n"
+                               "}\n"
+                               "\n"
+                               "    #nav QPushButton:hover {\n"
+                               "        background-color:#073c6d\n"
+                               "    }\n"
+                               "")
         self.nav.setObjectName("nav")
         self.label_3 = QtWidgets.QLabel(self.nav)
         self.label_3.setGeometry(QtCore.QRect(10, 5, 31, 30))
@@ -857,12 +858,12 @@ class Ui_MainWindow(object):
         font.setBold(True)
         font.setWeight(75)
         self.name.setFont(font)
-        self.name.setStyleSheet( "#name{\n"
-                               "    color: white; /* Text color */\n"
-                               "    font-weight: bold;\n"
-                               "}\n"
-                               "\n"
-                               "")
+        self.name.setStyleSheet("#name{\n"
+                                "    color: white; /* Text color */\n"
+                                "    font-weight: bold;\n"
+                                "}\n"
+                                "\n"
+                                "")
         self.name.setAlignment(QtCore.Qt.AlignBottom | QtCore.Qt.AlignJustify)
         self.name.setObjectName("name")
         self.minimize = QtWidgets.QPushButton(self.nav)
@@ -921,6 +922,7 @@ class VideoStream:
     def __init__(self, parent_label: QLabel, camera_index):
         self.video = cv2.VideoCapture()
 
+        self.points = None
         self.firstTime = True
         self.parent_label = parent_label
         self.set_resolution()
@@ -958,7 +960,7 @@ class VideoStream:
             self.parent_label.setFont(font)
             if self.firstTime:
                 self.parent_label.setText(
-                "<p style='font-size:20pt'>Please Select the Camera...</p>")
+                    "<p style='font-size:20pt'>Please Select the Camera...</p>")
             else:
                 self.parent_label.setText(
                     "<p style='font-size:20pt'>Changing Camera...</p>")
@@ -967,10 +969,13 @@ class VideoStream:
         ret, frame = self.video.read()
         if ret:
             self.firstTime = False
+
             # (h, w) = frame.shape[:2]
             # center = (w / 2, h / 2)
             # M = cv2.getRotationMatrix2D(center, 45, 1.0)
             # rotated_frame = cv2.warpAffine(frame, M, (w, h))
+            if self.points is not None:
+                cv2.polylines(frame, [np.array(self.points)], True,(0, 255, 0), 6)
             rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame_resized = cv2.resize(rgb_image, (640, 480))
             h, w, ch = frame_resized.shape

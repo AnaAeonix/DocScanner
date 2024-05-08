@@ -464,10 +464,15 @@ class MainWindow(QtWidgets.QMainWindow):
                 C = np.asarray(App.SE.coords) * App.scale_factor
                 D = np.asarray(App.SW.coords) * App.scale_factor
                 self.auto_crop = [A, B, C, D]
+                self.auto_crop = [(int(A[0]), int(A[1]))
+                                  for A in self.auto_crop]
+                print(self.auto_crop)
+                self.video_stream.points = self.auto_crop
                 print(A)
                 print(B)
                 print(C)
                 print(D)
+                
             except Exception as e:
                 print(f"Error saving image: {e}")
 
@@ -510,6 +515,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 # cv2.imwrite("1714054747202_warpped.jpg", cv2.cvtColor(
                 #     warpped_image, cv2.COLOR_BGR2RGB))
                 self.auto_crop = corners
+                self.video_stream.points = corners
                 print(corners)
             except Exception as e:
                 print(f"Error saving image: {e}")
@@ -797,23 +803,30 @@ class MainWindow(QtWidgets.QMainWindow):
                           coordinates=self.captured_images_crop[self.imageIndex])
         root.mainloop()
 
-        A = np.asarray(App.NW.coords) * App.scale_factor
-        B = np.asarray(App.NE.coords) * App.scale_factor
-        C = np.asarray(App.SE.coords) * App.scale_factor
-        D = np.asarray(App.SW.coords) * App.scale_factor
+        if App.crop_pressed:
+            A = np.asarray(App.NW.coords) * App.scale_factor
+            B = np.asarray(App.NE.coords) * App.scale_factor
+            C = np.asarray(App.SE.coords) * App.scale_factor
+            D = np.asarray(App.SW.coords) * App.scale_factor
 
-        print(A)
-        print(B)
-        print(C)
-        print(D)
-        coordinates = [A, B, C, D]
-        final = self.crop_cutting(
-            self.captured_images_main[self.imageIndex], A, B, C, D)
-        cv2.imwrite('DistortSample1Output.jpg', final)
-        self.captured_images_crop[self.imageIndex] = coordinates
-        self.image = final
-        self.load_image()
-        print(final)
+            print(A)
+            print(B)
+            
+            
+            
+            
+            
+            
+            print(C)
+            print(D)
+            coordinates = [A, B, C, D]
+            final = self.crop_cutting(
+                self.captured_images_main[self.imageIndex], A, B, C, D)
+            cv2.imwrite('DistortSample1Output.jpg', final)
+            self.captured_images_crop[self.imageIndex] = coordinates
+            self.image = final
+            self.load_image()
+            print(final)
 
     def crop_image_6(self):
         image = Image.fromarray(cv2.cvtColor(
@@ -826,44 +839,45 @@ class MainWindow(QtWidgets.QMainWindow):
                             points=self.captured_images_crop[self.imageIndex])
         # obj = SmartCrop(image, root)
         obj.run()
-        corners = obj.get_draggable_points()
+        if obj.crop_pressed:
+            corners = obj.get_draggable_points()
 
-        split1, split2, warpped_image = obj.get_warpped(corners)
-        # cv2.imwrite("1714054747202_warpped_1.jpg",
-        #             cv2.cvtColor(split1, cv2.COLOR_BGR2RGB))
-        # cv2.imwrite("1714054747202_warpped_2.jpg",
-        #             cv2.cvtColor(split2, cv2.COLOR_BGR2RGB))
-        # cv2.imwrite("1714054747202_warpped.jpg", cv2.cvtColor(
-        #     warpped_image, cv2.COLOR_BGR2RGB))
-        print(corners)
-        # root = tk.Tk()
-        # img_file_name = img_file_name = cv2.cvtColor(
-        #     self.captured_images_main[self.imageIndex], cv2.COLOR_BGR2RGB)
-        # # coordinates = [[5, 5], [1029, 5], [742, 209], [5, 773]]
-        # if np.array_equal(self.get_image_coordinates(cv2.imread(self.captured_images[self.imageIndex])), self.captured_images_crop[self.imageIndex]):
-        #     App = CropApp(root, img_file_name)
-        # else:
-        #     App = CropApp(root, img_file_name, inplace=True,
-        #                   coordinates=self.captured_images_crop[self.imageIndex])
-        # root.mainloop()
+            split1, split2, warpped_image = obj.get_warpped(corners)
+            # cv2.imwrite("1714054747202_warpped_1.jpg",
+            #             cv2.cvtColor(split1, cv2.COLOR_BGR2RGB))
+            # cv2.imwrite("1714054747202_warpped_2.jpg",
+            #             cv2.cvtColor(split2, cv2.COLOR_BGR2RGB))
+            # cv2.imwrite("1714054747202_warpped.jpg", cv2.cvtColor(
+            #     warpped_image, cv2.COLOR_BGR2RGB))
+            print(corners)
+            # root = tk.Tk()
+            # img_file_name = img_file_name = cv2.cvtColor(
+            #     self.captured_images_main[self.imageIndex], cv2.COLOR_BGR2RGB)
+            # # coordinates = [[5, 5], [1029, 5], [742, 209], [5, 773]]
+            # if np.array_equal(self.get_image_coordinates(cv2.imread(self.captured_images[self.imageIndex])), self.captured_images_crop[self.imageIndex]):
+            #     App = CropApp(root, img_file_name)
+            # else:
+            #     App = CropApp(root, img_file_name, inplace=True,
+            #                   coordinates=self.captured_images_crop[self.imageIndex])
+            # root.mainloop()
 
-        # A = np.asarray(App.NW.coords) * App.scale_factor
-        # B = np.asarray(App.NE.coords) * App.scale_factor
-        # C = np.asarray(App.SE.coords) * App.scale_factor
-        # D = np.asarray(App.SW.coords) * App.scale_factor
+            # A = np.asarray(App.NW.coords) * App.scale_factor
+            # B = np.asarray(App.NE.coords) * App.scale_factor
+            # C = np.asarray(App.SE.coords) * App.scale_factor
+            # D = np.asarray(App.SW.coords) * App.scale_factor
 
-        # print(A)
-        # print(B)
-        # print(C)
-        # print(D)
-        # coordinates = [A, B, C, D]
-        # final = self.crop_cutting(
-        #     self.captured_images_main[self.imageIndex], A, B, C, D)
-        # cv2.imwrite('DistortSample1Output.jpg', final)
-        self.captured_images_crop[self.imageIndex] = corners
-        self.image = cv2.cvtColor(warpped_image, cv2.COLOR_RGB2BGR)
-        self.load_image()
-        print(warpped_image)
+            # print(A)
+            # print(B)
+            # print(C)
+            # print(D)
+            # coordinates = [A, B, C, D]
+            # final = self.crop_cutting(
+            #     self.captured_images_main[self.imageIndex], A, B, C, D)
+            # cv2.imwrite('DistortSample1Output.jpg', final)
+            self.captured_images_crop[self.imageIndex] = corners
+            self.image = cv2.cvtColor(warpped_image, cv2.COLOR_RGB2BGR)
+            self.load_image()
+            print(warpped_image)
 
     def crop_cutting(self, image_path, A, B, C, D):
         coordinates = [A, B, C, D]

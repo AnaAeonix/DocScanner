@@ -83,6 +83,8 @@ class CropApp:
 
     def __init__(self, master, img_array, inplace=False, coordinates=[[0, 0], [0, 0], [0, 0], [0, 0]]):
         self.master = master
+        
+        self.crop_pressed = False
 
         self.screen_width = master.winfo_screenwidth()
         self.screen_height = master.winfo_screenheight()
@@ -162,6 +164,9 @@ class CropApp:
 
     def printBoxDetails(self):
         print(self.NW.coords, self.NE.coords, self.SE.coords, self.SW.coords)
+        
+    def crop(self):
+        self.crop_pressed=True
 
     def restCorners(self):
         self.NW.reset()

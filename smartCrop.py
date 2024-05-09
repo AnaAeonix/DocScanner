@@ -6,6 +6,7 @@ import numpy as np
 
 class SmartCrop:
     def __init__(self, image, root, points=None):
+        self.crop_pressed = False
         self.image_orig = image
         max_size = 720  # 1960x1080
         width, height = image.size
@@ -57,7 +58,7 @@ class SmartCrop:
                 item['circle'], '<Button1-Motion>', lambda event, item=item: self.drag(event, item))
 
         # Add Done and Reset buttons
-        self.done_button = Button(self.root, text="Crop")
+        self.done_button = Button(self.root, text="Crop", command=self.crop)
         self.done_button.pack(side=LEFT, padx=5, pady=5)
 
         self.reset_button = Button(
@@ -70,6 +71,9 @@ class SmartCrop:
         self.rotate_button.pack(side=LEFT, padx=5, pady=5)
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
+
+    def crop(self):
+        self.crop_pressed = True
 
     def drag(self, event, item):
         x, y = event.x, event.y

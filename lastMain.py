@@ -25,6 +25,7 @@ import cv2
 import numpy as np
 from smartCrop import SmartCrop
 
+
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
         super(MainWindow, self).__init__()
@@ -106,16 +107,9 @@ class MainWindow(QtWidgets.QMainWindow):
             super().keyPressEvent(event)
 
 
-
-
-
-
-
-
 # common section code
 
-
-    def  make_pdf(self):
+    def make_pdf(self):
         # Ask the user for the save path
         # save_path, _ = QFileDialog.getSaveFileName(
         #     None, "Save PDF", "", "PDF Files (*.pdf)")
@@ -195,7 +189,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     for (index, filepath) in temp:
                         # Generate the filename with sequential numbering and .jpeg extension
                         filename = f"{i}.jpeg"
-                        i+=1
+                        i += 1
                         save_path = os.path.join(save_directory, filename)
 
                         image = QImage(filepath)
@@ -214,10 +208,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 print("Save operation cancelled by the user.")
         else:
             # Inform the user if no images are selected
-            QMessageBox.information(self, "No Selection", "No images selected for export.")
-            
-            
- 
+            QMessageBox.information(
+                self, "No Selection", "No images selected for export.")
+
     def editing(self):
         # Increment the click counter for the clicked image
         if len(self.selected_images) == 1:
@@ -268,107 +261,106 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.stackedWidget.setCurrentIndex(1)
             self.load_image()
 
-
     def display_captured_images_main(self):
         self.all_checkboxes = []
         # Clear existing images and checkboxes
         layout = self.ui.additional_label.layout()
         if layout is not None:
-                for i in reversed(range(layout.count())):
-                    widget = layout.itemAt(i).widget()
-                    if isinstance(widget, QtWidgets.QWidget):
-                        widget.setParent(None)
+            for i in reversed(range(layout.count())):
+                widget = layout.itemAt(i).widget()
+                if isinstance(widget, QtWidgets.QWidget):
+                    widget.setParent(None)
 
             # Ensure that additional_label has a layout
         if layout is None:
-                layout = QtWidgets.QVBoxLayout()
-                self.ui.additional_label.setLayout(layout)
+            layout = QtWidgets.QVBoxLayout()
+            self.ui.additional_label.setLayout(layout)
 
             # Display captured images if the list is not empty
         if self.captured_images:
-                displayed_images = [layout.itemAt(i).widget().findChild(
-                    QtWidgets.QLabel) for i in range(layout.count())]
+            displayed_images = [layout.itemAt(i).widget().findChild(
+                QtWidgets.QLabel) for i in range(layout.count())]
 
-                # Create a scroll area to contain the images and checkboxes
-                scroll_area = QtWidgets.QScrollArea()
-                scroll_area.setWidgetResizable(True)
-                scroll_area.setFrameShape(
-                    QtWidgets.QFrame.NoFrame)  # Remove frame shape
+            # Create a scroll area to contain the images and checkboxes
+            scroll_area = QtWidgets.QScrollArea()
+            scroll_area.setWidgetResizable(True)
+            scroll_area.setFrameShape(
+                QtWidgets.QFrame.NoFrame)  # Remove frame shape
 
-                # Create a widget to contain the layout of the images and checkboxes
-                scroll_content = QtWidgets.QWidget()
-                scroll_layout = QtWidgets.QVBoxLayout(scroll_content)
-                scroll_layout.setAlignment(QtCore.Qt.AlignTop)  # Align to top
+            # Create a widget to contain the layout of the images and checkboxes
+            scroll_content = QtWidgets.QWidget()
+            scroll_layout = QtWidgets.QVBoxLayout(scroll_content)
+            scroll_layout.setAlignment(QtCore.Qt.AlignTop)  # Align to top
 
-                # Add "Select All" checkbox
-                select_all_widget = QtWidgets.QWidget()
-                select_all_layout = QtWidgets.QHBoxLayout(select_all_widget)
+            # Add "Select All" checkbox
+            select_all_widget = QtWidgets.QWidget()
+            select_all_layout = QtWidgets.QHBoxLayout(select_all_widget)
 
-                select_all_checkbox = QtWidgets.QCheckBox("Select All")
-                select_all_checkbox.stateChanged.connect(self.select_all_images)
-                select_all_checkbox.setStyleSheet(
-                    "color: #3020ee; font-weight: bold; font-family: Arial;")  # Add this line
-                select_all_layout.addWidget(
-                    select_all_checkbox, alignment=QtCore.Qt.AlignLeft)
+            select_all_checkbox = QtWidgets.QCheckBox("Select All")
+            select_all_checkbox.stateChanged.connect(self.select_all_images)
+            select_all_checkbox.setStyleSheet(
+                "color: #3020ee; font-weight: bold; font-family: Arial;")  # Add this line
+            select_all_layout.addWidget(
+                select_all_checkbox, alignment=QtCore.Qt.AlignLeft)
 
-                # Add label to show number of images
-                num_images_label = QtWidgets.QLabel(
-                    f" ({len(self.captured_images)} images)")
-                num_images_label.setStyleSheet(
-                    "color: #808080; font-family: Arial;")
-                select_all_layout.addWidget(
-                    num_images_label, alignment=QtCore.Qt.AlignLeft)
+            # Add label to show number of images
+            num_images_label = QtWidgets.QLabel(
+                f" ({len(self.captured_images)} images)")
+            num_images_label.setStyleSheet(
+                "color: #808080; font-family: Arial;")
+            select_all_layout.addWidget(
+                num_images_label, alignment=QtCore.Qt.AlignLeft)
 
-                scroll_layout.addWidget(select_all_widget)
+            scroll_layout.addWidget(select_all_widget)
 
-                # Create a horizontal layout for each image and checkbox
-                for index, image_path in enumerate(self.captured_images):
-                    if image_path not in displayed_images:
-                        # Create a widget to contain the image and checkbox
-                        image_widget = QtWidgets.QWidget()
+            # Create a horizontal layout for each image and checkbox
+            for index, image_path in enumerate(self.captured_images):
+                if image_path not in displayed_images:
+                    # Create a widget to contain the image and checkbox
+                    image_widget = QtWidgets.QWidget()
 
-                        # Create QLabel for image
-                        label = QtWidgets.QLabel()
-                        pixmap = QtGui.QPixmap(image_path)
-                        # Scale image to fit additional_label
-                        pixmap = pixmap.scaledToHeight(
-                            150, QtCore.Qt.SmoothTransformation)
-                        pixmap = pixmap.scaledToWidth(
-                            150, QtCore.Qt.SmoothTransformation)
-                        label.setPixmap(pixmap)
+                    # Create QLabel for image
+                    label = QtWidgets.QLabel()
+                    pixmap = QtGui.QPixmap(image_path)
+                    # Scale image to fit additional_label
+                    pixmap = pixmap.scaledToHeight(
+                        150, QtCore.Qt.SmoothTransformation)
+                    pixmap = pixmap.scaledToWidth(
+                        150, QtCore.Qt.SmoothTransformation)
+                    label.setPixmap(pixmap)
 
-                        # Create checkbox
-                        checkbox = QtWidgets.QCheckBox("Select")
-                        checkbox.stateChanged.connect(
-                            lambda state, idx=index: self.update_selected_images(state, idx))
-                        self.all_checkboxes.append(checkbox)
-                        checkbox.setStyleSheet(
-                            "QCheckBox::indicator { width: 20px; height: 20px; border: none; background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa); }")
-                        checkbox.setStyleSheet(
-                            "color: #3020ee; font-weight: bold; font-family: Arial;")  # Add this line
+                    # Create checkbox
+                    checkbox = QtWidgets.QCheckBox("Select")
+                    checkbox.stateChanged.connect(
+                        lambda state, idx=index: self.update_selected_images(state, idx))
+                    self.all_checkboxes.append(checkbox)
+                    checkbox.setStyleSheet(
+                        "QCheckBox::indicator { width: 20px; height: 20px; border: none; background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa); }")
+                    checkbox.setStyleSheet(
+                        "color: #3020ee; font-weight: bold; font-family: Arial;")  # Add this line
 
-                        # Create layout for checkbox
-                        checkbox_layout = QtWidgets.QHBoxLayout()
-                        # Align checkbox to right
-                        checkbox_layout.addWidget(
-                            checkbox, alignment=QtCore.Qt.AlignLeft)
+                    # Create layout for checkbox
+                    checkbox_layout = QtWidgets.QHBoxLayout()
+                    # Align checkbox to right
+                    checkbox_layout.addWidget(
+                        checkbox, alignment=QtCore.Qt.AlignLeft)
 
-                        # Create layout for image and checkbox layout
-                        layout_image_checkbox = QtWidgets.QVBoxLayout()
-                        layout_image_checkbox.addLayout(checkbox_layout)
-                        layout_image_checkbox.addWidget(label)
-                        image_widget.setLayout(layout_image_checkbox)
+                    # Create layout for image and checkbox layout
+                    layout_image_checkbox = QtWidgets.QVBoxLayout()
+                    layout_image_checkbox.addLayout(checkbox_layout)
+                    layout_image_checkbox.addWidget(label)
+                    image_widget.setLayout(layout_image_checkbox)
 
-                        # Add image widget to the scroll layout
-                        scroll_layout.addWidget(image_widget)
-                        label.mouseDoubleClickEvent = lambda state, ind=index, lab=label, path=image_path: self.image_double_clicked(lab,
-                                                                                                                                    path, ind)
+                    # Add image widget to the scroll layout
+                    scroll_layout.addWidget(image_widget)
+                    label.mouseDoubleClickEvent = lambda state, ind=index, lab=label, path=image_path: self.image_double_clicked(lab,
+                                                                                                                                 path, ind)
 
-                # Set the scroll content widget
-                scroll_area.setWidget(scroll_content)
+            # Set the scroll content widget
+            scroll_area.setWidget(scroll_content)
 
-                # Add the scroll area to additional_label
-                layout.addWidget(scroll_area)
+            # Add the scroll area to additional_label
+            layout.addWidget(scroll_area)
 
     def update_selected_images(self, state, index):
         image_path = self.captured_images[index]
@@ -427,7 +419,6 @@ class MainWindow(QtWidgets.QMainWindow):
             QMessageBox.information(self, "No Selection",
                                     "No images selected for deletion.")
 
-
     def crop_settings(self):
         ret, frame = self.video_stream.video.read()
         show_window = True
@@ -472,7 +463,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 print(B)
                 print(C)
                 print(D)
-                
+
             except Exception as e:
                 print(f"Error saving image: {e}")
 
@@ -496,7 +487,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             try:
 
-                image =Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+                image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
                 root = tk.Tk()
                 if self.auto_crop == None or len(self.auto_crop) == 4:
                     obj = SmartCrop(image, root)
@@ -519,16 +510,10 @@ class MainWindow(QtWidgets.QMainWindow):
                 print(corners)
             except Exception as e:
                 print(f"Error saving image: {e}")
-                
-                
-                
-                
-                
-                
-                
-                
+
 
 # camerafeed window
+
 
     def populate_camera_dropdown(self):
         global available_cameras
@@ -600,29 +585,24 @@ class MainWindow(QtWidgets.QMainWindow):
             try:
                 self.captured_images_main.insert(0, frame)
                 # Save the cropped image with timestamp
-                if self.auto_crop is not None :
+                if self.auto_crop is not None:
                     if len(self.auto_crop) == 4:
                         frame = self.crop_cutting(
-                        frame, self.auto_crop[0], self.auto_crop[1], self.auto_crop[2], self.auto_crop[3])
+                            frame, self.auto_crop[0], self.auto_crop[1], self.auto_crop[2], self.auto_crop[3])
                     else:
                         frame = self.cutting_6(Image.fromarray(
                             frame), self.auto_crop[0], self.auto_crop[1], self.auto_crop[2], self.auto_crop[3], self.auto_crop[4], self.auto_crop[5])
                 cv2.imwrite(filepath, frame)
 
-                
-                self.captured_images_crop.insert(0,[0, 0])
+                self.captured_images_crop.insert(0, [0, 0])
                 # Append the filepath to the captured images list
-                self.captured_images.insert(0,filepath)
+                self.captured_images.insert(0, filepath)
                 self.selected_images.clear()
                 # Call display_captured_images to update the display
                 self.display_captured_images_main()
 
             except Exception as e:
                 print(f"Error saving image: {e}")
-                
-        
-        
-        
 
     def get_image_coordinates(self, image_array):
         height, width = image_array.shape[:2]
@@ -638,25 +618,10 @@ class MainWindow(QtWidgets.QMainWindow):
             (top_left, top_right, bottom_right, bottom_left))
 
         return coordinates
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
 
 
 # for editing purpose
+
 
     def returntocamera(self):
         self.imageIndex = None
@@ -722,7 +687,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                     # Display the adjusted image
                     self.image = adjusted_image
-                    
+
                     self.load_image()
                 else:
                     raise ValueError("Unable to load the image.")
@@ -750,20 +715,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.load_image()
 
     def askQuestion_settings(self):
-                msgBox = QMessageBox()
-                msgBox.setWindowTitle("Crop Type")
-                msgBox.setText("What type of crop do you want?")
-                yes_button = msgBox.addButton(QMessageBox.Yes)
-                yes_button.setText("Single Page Crop")
-                no_button = msgBox.addButton(QMessageBox.No)
-                no_button.setText("Double Page Crop")
+        msgBox = QMessageBox()
+        msgBox.setWindowTitle("Crop Type")
+        msgBox.setText("What type of crop do you want?")
+        yes_button = msgBox.addButton(QMessageBox.Yes)
+        yes_button.setText("Single Page Crop")
+        no_button = msgBox.addButton(QMessageBox.No)
+        no_button.setText("Double Page Crop")
 
-                msgBox.exec()
+        msgBox.exec()
 
-                if msgBox.clickedButton() == yes_button:
-                    self.crop_settings()
-                elif msgBox.clickedButton() == no_button:
-                    self.crop_settings_6()
+        if msgBox.clickedButton() == yes_button:
+            self.crop_settings()
+        elif msgBox.clickedButton() == no_button:
+            self.crop_settings_6()
 
     def askQuestion(self):
         if self.captured_images_crop[self.imageIndex] == [0, 0]:
@@ -787,9 +752,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.crop_image_6()
         else:
             self.crop_image_4()
+
     def handle_msg_box_closed(self):
         # Implement this function to handle the case when the message box is closed without any button being clicked
         pass  # You can leave it empty or provide any specific behavior you want
+
     def crop_image_4(self):
         root = tk.Tk()
         img_file_name = cv2.cvtColor(
@@ -802,7 +769,7 @@ class MainWindow(QtWidgets.QMainWindow):
             App = CropApp(root, img_file_name, inplace=True,
                           coordinates=self.captured_images_crop[self.imageIndex])
         root.mainloop()
-
+        print(App.crop_pressed)
         if App.crop_pressed:
             A = np.asarray(App.NW.coords) * App.scale_factor
             B = np.asarray(App.NE.coords) * App.scale_factor
@@ -811,12 +778,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             print(A)
             print(B)
-            
-            
-            
-            
-            
-            
+
             print(C)
             print(D)
             coordinates = [A, B, C, D]
@@ -923,8 +885,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # cropped_img_array = np.array(cropped_img)
 
         # return cropped_img_array
-    def cutting_6(self, image_path, A, B, C, D,E,F):
-        corners = [A,B,C,D,E,F]
+    def cutting_6(self, image_path, A, B, C, D, E, F):
+        corners = [A, B, C, D, E, F]
         (tl1, tr1, br1, bl1) = (corners[0], corners[1], corners[4], corners[5])
         (tl2, tr2, br2, bl2) = (corners[1], corners[2], corners[3], corners[4])
         # Finding the maximum width.
@@ -958,7 +920,6 @@ class MainWindow(QtWidgets.QMainWindow):
         final2 = cv2.warpPerspective(np.array(image_path), np.float32(
             homography2), (maxWidth, maxHeight), flags=cv2.INTER_LINEAR)
         return np.concatenate((final1, final2), axis=1)
-
 
     def save(self):
         self.latestImage.append(self.image)

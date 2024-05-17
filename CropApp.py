@@ -83,7 +83,7 @@ class CropApp:
 
     def __init__(self, master, img_array, inplace=False, coordinates=[[0, 0], [0, 0], [0, 0], [0, 0]]):
         self.master = master
-        
+
         self.crop_pressed = False
 
         self.screen_width = master.winfo_screenwidth()
@@ -147,7 +147,7 @@ class CropApp:
         self.reset_butt.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.crop_butt = tk.Button(
-            self.but_frame, text="Crop")
+            self.but_frame, text="Crop", command=self.crop)
         self.crop_butt.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.box_id = None
@@ -164,9 +164,9 @@ class CropApp:
 
     def printBoxDetails(self):
         print(self.NW.coords, self.NE.coords, self.SE.coords, self.SW.coords)
-        
+
     def crop(self):
-        self.crop_pressed=True
+        self.crop_pressed = True
 
     def restCorners(self):
         self.NW.reset()

@@ -364,6 +364,25 @@ class Ui_MainWindow(object):
         # self.res_drop_down = QtWidgets.QComboBox(self.page)
         # self.res_drop_down.setGeometry(QtCore.QRect(400, 550, 181, 22))
         # self.res_drop_down.setObjectName("res_drop_down")
+        self.ai_btn = QtWidgets.QRadioButton(self.page)
+        self.ai_btn.setGeometry(QtCore.QRect(60, 20, 102, 27))
+        self.ai_btn.setCheckable(True)
+        self.ai_btn.setAutoExclusive(False)
+        self.ai_btn.setObjectName("ai_btn")
+
+        # Create a QFont object
+        font = QtGui.QFont()
+        font.setPointSize(16)  # Set the desired font size
+
+        # Apply the font to the button
+        self.ai_btn.setFont(font)
+        self.foc_drop = QtWidgets.QComboBox(self.page)
+        self.foc_drop.setGeometry(QtCore.QRect(530, 20, 101, 22))
+        self.foc_drop.addItems(["Auto Focus", "Fixed Focus"])
+        self.foc_drop.setObjectName("foc_drop")
+        self.foc_label = QtWidgets.QLabel(self.page)
+        self.foc_label.setGeometry(QtCore.QRect(460, 20, 61, 21))
+        self.foc_label.setObjectName("foc_label")
         self.stackedWidget.addWidget(self.page)
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setObjectName("page_2")
@@ -511,15 +530,15 @@ class Ui_MainWindow(object):
         self.page_3 = QtWidgets.QWidget()
         self.page_3.setObjectName("page_3")
         self.horizontalSlider = QtWidgets.QSlider(self.page_3)
-        self.horizontalSlider.setGeometry(QtCore.QRect(100, 50, 260, 22))
-        self.horizontalSlider.setRange(0, 100)
+        self.horizontalSlider.setGeometry(QtCore.QRect(40, 50, 260, 22))
+        self.horizontalSlider.setRange(-100, 100)
         self.horizontalSlider.setValue(0)
         self.horizontalSlider.setTickPosition(QtWidgets.QSlider.TicksBelow)
         self.horizontalSlider.setTickInterval(10)
         self.horizontalSlider.setOrientation(QtCore.Qt.Horizontal)
         self.horizontalSlider.setObjectName("horizontalSlider")
         self.horizontalSlider_2 = QtWidgets.QSlider(self.page_3)
-        self.horizontalSlider_2.setGeometry(QtCore.QRect(600, 50, 260, 22))
+        self.horizontalSlider_2.setGeometry(QtCore.QRect(500, 50, 260, 22))
         self.horizontalSlider_2.setRange(0, 100)
         self.horizontalSlider_2.setValue(0)
         self.horizontalSlider_2.setTickPosition(QtWidgets.QSlider.TicksBelow)
@@ -543,6 +562,58 @@ class Ui_MainWindow(object):
                                    "}")
         self.label_2.setAlignment(QtCore.Qt.AlignCenter)
         self.label_2.setObjectName("label_2")
+        self.ok_btn = QtWidgets.QPushButton(self.page_3)
+        self.ok_btn.setGeometry(QtCore.QRect(340, 40, 41, 41))
+        self.ok_btn.setStyleSheet("QPushButton {\n"
+                                       "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+                                       "        border-radius: 20px; \n"
+                                       "    color: white; /* Text color */\n"
+                                       "    font-weight: bold;\n"
+                                       "border:none; /* Border color */\n"
+                                       "    padding: 1px 1px; /* Adjust padding as needed */\n"
+                                       "    margin:0px; /* Margin to create distance between buttons */\n"
+                                       "}\n"
+                                       " QPushButton {\n"
+                                       "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                                       "    color: white; /* Text color */\n"
+                                       "    font-weight: bold;\n"
+                                       "\n"
+                                       "    padding: 1px 2px;\n"
+                                       "        /*height:50px;*/\n"
+                                       "margin: 0px;\n"
+                                       "        \n"
+                                       "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                                       "    }\n"
+                                       " QPushButton:hover {\n"
+                                       "        background-color:#073c6d\n"
+                                       "    }")
+        self.ok_btn.setObjectName("ok_btn")
+        self.ok1_btn = QtWidgets.QPushButton(self.page_3)
+        self.ok1_btn.setGeometry(QtCore.QRect(800, 40, 41, 41))
+        self.ok1_btn.setStyleSheet("QPushButton {\n"
+                                  "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+                                  "        border-radius: 20px; \n"
+                                  "    color: white; /* Text color */\n"
+                                  "    font-weight: bold;\n"
+                                  "border:none; /* Border color */\n"
+                                  "    padding: 1px 1px; /* Adjust padding as needed */\n"
+                                  "    margin:0px; /* Margin to create distance between buttons */\n"
+                                  "}\n"
+                                  " QPushButton {\n"
+                                  "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                                  "    color: white; /* Text color */\n"
+                                  "    font-weight: bold;\n"
+                                  "\n"
+                                  "    padding: 1px 2px;\n"
+                                  "        /*height:50px;*/\n"
+                                  "margin: 0px;\n"
+                                  "        \n"
+                                  "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                                  "    }\n"
+                                  " QPushButton:hover {\n"
+                                  "        background-color:#073c6d\n"
+                                  "    }")
+        self.ok1_btn.setObjectName("ok1_btn")
         self.edit_stack.addWidget(self.page_3)
         self.page_4 = QtWidgets.QWidget()
         self.page_4.setObjectName("page_4")
@@ -914,8 +985,12 @@ class Ui_MainWindow(object):
         self.undo_btn.setText(_translate("MainWindow", "Undo"))
         self.discard_btn.setText(_translate("MainWindow", "Discard"))
         self.save_btn.setText(_translate("MainWindow", "Save"))
+        self.ok_btn.setText(_translate("MainWindow", "OK"))
+        self.ok1_btn.setText(_translate("MainWindow", "OK"))
         self.settings_btn.setText(_translate("MainWindow", "Settings"))
         self.name.setText(_translate("MainWindow", "Aeonix Document Scanner"))
+        self.ai_btn.setText(_translate("MainWindow", "AI Mode"))
+        self.foc_label.setText(_translate("MainWindow", "Set Focus:"))
 
 
 class VideoStream:
@@ -928,6 +1003,10 @@ class VideoStream:
         self.set_resolution()
         self.timer = None
         self.camera_change_thread = None  # Thread for camera switching
+        self.scan_document = False
+        self.checked= False
+        self.ai_crop = None
+        self.current_focus = 0
 
     def set_resolution(self):
         # Check if camera is open
@@ -973,9 +1052,138 @@ class VideoStream:
             # (h, w) = frame.shape[:2]
             # center = (w / 2, h / 2)
             # M = cv2.getRotationMatrix2D(center, 45, 1.0)
-            # rotated_frame = cv2.warpAffine(frame, M, (w, h))
+                # rotated_frame = cv2.warpAffine(frame, M, (w, h))
             if self.points is not None:
                 cv2.polylines(frame, [np.array(self.points)], True,(0, 255, 0), 6)
+            rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            frame_resized = cv2.resize(rgb_image, (640, 480))
+            h, w, ch = frame_resized.shape
+            bytes_per_line = ch * w
+            q_img = QImage(frame_resized.data, w, h,
+                            bytes_per_line, QImage.Format_RGB888)
+            pixmap = QPixmap.fromImage(q_img)
+            self.parent_label.setPixmap(pixmap.scaled(
+                    self.parent_label.size(), Qt.KeepAspectRatio))
+
+                # self.parent_label.setFixedSize(w, h)
+        else:
+                # Display loader while camera is changing
+            self.show_loader()
+    
+    def display_camera_feed1(self,checked):
+        if not self.video.isOpened():
+            # Display error message if camera not open
+            font = QFont()
+            font.setPointSize(30)
+            self.parent_label.setFont(font)
+            if self.firstTime:
+                self.parent_label.setText(
+                    "<p style='font-size:20pt'>Please Select the Camera...</p>")
+            else:
+                self.parent_label.setText(
+                    "<p style='font-size:20pt'>Changing Camera...</p>")
+            return
+
+        ret, frame = self.video.read()
+
+        if ret:
+            self.firstTime = False
+
+            if self.points is not None:
+                cv2.polylines(
+                    frame, [np.array(self.points)], True, (0, 255, 0), 6)
+
+            # Check if contour detection is enabled
+            if checked:
+                self.scan_document = True
+                if self.scan_document:
+                    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                kernel = np.ones((5, 5), np.uint8)
+                dilation = cv2.dilate(gray, kernel, iterations=5)
+                blur = cv2.GaussianBlur(dilation, (3, 3), 0)
+                blur = cv2.erode(blur, kernel, iterations=5)
+                edge = cv2.Canny(blur, 100, 200)
+
+                t = 300
+                j = 0
+                linesP = None
+                while j < 8 and t > 0:
+                    try:
+                        linesP = cv2.HoughLines(edge, 1, np.pi / 180, t)
+                        if linesP is not None:
+                            j = linesP.shape[0]
+                        else:
+                            j = 0
+                    except:
+                        j = 0
+                    t -= 10
+
+                if linesP is not None:
+                    lines = linesP.reshape(linesP.shape[0], 2)
+                    lu = []
+                    for c, l in enumerate(lines):
+                        rho, theta = l
+                        for lt in lines[c + 1:]:
+                            if lt[0] != l[0]:
+                                k = abs(lt - l) < [50, 0.5]
+                                if k[0] and k[1]:
+                                    break
+                        else:
+                            lu.append(l)
+
+                    if len(lu) >= 4:
+                        lr = np.asarray(lu[:4])
+                        intersections = self.points_inter(lr)
+
+                        if len(intersections) >= 4:
+                            p = np.array(intersections[:4]).reshape(4, 2)
+                            
+
+                            r = np.zeros((4, 2), dtype="float32")
+                            s = np.sum(p, axis=1)
+                            r[0] = p[np.argmin(s)]
+                            r[2] = p[np.argmax(s)]
+                            d = np.diff(p, axis=1)
+                            r[1] = p[np.argmin(d)]
+                            r[3] = p[np.argmax(d)]
+                            (tl, tr, br, bl) = r
+                            wA = np.sqrt((tl[0] - tr[0]) **
+                                         2 + (tl[1] - tr[1])**2)
+                            wB = np.sqrt((bl[0] - br[0]) **
+                                         2 + (bl[1] - br[1])**2)
+                            maxW = max(int(wA), int(wB))
+                            hA = np.sqrt((tl[0] - bl[0]) **
+                                         2 + (tl[1] - bl[1])**2)
+                            hB = np.sqrt((tr[0] - br[0]) **
+                                         2 + (tr[1] - br[1])**2)
+                            maxH = max(int(hA), int(hB))
+                            ds = np.array(
+                                [[0, 0], [maxW - 1, 0], [maxW - 1, maxH - 1], [0, maxH - 1]], dtype="float32")
+                            transformMatrix = cv2.getPerspectiveTransform(r, ds)
+                            scan = cv2.warpPerspective(
+                                gray, transformMatrix, (maxW, maxH))
+                            # T = threshold_local(
+                            #     scan, 21, offset=10, method="gaussian")
+                            # scanBW = (scan > T).astype("uint8") * 255
+
+                            # Drawing detected lines and intersection points on the original image
+                            for line in lr:
+                                rho, theta = line
+                                a = np.cos(theta)
+                                b = np.sin(theta)
+                                x0 = a * rho
+                                y0 = b * rho
+                                pt1 = (int(x0 + 1000 * (-b)),
+                                       int(y0 + 1000 * a))
+                                pt2 = (int(x0 - 1000 * (-b)),
+                                       int(y0 - 1000 * a))
+                                # cv2.line(frame, pt1, pt2, (0, 255, 0), 4)
+
+                            for pt in p:
+                                cv2.circle(frame, tuple(pt), 30, (0, 0, 255), -1)
+
+                            self.ai_crop = p
+
             rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             frame_resized = cv2.resize(rgb_image, (640, 480))
             h, w, ch = frame_resized.shape
@@ -985,11 +1193,91 @@ class VideoStream:
             pixmap = QPixmap.fromImage(q_img)
             self.parent_label.setPixmap(pixmap.scaled(
                 self.parent_label.size(), Qt.KeepAspectRatio))
-
-            # self.parent_label.setFixedSize(w, h)
         else:
             # Display loader while camera is changing
             self.show_loader()
+    
+    # def display_camera_feed1(self, checked):
+    #     self.biggest_contour = None
+    #     self.max_area = 0
+    #     if not self.video.isOpened():
+    #         # Display error message if camera not open
+    #         font = QFont()
+    #         font.setPointSize(30)
+    #         self.parent_label.setFont(font)
+    #         if self.firstTime:
+    #             self.parent_label.setText(
+    #                 "<p style='font-size:20pt'>Please Select the Camera...</p>")
+    #         else:
+    #             self.parent_label.setText(
+    #                 "<p style='font-size:20pt'>Changing Camera...</p>")
+    #         return
+
+    #     ret, frame = self.video.read()
+
+    #     if ret:
+    #         self.firstTime = False
+
+    #         if self.points is not None:
+    #             cv2.polylines(
+    #                 frame, [np.array(self.points)], True, (0, 255, 0), 3)
+
+    #         # Check if contour detection is enabled
+    #         if checked:
+    #             self.detect_contours = True
+    #             if self.detect_contours:
+    #                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    #                 blurred = cv2.GaussianBlur(gray, (5, 5), 0)
+    #                 edged = cv2.Canny(blurred, 75, 200)
+    #                 contours, _ = cv2.findContours(
+    #                     edged, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    #                 contours = sorted(
+    #                     contours, key=cv2.contourArea, reverse=True)[:5]
+    #                 for c in contours:
+    #                     # Approximate the contour
+    #                     peri = cv2.arcLength(c, True)
+    #                     approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+    #                     if len(approx) == 4:
+    #                         # Return approx
+    #                         area = cv2.contourArea(approx)
+    #                         if area > self.max_area:
+    #                             self.biggest_contour = approx
+    #                             self.max_area = area
+    #                         # Minimum area threshold to avoid noise
+    #                         elif self.biggest_contour is not None and area < self.max_area and area > 1000:
+    #                             self.biggest_contour = approx
+    #                             self.max_area = area
+
+    #         # Convert frame to RGB
+    #         rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    #         # Resize frame to fit display
+    #         frame_resized = cv2.resize(rgb_image, (640, 480))
+    #         h, w, ch = frame_resized.shape
+    #         bytes_per_line = ch * w
+
+    #         # Calculate the scaling factors
+    #         original_height, original_width = frame.shape[:2]
+    #         scale_x = w / original_width
+    #         scale_y = h / original_height
+
+    #         # Scale the contour points if a contour is found
+    #         if self.biggest_contour is not None:
+    #             scaled_contour = self.biggest_contour.copy()
+    #             scaled_contour[:, :, 0] = scaled_contour[:, :, 0] * scale_x
+    #             scaled_contour[:, :, 1] = scaled_contour[:, :, 1] * scale_y
+    #             cv2.drawContours(
+    #                 frame_resized, [scaled_contour], -1, (0, 255, 0), 6)
+    #             self.order_points(self.biggest_contour.reshape(4, 2))
+
+    #         q_img = QImage(frame_resized.data, w, h,
+    #                     bytes_per_line, QImage.Format_RGB888)
+    #         pixmap = QPixmap.fromImage(q_img)
+    #         self.parent_label.setPixmap(pixmap.scaled(
+    #             self.parent_label.size(), Qt.KeepAspectRatio))
+    #     else:
+    #         # Display loader while camera is changing
+    #         self.show_loader()
+
 
     def change_camera(self, camera_index):
         # Stop the timer if it's running
@@ -1013,7 +1301,7 @@ class VideoStream:
 
         # Create a QTimer object and connect it to the display_camera_feed function (in main thread)
         self.timer = QTimer()
-        self.timer.timeout.connect(self.display_camera_feed)
+        self.timer.timeout.connect(self.display_camera_feed1)
         self.timer.start(10)  # Start the timer with a 10ms interval
 
     def show_loader(self):
@@ -1023,3 +1311,42 @@ class VideoStream:
         self.parent_label.setAlignment(Qt.AlignCenter)
         self.parent_label.setText(
             "<p style='font-size:20pt'>Changing Camera...</p>")
+
+    def l_inter(self,line1, line2):
+        r1, t1 = line1
+        r2, t2 = line2
+        A = np.array([[np.cos(t1), np.sin(t1)], [np.cos(t2), np.sin(t2)]])
+        b = np.array([r1, r2])
+        if abs(t1 - t2) > 1.3:
+            return np.round(np.linalg.solve(A, b)).astype(int)
+        return None
+
+
+    def points_inter(self,lines):
+        intersections = []
+        for i, g in enumerate(lines[:-1]):
+            for g2 in lines[i+1:]:
+                inter_pt = self.l_inter(g, g2)
+                if inter_pt is not None:
+                    intersections.append(inter_pt)
+        return intersections
+
+
+    def update_frame(self):
+        self.display_camera_feed1(self.checked)
+        
+    def toggle_contour_detection(self, checked):
+        self.checked = checked
+
+
+    def set_focus(self,index):
+        # Simulate changing focus
+        self.current_focus = (self.current_focus + 10) % 30
+        print(f'Focus set to: {self.current_focus}')
+        if index == 1:
+            if self.current_focus>= 0 and self.current_focus<20:
+                self.video.set(cv2.CAP_PROP_FOCUS, self.current_focus)
+            
+        if index==0:
+            if self.current_focus == 20:
+                self.video.set(cv2.CAP_PROP_AUTOFOCUS,1)

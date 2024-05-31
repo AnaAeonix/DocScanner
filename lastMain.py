@@ -50,6 +50,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # Create a dictionary to store references to labels corresponding to image paths
         self.image = None  # Track the currently displayed image
         self.imageIndex = None
+        self.sharp_img= None
+        self.contrasted_image= None
         self.rotation_state = 0  # Initial rotation state
 
         self.selected_images = []  # Store selected images
@@ -75,22 +77,30 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.crop_btn.clicked.connect(self.askQuestion)
         self.ui.settings_btn.clicked.connect(self.askQuestion_settings)
         self.ui.delete_btn.clicked.connect(self.delete_image)
+        self.ui.horizontalSlider_2.valueChanged.connect(self.update_sharpness)
+        self.ui.horizontalSlider.valueChanged.connect(self.update_contrast)
+        # self.ui.delete_btn.clicked.connect(self.delete)
+        self.ui.ai_btn.toggled.connect(self.video_stream.toggle_contour_detection)
+        self.ui.foc_drop.currentIndexChanged.connect(
+            self.video_stream.set_focus)
 
         self.setFocusPolicy(Qt.StrongFocus)
         self.ui.save_btn.clicked.connect(self.save)
         self.ui.undo_btn.clicked.connect(self.undo)
         self.ui.discard_btn.clicked.connect(self.discard)
         self.ui.jpeg_btn.clicked.connect(self.export_image)
+        self.ui.ok_btn.clicked.connect(self.ok_btn_clicked)
+        self.ui.ok1_btn.clicked.connect(self.ok1_btn_clicked)
 
         self.ui.mag1_btn.clicked.connect(self.magic1)
         self.ui.mag2_btn.clicked.connect(self.magic2)
-        self.ui.horizontalSlider.valueChanged.connect(self.adjust_contrast)
+        
         self.setWindowFlags(Qt.FramelessWindowHint)  # Hide default title bar
         self.ui.minimize.clicked.connect(self.showMinimized)
         self.ui.close.clicked.connect(self.close)
 
         self.timer = QTimer(self)
-        self.timer.timeout.connect(self.video_stream.display_camera_feed)
+        self.timer.timeout.connect(self.video_stream.update_frame)
         self.timer.start(50)  # Update camera feed every 50 milliseconds
 
         self.cap = None
@@ -106,6 +116,11 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             super().keyPressEvent(event)
 
+
+    def delete(self):
+        print(self.captured_images_crop)
+        print(self.captured_images_main)
+        print(self.captured_images)
 
 # common section code
 
@@ -176,8 +191,22 @@ class MainWindow(QtWidgets.QMainWindow):
                                     "No image selected for making PDF.")
 
     def export_image(self):
+        if len(self.selected_images) == 1:
+            save_path, _ = QFileDialog.getSaveFileName(
+               None, "Save JPEG", "", "JPEG Files (*.jpeg *.jpg)")
+            if save_path:
+                self.selected_images = sorted(self.selected_images, key=lambda x: x[0])
+                for index, image_path in self.selected_images:
+                    image = cv2.imread(image_path)
+                    if image is not None:
+                        height, width, _ = image.shape
+                        # Convert OpenCV image to PIL Image
+                        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                        pil_image = Image.fromarray(image_rgb)
+                        # Save image as JPEG
+                        pil_image.save(save_path) 
         # Check the number of selected images
-        if self.selected_images:
+        elif len(self.selected_images)>1:
             temp = self.selected_images.copy()
             temp.reverse()
             # Ask the user for the save directory
@@ -206,11 +235,13 @@ class MainWindow(QtWidgets.QMainWindow):
                     print(f"Error exporting images: {e}")
             else:
                 print("Save operation cancelled by the user.")
-        else:
+        else :
             # Inform the user if no images are selected
             QMessageBox.information(
                 self, "No Selection", "No images selected for export.")
 
+
+    
     def editing(self):
         # Increment the click counter for the clicked image
         if len(self.selected_images) == 1:
@@ -440,6 +471,7 @@ class MainWindow(QtWidgets.QMainWindow):
             try:
 
                 root = tk.Tk()
+                root.title("Auto Crop")
                 img_file_name = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 cv2.imwrite("Hello2.jpg", img_file_name)
                 # coordinates = [[5, 5], [1029, 5], [742, 209], [5, 773]]
@@ -449,7 +481,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     App = CropApp(root, img_file_name, inplace=True,
                                   coordinates=self.auto_crop)
                 root.mainloop()
-
+ 
                 A = np.asarray(App.NW.coords) * App.scale_factor
                 B = np.asarray(App.NE.coords) * App.scale_factor
                 C = np.asarray(App.SE.coords) * App.scale_factor
@@ -489,6 +521,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 image = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
                 root = tk.Tk()
+                root.title("Auto Crop")
                 if self.auto_crop == None or len(self.auto_crop) == 4:
                     obj = SmartCrop(image, root)
                 else:
@@ -520,7 +553,7 @@ class MainWindow(QtWidgets.QMainWindow):
         available_cameras = []
         for i in range(10):
             cap = cv2.VideoCapture(i, cv2.CAP_DSHOW)
-            if cap.isOpened():
+            if cap.isOpened(): 
                 backend_id = cap.get(cv2.CAP_PROP_BACKEND)
                 camera_name = f"Camera {i} - Backend: {backend_id}"
                 available_cameras.append((i, camera_name))
@@ -528,7 +561,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Clear any selected item in the dropdown
         self.ui.cam_drop_down.clear()
-
         # Set the placeholder text
         self.ui.cam_drop_down.setPlaceholderText("Please select a camera")
 
@@ -584,6 +616,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
             try:
                 self.captured_images_main.insert(0, frame)
+                if self.video_stream.checked==True:
+                    if self.video_stream.ai_crop is not None:
+                        frame = self.warp_perspective(
+                            frame, self.video_stream.ai_crop)
                 # Save the cropped image with timestamp
                 if self.auto_crop is not None:
                     if len(self.auto_crop) == 4:
@@ -594,7 +630,10 @@ class MainWindow(QtWidgets.QMainWindow):
                             frame), self.auto_crop[0], self.auto_crop[1], self.auto_crop[2], self.auto_crop[3], self.auto_crop[4], self.auto_crop[5])
                 cv2.imwrite(filepath, frame)
 
-                self.captured_images_crop.insert(0, [0, 0])
+                if(self.auto_crop != None):
+                    self.captured_images_crop.insert(0, self.auto_crop)
+                else:
+                    self.captured_images_crop.insert(0, [0,0])
                 # Append the filepath to the captured images list
                 self.captured_images.insert(0, filepath)
                 self.selected_images.clear()
@@ -665,36 +704,36 @@ class MainWindow(QtWidgets.QMainWindow):
             # self.display_captured_images_main()
             self.load_image()
 
-    def adjust_contrast(self, value):
-        try:
-            if self.image is not None:
-                # Load the image from the file path
-                image = cv2.imread(self.image)
+    # def adjust_contrast(self, value):
+    #     try:
+    #         if self.image is not None:
+    #             # Load the image from the file path
+    #             image = cv2.imread(self.image)
 
-                if image is not None:
-                    # Convert the image to grayscale if it's not already
-                    if len(image.shape) == 3:
-                        gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-                    else:
-                        gray_image = image
+    #             if image is not None:
+    #                 # Convert the image to grayscale if it's not already
+    #                 if len(image.shape) == 3:
+    #                     gray_image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    #                 else:
+    #                     gray_image = image
 
-                    # Calculate the contrast factor
-                    contrast_factor = (value + 100) / 100.0
+    #                 # Calculate the contrast factor
+    #                 contrast_factor = (value + 100) / 100.0
 
-                    # Adjust the contrast using convertScaleAbs
-                    adjusted_image = cv2.convertScaleAbs(
-                        gray_image, alpha=contrast_factor, beta=0)
+    #                 # Adjust the contrast using convertScaleAbs
+    #                 adjusted_image = cv2.convertScaleAbs(
+    #                     gray_image, alpha=contrast_factor, beta=0)
 
-                    # Display the adjusted image
-                    self.image = adjusted_image
+    #                 # Display the adjusted image
+    #                 self.image = adjusted_image
 
-                    self.load_image()
-                else:
-                    raise ValueError("Unable to load the image.")
-            else:
-                raise ValueError("No image path provided.")
-        except Exception as e:
-            print("Error:", e)
+    #                 self.load_image()
+    #             else:
+    #                 raise ValueError("Unable to load the image.")
+    #         else:
+    #             raise ValueError("No image path provided.")
+    #     except Exception as e:
+    #         print("Error:", e)
 
     def display_image(self, image):
         pixmap = QPixmap.fromImage(QImage(
@@ -759,15 +798,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def crop_image_4(self):
         root = tk.Tk()
+        root.title("Crop")
         img_file_name = cv2.cvtColor(
             self.captured_images_main[self.imageIndex], cv2.COLOR_BGR2RGB)
         # coordinates = [[5, 5], [1029, 5], [742, 209], [5, 773]]
         # if np.array_equal(self.get_image_coordinates(cv2.imread(self.captured_images[self.imageIndex])), self.captured_images_crop[self.imageIndex]):
         if self.captured_images_crop[self.imageIndex] == [0, 0]:
-            App = CropApp(root, img_file_name)
+                App = CropApp(root, img_file_name)
         else:
             App = CropApp(root, img_file_name, inplace=True,
-                          coordinates=self.captured_images_crop[self.imageIndex])
+                          coordinates= self.captured_images_crop[self.imageIndex])
         root.mainloop()
         print(App.crop_pressed)
         if App.crop_pressed:
@@ -794,8 +834,10 @@ class MainWindow(QtWidgets.QMainWindow):
         image = Image.fromarray(cv2.cvtColor(
             self.captured_images_main[self.imageIndex], cv2.COLOR_BGR2RGB))
         root = tk.Tk()
+        root.title("Crop")
         if self.captured_images_crop[self.imageIndex] == [0, 0]:
-            obj = SmartCrop(image, root)
+                obj = SmartCrop(
+                    image, root)
         else:
             obj = SmartCrop(image, root,
                             points=self.captured_images_crop[self.imageIndex])
@@ -866,25 +908,37 @@ class MainWindow(QtWidgets.QMainWindow):
             homography), (maxWidth, maxHeight), flags=cv2.INTER_LINEAR)
 
         return final
+    
+    def warp_perspective(self, image, p):
+        r = np.zeros((4, 2), dtype="float32")
+        s = np.sum(p, axis=1)
+        r[0] = p[np.argmin(s)]
+        r[2] = p[np.argmax(s)]
+        d = np.diff(p, axis=1)
+        r[1] = p[np.argmin(d)]
+        r[3] = p[np.argmax(d)]
+        (tl, tr, br, bl) = r
 
-        # Open the image
-        # img = Image.open(image_path)
+        wA = np.sqrt((tl[0] - tr[0])**2 + (tl[1] - tr[1])**2)
+        wB = np.sqrt((bl[0] - br[0])**2 + (bl[1] - br[1])**2)
+        maxW = max(int(wA), int(wB))
 
-        # # Extract coordinates
-        # x_values = [coord[0] for coord in [A, B, C, D]]
-        # y_values = [coord[1] for coord in [A, B, C, D]]
+        hA = np.sqrt((tl[0] - bl[0])**2 + (tl[1] - bl[1])**2)
+        hB = np.sqrt((tr[0] - br[0])**2 + (tr[1] - br[1])**2)
+        maxH = max(int(hA), int(hB))
 
-        # # Find minimum and maximum x, y coordinates
-        # x_min = min(x_values)
-        # y_min = min(y_values)
-        # x_max = max(x_values)
-        # y_max = max(y_values)
+        ds = np.array(
+            [[0, 0], [maxW - 1, 0], [maxW - 1, maxH - 1], [0, maxH - 1]], dtype="float32")
 
-        # # Crop the image
-        # cropped_img = img.crop((x_min, y_min, x_max, y_max))
-        # cropped_img_array = np.array(cropped_img)
+        transformMatrix = cv2.getPerspectiveTransform(r, ds)
+        scan = cv2.warpPerspective(image, transformMatrix, (maxW, maxH))
 
-        # return cropped_img_array
+        # T = threshold_local(scan, 21, offset=10, method="gaussian")
+        # scanBW = (scan > T).astype("uint8") * 255
+
+        return scan
+    
+    
     def cutting_6(self, image_path, A, B, C, D, E, F):
         corners = [A, B, C, D, E, F]
         (tl1, tr1, br1, bl1) = (corners[0], corners[1], corners[4], corners[5])
@@ -930,24 +984,89 @@ class MainWindow(QtWidgets.QMainWindow):
         self.display_captured_images_main()
         self.load_image()
 
-    def adjust_sharpness(self):
+    # def adjust_sharpness(self):
 
-        if self.image is not None:
-            # Convert NumPy array to PIL image
-            pil_image = Image.fromarray(
-                cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB))
+    #     if self.image is not None:
+    #         # Convert NumPy array to PIL image
+    #         pil_image = Image.fromarray(
+    #             cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB))
 
-            # Apply sharpness enhancement
-            sharpness_value = 2.0
-            sharpness_enhancer = ImageEnhance.Sharpness(pil_image)
-            enhanced_image = sharpness_enhancer.enhance(sharpness_value)
+    #         # Apply sharpness enhancement
+    #         sharpness_value = 2.0
+    #         sharpness_enhancer = ImageEnhance.Sharpness(pil_image)
+    #         enhanced_image = sharpness_enhancer.enhance(sharpness_value)
 
-            # Convert the enhanced image back to a NumPy array
-            enhanced_image_np = cv2.cvtColor(
-                np.array(enhanced_image), cv2.COLOR_RGB2BGR)
+    #         # Convert the enhanced image back to a NumPy array
+    #         enhanced_image_np = cv2.cvtColor(
+    #             np.array(enhanced_image), cv2.COLOR_RGB2BGR)
 
-            self.image = enhanced_image_np
+    #         self.image = enhanced_image_np
+    #         self.load_image()
+
+    def update_sharpness(self, value):
+        sharpness = value / 100.0
+        self.sharp_img = self.sharpen_image(self.image, sharpness)
+        # self.image = sharpened_image
+        cv2.imwrite(self.imagepath, self.sharp_img)
+        pixmap = QPixmap(self.imagepath)
+        # pixmap = pixmap.scaled(391, 541, Qt.KeepAspectRatio)
+
+        # Set alignment to center
+        self.ui.show_image.setAlignment(Qt.AlignCenter)
+        self.ui.show_image.setPixmap(pixmap) 
+
+        # Set alignment to center
+        self.ui.show_image.setAlignment(Qt.AlignCenter)
+
+        # Set aspect ratio mode to keep the aspect ratio
+        self.ui.show_image.setScaledContents(True)
+        self.ui.show_image.setPixmap(pixmap.scaled(
+            self.ui.show_image.size(), Qt.KeepAspectRatio))
+
+
+    def sharpen_image(self, image, sharpness):
+        blurred = cv2.GaussianBlur(image, (0, 0), 3)
+        sharpened = cv2.addWeighted(
+            image, 1.0 + sharpness, blurred, -sharpness, 0)
+        return sharpened
+    
+    def update_contrast(self, value):
+        contrast = value
+        self.contrasted_image = self.adjust_contrast(self.image, contrast)
+        # self.image = sharpened_image
+        cv2.imwrite(self.imagepath, self.contrasted_image)
+        pixmap = QPixmap(self.imagepath)
+        # pixmap = pixmap.scaled(391, 541, Qt.KeepAspectRatio)
+
+        # Set alignment to center
+        self.ui.show_image.setAlignment(Qt.AlignCenter)
+        self.ui.show_image.setPixmap(pixmap)
+
+        # Set alignment to center
+        self.ui.show_image.setAlignment(Qt.AlignCenter)
+
+        # Set aspect ratio mode to keep the aspect ratio
+        self.ui.show_image.setScaledContents(True)
+        self.ui.show_image.setPixmap(pixmap.scaled(
+            self.ui.show_image.size(), Qt.KeepAspectRatio))
+
+    def adjust_contrast(self, image, contrast):
+        alpha = (100.0 + contrast) / 100.0
+        adjusted = cv2.convertScaleAbs(image, alpha=alpha, beta=0)
+        return adjusted
+
+    def ok1_btn_clicked(self):
+        if self.sharp_img is not None:
+            self.image=self.sharp_img
             self.load_image()
+            self.sharp_img= None
+        
+            
+    def ok_btn_clicked(self):
+        if self.contrasted_image is not None:
+            self.image = self.contrasted_image
+            self.load_image()
+            self.contrasted_image = None
 
     def AutoEnhance(self):
         pil_image = Image.fromarray(

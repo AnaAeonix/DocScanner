@@ -1,4 +1,5 @@
 from tkinter import *
+from tkinter import ttk
 from PIL import Image, ImageTk
 import cv2
 import numpy as np
@@ -47,7 +48,7 @@ class SmartCrop:
             self.draggable_points = [{'x': x, 'y': y} for x, y in points]
         self.pre = self.draggable_points.copy()
         self.polygon_id = self.canvas.create_polygon(
-            [(item['x'], item['y']) for item in self.draggable_points], outline='blue', width=2, fill='')
+            [(item['x'], item['y']) for item in self.draggable_points], outline='#4788f7', width=2, fill='')
 
         for item in self.draggable_points:
             item['circle'] = self.canvas.create_oval(item['x'] - self.POINT_RADIUS, item['y'] - self.POINT_RADIUS,
@@ -56,19 +57,33 @@ class SmartCrop:
                                                      fill=self.POINT_COLOR, tags='point')
             self.canvas.tag_bind(
                 item['circle'], '<Button1-Motion>', lambda event, item=item: self.drag(event, item))
+            
+        style = ttk.Style()
+
+        style.configure('TButton',
+                        background='#4788f7',
+                        foreground='#4788f7',
+                        font=('Helvetica', 10, 'bold'),
+                        borderwidth=1,
+                        # padding=(10, 20)
+                        padding=(5, 10))
+
+        # Apply a hover effect (requires ttk 8.6+)
+        style.map('TButton',
+                  background=[('active', '#073c6d')])
 
         # Add Done and Reset buttons
-        self.done_button = Button(self.root, text="Crop", command=self.crop)
+        self.done_button = ttk.Button(self.root, text="Crop", style= 'TButton', command=self.crop)
         self.done_button.pack(side=LEFT, padx=5, pady=5)
 
-        self.reset_button = Button(
-            self.root, text="Reset", command=self.reset_points)
+        self.reset_button = ttk.Button(
+            self.root, text="Reset", style='TButton', command=self.reset_points)
         self.reset_button.pack(side=LEFT, padx=5, pady=5)
 
-        # Add Rotate button
-        self.rotate_button = Button(
-            self.root, text="Rotate", command=self.rotate_image)
-        self.rotate_button.pack(side=LEFT, padx=5, pady=5)
+        # # Add Rotate button
+        # self.rotate_button = ttk.Button(
+        #     self.root, text="Rotate", style='TButton', command=self.rotate_image)
+        # self.rotate_button.pack(side=LEFT, padx=5, pady=5)
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 

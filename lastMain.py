@@ -24,6 +24,7 @@ from PIL import Image, ImageEnhance, ImageOps, ImageQt
 import cv2
 import numpy as np
 from smartCrop import SmartCrop
+import win32com.client
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -53,6 +54,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.sharp_img= None
         self.contrasted_image= None
         self.rotation_state = 0  # Initial rotation state
+        self.dpi = 72
 
         self.selected_images = []  # Store selected images
         self.all_checkboxes = []   # Store references to all checkboxes
@@ -60,6 +62,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.captured_images = []
         self.captured_images_crop = []
         self.captured_images_main = []
+        self.export = 0
 
         self.ui.edit_btn.clicked.connect(self.editing)
         # Initialize video stream with default camera
@@ -71,7 +74,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.adjust_btn.clicked.connect(self.clicked_adjust_btn)
         self.ui.color_btn.clicked.connect(self.clicked_color_btn)
         self.ui.rotate_btn.clicked.connect(self.clicked_rotate_btn)
-        self.ui.pdf_btn.clicked.connect(self.create_pdf_with_images)
+        self.ui.pdf_btn.clicked.connect(self.exportTo)
         self.ui.cam_back.clicked.connect(self.returntocamera)
         self.ui.enhance_btn.clicked.connect(self.AutoEnhance)
         self.ui.crop_btn.clicked.connect(self.askQuestion)
@@ -83,12 +86,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.ai_btn.toggled.connect(self.video_stream.toggle_contour_detection)
         self.ui.foc_drop.currentIndexChanged.connect(
             self.video_stream.set_focus)
+        self.ui.dpi_drop.currentIndexChanged.connect(
+            self.getDpi)
+        self.ui.resolution_drop.currentIndexChanged.connect(
+            self.resolution_set  )
 
+
+        self.ui.export_drop.currentIndexChanged.connect(
+            self.export_change)
         self.setFocusPolicy(Qt.StrongFocus)
         self.ui.save_btn.clicked.connect(self.save)
         self.ui.undo_btn.clicked.connect(self.undo)
         self.ui.discard_btn.clicked.connect(self.discard)
-        self.ui.jpeg_btn.clicked.connect(self.export_image)
+        # self.ui.jpeg_btn.clicked.connect(self.export_image)
         self.ui.ok_btn.clicked.connect(self.ok_btn_clicked)
         self.ui.ok1_btn.clicked.connect(self.ok1_btn_clicked)
 
@@ -121,6 +131,43 @@ class MainWindow(QtWidgets.QMainWindow):
         print(self.captured_images_crop)
         print(self.captured_images_main)
         print(self.captured_images)
+        
+
+    def get_resolutions_for_camera(self, camera_id):
+        # Dummy function to get resolutions for a given camera ID
+        # Replace this with your actual implementation
+        resolutions = {
+            "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000": ["3264x2448", "4160x3120", "4000x3000", "4208x3120", "2592x1944", "2320x1744", "2304x1728"],
+            "USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000": ["3264x2448", "2592x1944", "2560x1440", "1920x1080", "1280x720", "640x480"]
+        }
+        res =["1920x1080", "1280x720", "640x480"]
+        res1 = resolutions.get(camera_id, [])
+        if res1 is not None:
+            return resolutions.get(camera_id, [])
+        else:
+            return res
+    
+    def resolution_set(self,index):
+        
+        global indexRes
+        indexRes = index
+        
+                
+            
+    
+    
+    
+    def getDpi(self,index):
+        if index==0:
+            self.dpi = 72
+        if index == 1:
+            self.dpi = 96
+        if index == 2:
+            self.dpi = 150
+        if index == 3:
+            self.dpi = 200
+        if index == 4:
+            self.dpi = 300 
 
 # common section code
 
@@ -240,7 +287,136 @@ class MainWindow(QtWidgets.QMainWindow):
             QMessageBox.information(
                 self, "No Selection", "No images selected for export.")
 
+    def export_change(self, index):
+        self.export = index
 
+    def exportTo(self, export_format):
+        export_format = self.export
+        if export_format == 0:
+            # Export as PDF
+            save_path, _ = QFileDialog.getSaveFileName(
+                None, "Save PDF", "", "PDF Files (*.pdf)")
+            if self.selected_images:
+                temp = self.selected_images.copy()
+                temp.reverse()
+                # Determine maximum image size
+                max_width = max([Image.open(image_path).width for _,
+                                image_path in self.selected_images])
+                max_height = max(
+                    [Image.open(image_path).height for _, image_path in self.selected_images])
+
+                # Create PDF with page size matching the largest image
+                pdf_canvas = canvas.Canvas(
+                    save_path, pagesize=(max_width, max_height))
+                for _, image_path in temp:
+                    img = Image.open(image_path)
+                    img_width, img_height = img.size
+                    x_offset = (max_width - img_width) / 2
+                    y_offset = (max_height - img_height) / 2
+
+                    # Draw white background
+                    pdf_canvas.setFillGray(1)
+                    pdf_canvas.rect(0, 0, max_width, max_height, fill=1)
+
+                    # Draw image
+                    pdf_canvas.drawImage(
+                        image_path, x_offset, y_offset, width=img_width, height=img_height)
+                    pdf_canvas.showPage()  # End current page
+                if save_path != '':
+                    pdf_canvas.save()
+            else:
+                # Inform the user if no images are selected
+                QMessageBox.information(
+                    None, "No Selection", "No image selected for making PDF.")
+        elif export_format == 1:
+            # Export as JPEG
+            if len(self.selected_images) == 1:
+                save_path, _ = QFileDialog.getSaveFileName(
+                    None, "Save JPEG", "", "JPEG Files (*.jpeg *.jpg)")
+                if save_path:
+                    self.selected_images = sorted(
+                        self.selected_images, key=lambda x: x[0])
+                    for index, image_path in self.selected_images:
+                        image = cv2.imread(image_path)
+                        if image is not None:
+                            height, width, _ = image.shape
+                            # Convert OpenCV image to PIL Image
+                            image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                            pil_image = Image.fromarray(image_rgb)
+                            # Save image as JPEG
+                            pil_image.save(save_path, dpi=(self.dpi, self.dpi))
+            elif len(self.selected_images) > 1:
+                temp = self.selected_images.copy()
+                temp.reverse()
+                save_directory = QFileDialog.getExistingDirectory(
+                    None, "Select Save Directory", "")
+                i = 0
+                if save_directory:
+                    try:
+                        for (index, filepath) in temp:
+                            filename = f"{i}.jpeg"
+                            i += 1
+                            save_path = os.path.join(save_directory, filename)
+
+                            # image = QImage(filepath)
+                            # buffer = image.bits()
+                            # buffer.setsize(image.byteCount())
+                            # arr = np.array(buffer).reshape((image.height(), image.width(), 4))
+                            # # Convert the array to RGB mode (ignoring the alpha channel)
+                            # arr_rgb = arr[:, :, :3]
+
+                            # # Convert numpy array to PIL Image
+                            # pil_image = Image.fromarray(arr_rgb)
+
+                            # # Save image as JPEG with DPI
+                            # pil_image.save(save_path, dpi=(self.dpi, self.dpi))
+                            
+                            # Read the image using OpenCV
+                            image = cv2.imread(filepath)
+
+                            # Convert BGR image to RGB
+                            image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+                            # Convert the RGB numpy array to PIL Image
+                            pil_image = Image.fromarray(image_rgb)
+
+                            # Save image as JPEG with DPI
+                            pil_image.save(save_path, dpi=(self.dpi, self.dpi))
+
+                            # # Convert the QImage to a QPixmap
+                            # pixmap = QPixmap.fromImage(image)
+                            # if pixmap:
+                            #     pixmap.save(save_path, "JPEG")
+                            #     print(f"Image {index} saved as", save_path)
+                            # else:
+                            #     print(f"Failed to convert image {index}.")
+                    except Exception as e:
+                        print(f"Error exporting images: {e}")
+                else:
+                    print("Save operation cancelled by the user.")
+            else:
+                QMessageBox.information(
+                    self, "No Selection", "No images selected for export.")
+        elif export_format == 2:
+            # Export as TIFF
+            save_path, _ = QFileDialog.getSaveFileName(
+                None, "Save TIFF", "", "TIFF Files (*.tiff *.tif)")
+            if save_path:
+                self.selected_images = sorted(
+                    self.selected_images, key=lambda x: x[0])
+                for index, image_path in self.selected_images:
+                    image = cv2.imread(image_path)
+                    if image is not None:
+                        height, width, _ = image.shape
+                        # Convert OpenCV image to PIL Image
+                        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                        pil_image = Image.fromarray(image_rgb)
+                        # Save image as TIFF
+                        pil_image.save(
+                            save_path, format="TIFF", dpi=(self.dpi, self.dpi))
+        else:
+            QMessageBox.information(None, "Invalid Format",
+                                    "The specified format is not supported.")
     
     def editing(self):
         # Increment the click counter for the clicked image
@@ -548,31 +724,126 @@ class MainWindow(QtWidgets.QMainWindow):
 # camerafeed window
 
 
+    # def populate_camera_dropdown(self):
+    #     global available_cameras
+    #     available_cameras = []
+    #     for i in range(10):
+    #         cap = cv2.VideoCapture(i, cv2.CAP_DSHOW)
+    #         if cap.isOpened(): 
+    #             backend_id = cap.get(cv2.CAP_PROP_BACKEND)
+    #             camera_name = f"Camera {i} - Backend: {backend_id}"
+    #             available_cameras.append((i, camera_name))
+    #             del cap
+
+    #     # Clear any selected item in the dropdown
+    #     self.ui.cam_drop_down.clear()
+    #     # Set the placeholder text
+    #     self.ui.cam_drop_down.setPlaceholderText("Please select a camera")
+
+    #     # Assuming available_cameras is a list of tuples containing camera indices and names
+    #     camera_names = [camera_name for _, camera_name in available_cameras]
+
+    #     # Add camera names to the dropdown
+    #     self.ui.cam_drop_down.addItems(camera_names)
+
+    #     # Connect the currentIndexChanged signal
+    #     self.ui.cam_drop_down.currentIndexChanged.connect(
+    #         lambda: self._handle_index_change())
+    #     # self.ui.cam_drop_down.currentIndexChanged.connect(
+    #     #     lambda: self._handle_index_change1())
+
+    def list_cameras(self):
+        index = 0
+        arr = []
+        i = 10
+        while i > 0:
+            cap = cv2.VideoCapture(index)
+            if cap.read()[0]:
+                arr.append(index)
+                cap.release()
+            index += 1
+            i -= 1
+        return arr
+
+
+    def list_usb_cameras(self):
+        strComputer = "."
+        objWMIService = win32com.client.Dispatch("WbemScripting.SWbemLocator")
+        objSWbemServices = objWMIService.ConnectServer(strComputer, "root\\cimv2")
+
+        colItems = objSWbemServices.ExecQuery(
+            "Select * from Win32_PnPEntity where DeviceID like '%VID_%&PID_%'")
+
+        cameras = []
+        for objItem in colItems:
+            if "camera" in objItem.Description.lower() or "video" in objItem.Description.lower():
+                camera_info = {
+                    'description': objItem.Description,
+                    'device_id': objItem.DeviceID,
+                    'manufacturer': objItem.Manufacturer,
+                    'name': objItem.Name,
+                    'status': objItem.Status
+                }
+                cameras.append(camera_info)
+        return cameras
+
+
     def populate_camera_dropdown(self):
         global available_cameras
         available_cameras = []
-        for i in range(10):
-            cap = cv2.VideoCapture(i, cv2.CAP_DSHOW)
-            if cap.isOpened(): 
-                backend_id = cap.get(cv2.CAP_PROP_BACKEND)
-                camera_name = f"Camera {i} - Backend: {backend_id}"
-                available_cameras.append((i, camera_name))
-                del cap
+
+        # List available camera indices
+        camera_indices = self.list_cameras()
+        global usb_cameras 
+        usb_cameras = self.list_usb_cameras()
+        
+        # Creating a dictionary for USB camera details keyed by name
+        camera_details = {camera['device_id']: camera for camera in usb_cameras}
+
+        i=0
+        for index in camera_indices:
+            
+            cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
+            if cap.isOpened():
+                backend_id = cap.get(cv2.CAP_PROP_BACKEND) 
+                name = usb_cameras[index]['device_id']
+                details = camera_details.get(name, {})
+                description = details.get('device_id', 'Unknown')
+                manufacturer = details.get('manufacturer', 'Unknown')
+                camera_name = f"{name} ({description})"
+                available_cameras.append((index, camera_name))
+                cap.release()
+
+        # Match camera indices with USB camera details
+        # camera_details = {}
+        # for camera in usb_cameras:
+        #     camera_details[camera['name']] = camera
 
         # Clear any selected item in the dropdown
         self.ui.cam_drop_down.clear()
         # Set the placeholder text
         self.ui.cam_drop_down.setPlaceholderText("Please select a camera")
 
-        # Assuming available_cameras is a list of tuples containing camera indices and names
-        camera_names = [camera_name for _, camera_name in available_cameras]
-
+        # Add camera names and details to the dropdown
+        # camera_names = []
+        # for index, name in available_cameras:
+        #     if name in camera_details:
+        #         details = camera_details[name]
+        #         camera_name = f"{name} ({details['description']}, {
+        #             details['manufacturer']})"
+        #     else:
+        #         camera_name = name
+        #     camera_names.append(camera_name)
         # Add camera names to the dropdown
+        camera_names = [camera_name for _, camera_name in available_cameras]
         self.ui.cam_drop_down.addItems(camera_names)
 
+        # resolutions = self.get_resolutions_for_camera(self.current_camera_index)
+        # self.ui.resolution_drop.addItems(resolutions)
         # Connect the currentIndexChanged signal
         self.ui.cam_drop_down.currentIndexChanged.connect(
             lambda: self._handle_index_change())
+
 
     def load_image(self):
         cv2.imwrite(self.imagepath, self.image)
@@ -596,7 +867,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.current_camera_index = self.ui.cam_drop_down.currentIndex()
     # Do something with the new_index value
         # Call your function with the index
+        self.ui.resolution_drop.clear()
         self.video_stream.change_camera(self.current_camera_index)
+        resolutions= self.get_resolutions_for_camera(usb_cameras[self.current_camera_index]["device_id"])
+        self.ui.resolution_drop.addItems(resolutions)
 
     def capture_image(self):
         ret, frame = self.video_stream.video.read()
@@ -615,8 +889,179 @@ class MainWindow(QtWidgets.QMainWindow):
             filepath = os.path.join(temp_dir, filename)
 
             try:
+                original_res = (frame.shape[1], frame.shape[0])
+                height,width = self.getRes()
+                if(height is None):
+                    height = 2448
+                    width = 3264
+                frame = cv2.resize(
+                    frame, (width, height), interpolation=cv2.INTER_AREA)
                 self.captured_images_main.insert(0, frame)
                 if self.video_stream.checked==True:
+                    if self.video_stream.ai_crop is not None:
+                        frame = self.warp_perspective(
+                            frame, self.video_stream.ai_crop)
+                # Save the cropped image with timestamp
+                if self.auto_crop is not None:
+                    if len(self.auto_crop) == 4:
+                        temp = self.scale_crop_coordinates(
+                            self.auto_crop, original_res, (width, height))
+                        frame = self.crop_cutting(
+                            frame, temp[0], temp[1], temp[2], temp[3])
+                    else:
+                        temp = self.scale_crop_coordinates_6(
+                            self.auto_crop, original_res, (width, height))
+                        frame = self.cutting_6(Image.fromarray(
+                            frame), temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])
+                cv2.imwrite(filepath, frame)
+
+                if(self.auto_crop != None):
+                    self.captured_images_crop.insert(0, self.auto_crop)
+                else:
+                    self.captured_images_crop.insert(0, [0,0])
+                # Append the filepath to the captured images list
+                self.captured_images.insert(0, filepath)
+                self.selected_images.clear()
+                # Call display_captured_images to update the display
+                self.display_captured_images_main()
+
+            except Exception as e:
+                print(f"Error saving image: {e}")
+
+    def scale_crop_coordinates_6(self, crop, original_res, new_res):
+        original_width, original_height = original_res
+        new_width, new_height = new_res
+
+        scale_x = new_width / original_width
+        scale_y = new_height / original_height
+
+        x, y, w, h ,a , b= crop
+        xwidth, xheight = x
+        new_x = (int(xwidth * scale_x), int(xheight * scale_y))
+        ywidth, yheight = y
+        new_y = (int(ywidth * scale_x), int(yheight * scale_y))
+        wwidth, wheight = w
+        new_w = (int(wwidth * scale_x), int(wheight * scale_y))
+        hwidth, hheight = h
+        new_h = (int(hwidth * scale_x), int(hheight * scale_y))
+        awidth, aheight = a
+        new_a = (int(awidth * scale_x), int(aheight * scale_y))
+        bwidth, bheight = b
+        new_b = (int(bwidth * scale_x), int(bheight * scale_y))
+
+        return [new_x, new_y, new_w, new_h,new_a,new_b]
+    def scale_crop_coordinates(self, crop, original_res, new_res):
+        original_width, original_height = original_res
+        new_width, new_height = new_res
+
+        scale_x = new_width / original_width
+        scale_y = new_height / original_height
+
+        x, y, w, h = crop
+        xwidth, xheight = x
+        new_x = (int(xwidth * scale_x), int(xheight * scale_y))
+        ywidth, yheight = y
+        new_y = (int(ywidth * scale_x), int(yheight * scale_y))
+        wwidth, wheight = w
+        new_w = (int(wwidth * scale_x), int(wheight * scale_y))
+        hwidth, hheight = h
+        new_h = (int(hwidth * scale_x), int(hheight * scale_y))
+
+        return [new_x, new_y, new_w, new_h]
+    
+    def getRes(self):
+        global indexRes
+        device = usb_cameras[self.current_camera_index]["device_id"]
+        if device == "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000":
+            if indexRes == 3:
+                width = 4208
+                height = 3120
+                return height,width
+            if indexRes == 1:
+                width = 4160
+                height = 3120
+                return height, width
+            if indexRes == 2:
+                width = 4000
+                height = 3000
+                return height,width
+            if indexRes == 0:
+                width = 3264
+                height = 2448
+                return height,width
+            if indexRes == 4:
+                width = 2592
+                height = 1944
+                return height, width
+            if indexRes == 5:
+                width = 2320
+                height = 1744
+                return height,width
+            if indexRes == 6:
+                width = 2304
+                height = 1728
+                return height, width
+
+        elif device == "USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000":
+            if indexRes == 0:
+                width = 3264
+                height = 2448
+                return height, width
+            if indexRes == 1:
+                width = 2592
+                height = 1944
+                return height,width
+            if indexRes == 2:
+                width = 2560
+                height = 1440
+                return height,width
+            if indexRes == 3:
+                width = 1920
+                height = 1080
+                return height, width
+            if indexRes == 4:
+                width = 1280
+                height = 720
+                return height, width
+            if indexRes == 5:
+                width = 640
+                height = 480
+                return height, width
+            else:
+                if indexRes == 0:
+                    width = 1920
+                    height = 1080
+                    return height,width
+                if indexRes == 1:
+                    width = 1280
+                    height = 720
+                    return height,width
+                if indexRes == 2:
+                    width = 640
+                    height = 480
+                    return height, width
+                
+    def capture_image_resChange(self, height, width):
+        ret, frame = self.video_stream.video.read()
+
+        if ret:
+            image_resolution = frame.shape[:2]  # Get only the rows and columns
+
+            now = datetime.now()
+            timestamp = now.strftime("%Y%m%d_%H%M%S")  # Format timestamp
+            filename = f"captured_image_{timestamp}.jpg"
+
+            # Create a temporary directory
+            temp_dir = tempfile.mkdtemp()
+
+            # Specify the filepath within the temporary directory
+            filepath = os.path.join(temp_dir, filename)
+
+            try:
+                frame = cv2.resize(
+                    frame, (width, height), interpolation=cv2.INTER_AREA)
+                self.captured_images_main.insert(0, frame)
+                if self.video_stream.checked == True:
                     if self.video_stream.ai_crop is not None:
                         frame = self.warp_perspective(
                             frame, self.video_stream.ai_crop)
@@ -630,10 +1075,10 @@ class MainWindow(QtWidgets.QMainWindow):
                             frame), self.auto_crop[0], self.auto_crop[1], self.auto_crop[2], self.auto_crop[3], self.auto_crop[4], self.auto_crop[5])
                 cv2.imwrite(filepath, frame)
 
-                if(self.auto_crop != None):
+                if (self.auto_crop != None):
                     self.captured_images_crop.insert(0, self.auto_crop)
                 else:
-                    self.captured_images_crop.insert(0, [0,0])
+                    self.captured_images_crop.insert(0, [0, 0])
                 # Append the filepath to the captured images list
                 self.captured_images.insert(0, filepath)
                 self.selected_images.clear()

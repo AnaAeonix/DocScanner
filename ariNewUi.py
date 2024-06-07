@@ -135,39 +135,39 @@ class Ui_MainWindow(object):
         # self.pdf_btn.setObjectName("pdf_btn")
         self.buttons_layout.addWidget(
             self.pdf_btn, alignment=QtCore.Qt.AlignTop)
-        self.jpeg_btn = QtWidgets.QPushButton(self.centralwidget)
-        self.jpeg_btn.setGeometry(QtCore.QRect(710, 60, 101, 31))
-        self.jpeg_btn.setStyleSheet("QPushButton {\n"
-                                    "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
-                                    "        border-radius: 20px; \n"
-                                    "    color: white; /* Text color */\n"
-                                    "    font-weight: bold;\n"
-                                    "border:none; /* Border color */\n"
-                                    "    padding: 10px 10px; /* Adjust padding as needed */\n"
-                                    "    margin:0px; /* Margin to create distance between buttons */\n"
-                                    "}\n"
-                                    " QPushButton {\n"
-                                    "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-                                    "    color: white; /* Text color */\n"
-                                    "    font-weight: bold;\n"
-                                    "\n"
-                                    "    padding: 10px 20px;\n"
-                                    "        /*height:50px;*/\n"
-                                    "margin: 0px;\n"
-                                    "        \n"
-                                    "        /* border-bottom: 1px solid #b0b0b0; */\n"
-                                    "    }\n"
-                                    " QPushButton:hover {\n"
-                                    "        background-color:#073c6d\n"
-                                    "    }")
-        icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/newPrefix/pdf.svg"),
-                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.jpeg_btn.setIcon(icon1)
-        self.jpeg_btn.setIconSize(QtCore.QSize(20, 20))
-        self.jpeg_btn.setObjectName("jpeg_btn")
-        self.buttons_layout.addWidget(
-            self.jpeg_btn, alignment=QtCore.Qt.AlignTop)
+        # self.jpeg_btn = QtWidgets.QPushButton(self.centralwidget)
+        # self.jpeg_btn.setGeometry(QtCore.QRect(710, 60, 101, 31))
+        # self.jpeg_btn.setStyleSheet("QPushButton {\n"
+        #                             "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+        #                             "        border-radius: 20px; \n"
+        #                             "    color: white; /* Text color */\n"
+        #                             "    font-weight: bold;\n"
+        #                             "border:none; /* Border color */\n"
+        #                             "    padding: 10px 10px; /* Adjust padding as needed */\n"
+        #                             "    margin:0px; /* Margin to create distance between buttons */\n"
+        #                             "}\n"
+        #                             " QPushButton {\n"
+        #                             "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+        #                             "    color: white; /* Text color */\n"
+        #                             "    font-weight: bold;\n"
+        #                             "\n"
+        #                             "    padding: 10px 20px;\n"
+        #                             "        /*height:50px;*/\n"
+        #                             "margin: 0px;\n"
+        #                             "        \n"
+        #                             "        /* border-bottom: 1px solid #b0b0b0; */\n"
+        #                             "    }\n"
+        #                             " QPushButton:hover {\n"
+        #                             "        background-color:#073c6d\n"
+        #                             "    }")
+        # icon1 = QtGui.QIcon()
+        # icon1.addPixmap(QtGui.QPixmap(":/newPrefix/pdf.svg"),
+        #                 QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        # self.jpeg_btn.setIcon(icon1)
+        # self.jpeg_btn.setIconSize(QtCore.QSize(20, 20))
+        # self.jpeg_btn.setObjectName("jpeg_btn")
+        # self.buttons_layout.addWidget(
+            # self.jpeg_btn, alignment=QtCore.Qt.AlignTop)
         self.edit_btn = QtWidgets.QPushButton(self.centralwidget)
         self.edit_btn.setGeometry(QtCore.QRect(710, 60, 101, 31))
         self.edit_btn.setStyleSheet("QPushButton {\n"
@@ -280,7 +280,7 @@ class Ui_MainWindow(object):
         # Create additional QLabel below the hor_line
         self.additional_label = QtWidgets.QLabel(self.centralwidget)
         self.additional_label.setGeometry(QtCore.QRect(
-            730, 120, 171, 900))  # Adjust geometry as needed
+            730, 120, 171, 950))  # Adjust geometry as needed
         # self.additional_label.setFrameShape(QtWidgets.QFrame.Box)
         # self.additional_label.setStyleSheet("QLabel {"
         #                                      "border: 2px solid #0e86f6;"  # Change '#0e86f6' to desired border color
@@ -292,7 +292,7 @@ class Ui_MainWindow(object):
                                             "border: 2px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);"
                                             "border-radius: 10px;"   # Adjust the value for desired curve
                                             "}")
-        self.additional_label.setFixedSize(210, 635)
+        self.additional_label.setFixedSize(210, 680)
         self.buttons_layout.addWidget(
             self.additional_label, alignment=QtCore.Qt.AlignTop)
 
@@ -324,7 +324,7 @@ class Ui_MainWindow(object):
                                      "border-radius: 10px;"   # Adjust the value for desired curve
                                      "}")
         self.cam_drop_down = QtWidgets.QComboBox(self.page)
-        self.cam_drop_down.setGeometry(QtCore.QRect(700, 20, 181, 22))
+        self.cam_drop_down.setGeometry(QtCore.QRect(750, 20, 281, 22))
         self.cam_drop_down.setObjectName("cam_drop_down")
         self.shutter_btn = QtWidgets.QPushButton(self.page)
         self.shutter_btn.setGeometry(QtCore.QRect(750, 880, 101, 61))
@@ -360,10 +360,7 @@ class Ui_MainWindow(object):
         self.shutter_btn.setCheckable(True)
         self.shutter_btn.setAutoExclusive(True)
         self.shutter_btn.setFlat(True)
-        self.shutter_btn.setObjectName("shutter_btn")
-        # self.res_drop_down = QtWidgets.QComboBox(self.page)
-        # self.res_drop_down.setGeometry(QtCore.QRect(400, 550, 181, 22))
-        # self.res_drop_down.setObjectName("res_drop_down")
+        self.shutter_btn.setObjectName("shutter_btn") 
         self.ai_btn = QtWidgets.QRadioButton(self.page)
         self.ai_btn.setGeometry(QtCore.QRect(60, 20, 102, 27))
         self.ai_btn.setCheckable(True)
@@ -383,6 +380,29 @@ class Ui_MainWindow(object):
         self.foc_label = QtWidgets.QLabel(self.page)
         self.foc_label.setGeometry(QtCore.QRect(460, 20, 61, 21))
         self.foc_label.setObjectName("foc_label")
+        self.resolution_drop = QtWidgets.QComboBox(self.page)
+        self.resolution_drop.setGeometry(QtCore.QRect(530, 900, 101, 22))
+        self.resolution_drop.setObjectName("resolution_drop")
+        self.resolution_label = QtWidgets.QLabel(self.page)
+        self.resolution_label.setGeometry(QtCore.QRect(460, 900, 61, 21))
+        self.resolution_label.setObjectName("resolution_label")
+        self.dpi_drop = QtWidgets.QComboBox(self.page)
+        self.dpi_drop.setGeometry(QtCore.QRect(330, 20, 101, 22))
+        self.dpi_drop.addItems(["72", "96", "150","200", "300"])
+        self.dpi_drop.setObjectName("dpi_drop")
+        self.dpi_label = QtWidgets.QLabel(self.page)
+        self.dpi_label.setGeometry(QtCore.QRect(260, 20, 61, 21))
+        self.dpi_label.setObjectName("dpi_label")
+        self.choosecam_label = QtWidgets.QLabel(self.page)
+        self.choosecam_label.setGeometry(QtCore.QRect(650, 20, 101, 21))
+        self.choosecam_label.setObjectName("choosecam_label")
+        self.export_drop = QtWidgets.QComboBox(self.page)
+        self.export_drop.setGeometry(QtCore.QRect(1130, 20, 101, 22))
+        self.export_drop.addItems(["PDF", "JPEG", "TIFF"])
+        self.export_drop.setObjectName("export_drop")
+        self.export_label = QtWidgets.QLabel(self.page)
+        self.export_label.setGeometry(QtCore.QRect(1060, 20, 61, 21))
+        self.export_label.setObjectName("export_label")
         self.stackedWidget.addWidget(self.page)
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setObjectName("page_2")
@@ -965,9 +985,9 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "DocScanner"))
-        self.pdf_btn.setText(_translate("MainWindow", " Export to PDF"))
+        self.pdf_btn.setText(_translate("MainWindow", " Export"))
         self.edit_btn.setText(_translate("MainWindow", "Edit"))
-        self.jpeg_btn.setText(_translate("MainWindow", "Export to JPEG"))
+        # self.jpeg_btn.setText(_translate("MainWindow", "Export to JPEG"))
         self.delete_btn.setText(_translate("MainWindow", "Delete"))
         self.dash_label.setText(_translate("MainWindow", "Customize"))
         self.adjust_btn.setText(_translate("MainWindow", "Adjust"))
@@ -991,6 +1011,11 @@ class Ui_MainWindow(object):
         self.name.setText(_translate("MainWindow", "Aeonix Document Scanner"))
         self.ai_btn.setText(_translate("MainWindow", "AI Mode"))
         self.foc_label.setText(_translate("MainWindow", "Set Focus:"))
+        self.export_label.setText(_translate("MainWindow", "Export to:"))
+        self.choosecam_label.setText(_translate("MainWindow", "Select Camera:"))
+        self.dpi_label.setText(_translate("MainWindow", "Select DPI:"))
+        self.resolution_label.setText(_translate("MainWindow", "Resolution:"))
+
 
 
 class VideoStream:
@@ -1031,44 +1056,44 @@ class VideoStream:
         #     print("Using 1080p resolution")
         # ... (rest of your set_resolution logic)
 
-    def display_camera_feed(self):
-        if not self.video.isOpened():
-            # Display error message if camera not open
-            font = QFont()
-            font.setPointSize(30)
-            self.parent_label.setFont(font)
-            if self.firstTime:
-                self.parent_label.setText(
-                    "<p style='font-size:20pt'>Please Select the Camera...</p>")
-            else:
-                self.parent_label.setText(
-                    "<p style='font-size:20pt'>Changing Camera...</p>")
-            return
+    # def display_camera_feed(self):
+    #     if not self.video.isOpened():
+    #         # Display error message if camera not open
+    #         font = QFont()
+    #         font.setPointSize(30)
+    #         self.parent_label.setFont(font)
+    #         if self.firstTime:
+    #             self.parent_label.setText(
+    #                 "<p style='font-size:20pt'>Please Select the Camera...</p>")
+    #         else:
+    #             self.parent_label.setText(
+    #                 "<p style='font-size:20pt'>Changing Camera...</p>")
+    #         return
 
-        ret, frame = self.video.read()
-        if ret:
-            self.firstTime = False
+    #     ret, frame = self.video.read()
+    #     if ret:
+    #         self.firstTime = False
 
-            # (h, w) = frame.shape[:2]
-            # center = (w / 2, h / 2)
-            # M = cv2.getRotationMatrix2D(center, 45, 1.0)
-                # rotated_frame = cv2.warpAffine(frame, M, (w, h))
-            if self.points is not None:
-                cv2.polylines(frame, [np.array(self.points)], True,(0, 255, 0), 6)
-            rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frame_resized = cv2.resize(rgb_image, (640, 480))
-            h, w, ch = frame_resized.shape
-            bytes_per_line = ch * w
-            q_img = QImage(frame_resized.data, w, h,
-                            bytes_per_line, QImage.Format_RGB888)
-            pixmap = QPixmap.fromImage(q_img)
-            self.parent_label.setPixmap(pixmap.scaled(
-                    self.parent_label.size(), Qt.KeepAspectRatio))
+    #         # (h, w) = frame.shape[:2]
+    #         # center = (w / 2, h / 2)
+    #         # M = cv2.getRotationMatrix2D(center, 45, 1.0)
+    #             # rotated_frame = cv2.warpAffine(frame, M, (w, h))
+    #         if self.points is not None:
+    #             cv2.polylines(frame, [np.array(self.points)], True,(0, 255, 0), 6)
+    #         rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    #         frame_resized = cv2.resize(rgb_image, (640, 480))
+    #         h, w, ch = frame_resized.shape
+    #         bytes_per_line = ch * w
+    #         q_img = QImage(frame_resized.data, w, h,
+    #                         bytes_per_line, QImage.Format_RGB888)
+    #         pixmap = QPixmap.fromImage(q_img)
+    #         self.parent_label.setPixmap(pixmap.scaled(
+    #                 self.parent_label.size(), Qt.KeepAspectRatio))
 
-                # self.parent_label.setFixedSize(w, h)
-        else:
-                # Display loader while camera is changing
-            self.show_loader()
+    #             # self.parent_label.setFixedSize(w, h)
+    #     else:
+    #             # Display loader while camera is changing
+    #         self.show_loader()
     
     def display_camera_feed1(self,checked):
         if not self.video.isOpened():
@@ -1196,87 +1221,6 @@ class VideoStream:
         else:
             # Display loader while camera is changing
             self.show_loader()
-    
-    # def display_camera_feed1(self, checked):
-    #     self.biggest_contour = None
-    #     self.max_area = 0
-    #     if not self.video.isOpened():
-    #         # Display error message if camera not open
-    #         font = QFont()
-    #         font.setPointSize(30)
-    #         self.parent_label.setFont(font)
-    #         if self.firstTime:
-    #             self.parent_label.setText(
-    #                 "<p style='font-size:20pt'>Please Select the Camera...</p>")
-    #         else:
-    #             self.parent_label.setText(
-    #                 "<p style='font-size:20pt'>Changing Camera...</p>")
-    #         return
-
-    #     ret, frame = self.video.read()
-
-    #     if ret:
-    #         self.firstTime = False
-
-    #         if self.points is not None:
-    #             cv2.polylines(
-    #                 frame, [np.array(self.points)], True, (0, 255, 0), 3)
-
-    #         # Check if contour detection is enabled
-    #         if checked:
-    #             self.detect_contours = True
-    #             if self.detect_contours:
-    #                 gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    #                 blurred = cv2.GaussianBlur(gray, (5, 5), 0)
-    #                 edged = cv2.Canny(blurred, 75, 200)
-    #                 contours, _ = cv2.findContours(
-    #                     edged, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-    #                 contours = sorted(
-    #                     contours, key=cv2.contourArea, reverse=True)[:5]
-    #                 for c in contours:
-    #                     # Approximate the contour
-    #                     peri = cv2.arcLength(c, True)
-    #                     approx = cv2.approxPolyDP(c, 0.02 * peri, True)
-    #                     if len(approx) == 4:
-    #                         # Return approx
-    #                         area = cv2.contourArea(approx)
-    #                         if area > self.max_area:
-    #                             self.biggest_contour = approx
-    #                             self.max_area = area
-    #                         # Minimum area threshold to avoid noise
-    #                         elif self.biggest_contour is not None and area < self.max_area and area > 1000:
-    #                             self.biggest_contour = approx
-    #                             self.max_area = area
-
-    #         # Convert frame to RGB
-    #         rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    #         # Resize frame to fit display
-    #         frame_resized = cv2.resize(rgb_image, (640, 480))
-    #         h, w, ch = frame_resized.shape
-    #         bytes_per_line = ch * w
-
-    #         # Calculate the scaling factors
-    #         original_height, original_width = frame.shape[:2]
-    #         scale_x = w / original_width
-    #         scale_y = h / original_height
-
-    #         # Scale the contour points if a contour is found
-    #         if self.biggest_contour is not None:
-    #             scaled_contour = self.biggest_contour.copy()
-    #             scaled_contour[:, :, 0] = scaled_contour[:, :, 0] * scale_x
-    #             scaled_contour[:, :, 1] = scaled_contour[:, :, 1] * scale_y
-    #             cv2.drawContours(
-    #                 frame_resized, [scaled_contour], -1, (0, 255, 0), 6)
-    #             self.order_points(self.biggest_contour.reshape(4, 2))
-
-    #         q_img = QImage(frame_resized.data, w, h,
-    #                     bytes_per_line, QImage.Format_RGB888)
-    #         pixmap = QPixmap.fromImage(q_img)
-    #         self.parent_label.setPixmap(pixmap.scaled(
-    #             self.parent_label.size(), Qt.KeepAspectRatio))
-    #     else:
-    #         # Display loader while camera is changing
-    #         self.show_loader()
 
 
     def change_camera(self, camera_index):
@@ -1337,6 +1281,7 @@ class VideoStream:
         
     def toggle_contour_detection(self, checked):
         self.checked = checked
+
 
 
     def set_focus(self,index):

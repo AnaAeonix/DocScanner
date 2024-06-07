@@ -1,4 +1,6 @@
 import tkinter as tk
+from tkinter import ttk
+
 from PIL import Image, ImageTk
 import numpy as np
 import cv2
@@ -142,12 +144,28 @@ class CropApp:
         #     self.but_frame, text="Show Coordinates", command=self.printBoxDetails)
         # self.coord_butt.pack(side=tk.LEFT)
 
-        self.reset_butt = tk.Button(
-            self.but_frame, text="Reset", command=self.restCorners)
+        style = ttk.Style()
+
+        style.configure('TButton',
+                        background='#4788f7',
+                        foreground='#4788f7',
+                        font=('Helvetica', 10, 'bold'),
+                        borderwidth=1,
+                        # padding=(10, 20)
+                        padding=(5, 10))
+        
+        
+
+        # Apply a hover effect (requires ttk 8.6+)
+        style.map('TButton',
+                  background=[('active', '#073c6d')])
+
+        self.reset_butt = ttk.Button(
+            self.but_frame, text="Reset", style='TButton', command=self.restCorners)
         self.reset_butt.pack(side=tk.LEFT, padx=5, pady=5)
 
-        self.crop_butt = tk.Button(
-            self.but_frame, text="Crop", command=self.crop)
+        self.crop_butt = ttk.Button(
+            self.but_frame, text="Crop", style='TButton', command=self.crop)
         self.crop_butt.pack(side=tk.LEFT, padx=5, pady=5)
 
         self.box_id = None
@@ -192,16 +210,16 @@ class CropApp:
             *self.SE.coords,
             *self.SW.coords,
             *self.NW.coords,
-            fill="blue", width=2)
+            fill="#4788f7", width=2)
 
         self.p1_id = self.canvas.create_polygon(
-            0, 0, *self.NW.coords, *self.SW.coords, 0, self.c_height, fill="blue", stipple="gray25")
+            0, 0, *self.NW.coords, *self.SW.coords, 0, self.c_height, fill="#4788f7", stipple="gray25")
         self.p2_id = self.canvas.create_polygon(
-            0, 0, *self.NW.coords, *self.NE.coords, self.c_width, 0, fill="blue", stipple="gray25")
+            0, 0, *self.NW.coords, *self.NE.coords, self.c_width, 0, fill="#4788f7", stipple="gray25")
         self.p3_id = self.canvas.create_polygon(
-            self.c_width, 0, *self.NE.coords, *self.SE.coords, self.c_width, self.c_height, fill="blue", stipple="gray25")
+            self.c_width, 0, *self.NE.coords, *self.SE.coords, self.c_width, self.c_height, fill="#4788f7", stipple="gray25")
         self.p4_id = self.canvas.create_polygon(
-            self.c_width, self.c_height, *self.SE.coords, *self.SW.coords, 0, self.c_height, fill="blue", stipple="gray25")
+            self.c_width, self.c_height, *self.SE.coords, *self.SW.coords, 0, self.c_height, fill="#4788f7", stipple="gray25")
 
         self.canvas.tag_raise(self.NW.cb_id, 'all')
         self.canvas.tag_raise(self.NE.cb_id, 'all')

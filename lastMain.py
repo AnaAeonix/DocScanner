@@ -137,8 +137,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # Dummy function to get resolutions for a given camera ID
         # Replace this with your actual implementation
         resolutions = {
-            "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000": ["3264x2448", "4160x3120", "4000x3000", "4208x3120", "2592x1944", "2320x1744", "2304x1728"],
-            "USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000": ["3264x2448", "2592x1944", "2560x1440", "1920x1080", "1280x720", "640x480"]
+            "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000": ["3264x2448","4896x3672", "4656x3496", "4160x3120", "4000x3000", "4208x3120", "2592x1944", "2320x1744", "2304x1728"],
+            "USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000": ["3264x2448", "2592x1944", "2560x1440", "1920x1080", "1280x720", "640x480"],
+            "USB\\VID_30C9&PID_0013&MI_00\\6&2E17A80F&0&0000": ["3264x2448","4896x3672", "4656x3496", "4160x3120", "4000x3000", "4208x3120", "2592x1944", "2320x1744", "2304x1728"]
         }
         res =["1920x1080", "1280x720", "640x480"]
         res1 = resolutions.get(camera_id, [])
@@ -973,15 +974,23 @@ class MainWindow(QtWidgets.QMainWindow):
         global indexRes
         device = usb_cameras[self.current_camera_index]["device_id"]
         if device == "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000":
-            if indexRes == 3:
+            if indexRes == 5:
                 width = 4208
                 height = 3120
                 return height,width
             if indexRes == 1:
+                width = 4896
+                height = 3672
+                return height, width
+            if indexRes == 2:
+                width = 4656
+                height = 3496
+                return height, width
+            if indexRes == 3:
                 width = 4160
                 height = 3120
                 return height, width
-            if indexRes == 2:
+            if indexRes == 4:
                 width = 4000
                 height = 3000
                 return height,width
@@ -989,15 +998,15 @@ class MainWindow(QtWidgets.QMainWindow):
                 width = 3264
                 height = 2448
                 return height,width
-            if indexRes == 4:
+            if indexRes == 6:
                 width = 2592
                 height = 1944
                 return height, width
-            if indexRes == 5:
+            if indexRes == 7:
                 width = 2320
                 height = 1744
                 return height,width
-            if indexRes == 6:
+            if indexRes == 8:
                 width = 2304
                 height = 1728
                 return height, width
@@ -1027,6 +1036,44 @@ class MainWindow(QtWidgets.QMainWindow):
                 width = 640
                 height = 480
                 return height, width
+        elif device == "USB\\VID_30C9&PID_0013&MI_00\\6&2E17A80F&0&0000":
+            if indexRes == 5:
+                width = 4208
+                height = 3120
+                return height,width
+            if indexRes == 1:
+                width = 4896
+                height = 3672
+                return height, width
+            if indexRes == 2:
+                width = 4656
+                height = 3496
+                return height, width
+            if indexRes == 3:
+                width = 4160
+                height = 3120
+                return height, width
+            if indexRes == 4:
+                width = 4000
+                height = 3000
+                return height,width
+            if indexRes == 0:
+                width = 3264
+                height = 2448
+                return height,width
+            if indexRes == 6:
+                width = 2592
+                height = 1944
+                return height, width
+            if indexRes == 7:
+                width = 2320
+                height = 1744
+                return height,width
+            if indexRes == 8:
+                width = 2304
+                height = 1728
+                return height, width
+
             else:
                 if indexRes == 0:
                     width = 1920
@@ -1040,6 +1087,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     width = 640
                     height = 480
                     return height, width
+            
                 
     def capture_image_resChange(self, height, width):
         ret, frame = self.video_stream.video.read()

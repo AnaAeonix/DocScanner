@@ -226,7 +226,7 @@ class Ui_MainWindow(object):
                                         "        background-color:#073c6d\n"
                                         "    }")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/newPrefix/settings.svg"),
+        icon1.addPixmap(QtGui.QPixmap(":/newPrefix/crop1.svg"),
                         QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.settings_btn.setIcon(icon1)
         self.settings_btn.setObjectName("settings_btn")
@@ -362,7 +362,7 @@ class Ui_MainWindow(object):
         self.shutter_btn.setFlat(True)
         self.shutter_btn.setObjectName("shutter_btn") 
         self.ai_btn = QtWidgets.QRadioButton(self.page)
-        self.ai_btn.setGeometry(QtCore.QRect(60, 20, 102, 27))
+        self.ai_btn.setGeometry(QtCore.QRect(60, 20, 152, 57))
         self.ai_btn.setCheckable(True)
         self.ai_btn.setAutoExclusive(False)
         self.ai_btn.setObjectName("ai_btn")
@@ -1007,7 +1007,7 @@ class Ui_MainWindow(object):
         self.save_btn.setText(_translate("MainWindow", "Save"))
         self.ok_btn.setText(_translate("MainWindow", "OK"))
         self.ok1_btn.setText(_translate("MainWindow", "OK"))
-        self.settings_btn.setText(_translate("MainWindow", "Settings"))
+        self.settings_btn.setText(_translate("MainWindow", "Manual Crop"))
         self.name.setText(_translate("MainWindow", "Aeonix Document Scanner"))
         self.ai_btn.setText(_translate("MainWindow", "AI Mode"))
         self.foc_label.setText(_translate("MainWindow", "Set Focus:"))

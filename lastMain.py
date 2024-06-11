@@ -1301,6 +1301,18 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             App = CropApp(root, img_file_name, inplace=True,
                           coordinates= self.captured_images_crop[self.imageIndex])
+            
+
+        def resize_window():
+            current_width = root.winfo_width()
+            current_height = root.winfo_height()
+            new_width = int(current_width * 0.8)  # Scale width to 80% of current width
+            new_height = int(current_height * 0.8)  # Scale height to 80% of current height
+            root.geometry(f"{new_width}x{new_height}")  # Set the new size
+
+        # Button to trigger resizing
+        # resize_button = tk.Button(root, text="Resize", command=resize_window)
+        # resize_button.pack()
         root.mainloop()
         print(App.crop_pressed)
         if App.crop_pressed:

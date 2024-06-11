@@ -1125,7 +1125,7 @@ class VideoStream:
                     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
                 kernel = np.ones((5, 5), np.uint8)
                 dilation = cv2.dilate(gray, kernel, iterations=5)
-                blur = cv2.GaussianBlur(dilation, (3, 3), 0)
+                blur = cv2.GaussianBlur(dilation, (1, 1), 0)
                 blur = cv2.erode(blur, kernel, iterations=5)
                 edge = cv2.Canny(blur, 100, 200)
 

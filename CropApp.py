@@ -109,7 +109,7 @@ class CropApp:
             self.scale_factor = max(f1, f2)
             self.scale_factor += 1
             self.im = self.im.resize(
-                (self.img_width//self.scale_factor, self.img_height//self.scale_factor), Image.LANCZOS)
+                (self.img_width//self.scale_factor, self.img_height//self.scale_factor), Image.Resampling.LANCZOS)
             self.img_width, self.img_height = self.im.size
 
         self.c_width = self.img_width + 10

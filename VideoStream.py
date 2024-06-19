@@ -20,6 +20,9 @@ class VideoStream:
         self.checked = False
         self.ai_crop = None
         self.current_focus = 0
+        self.brightness = 0
+        self.contrast = 0
+        self.exposure = -5
 
     def set_resolution(self):
         # Check if camera is open
@@ -43,6 +46,12 @@ class VideoStream:
         #     self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
         #     print("Using 1080p resolution")
         # ... (rest of your set_resolution logic)
+        
+    def update_display(self):
+        self.video.set(cv2.CAP_PROP_BRIGHTNESS, self.brightness)
+        self.video.set(cv2.CAP_PROP_CONTRAST, self.contrast)
+        self.video.set(cv2.CAP_PROP_EXPOSURE, float(self.exposure))
+
 
     # def display_camera_feed(self):
     #     if not self.video.isOpened():

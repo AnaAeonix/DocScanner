@@ -18,6 +18,8 @@ from ariNewUi import Ui_MainWindow
 from VideoStream import VideoStream
 from CropApp import CropApp
 from smartCrop import SmartCrop
+from SettingsMain import SetWindow
+from SettingsUi import Ui_MainWindow1
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -41,7 +43,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.contrasted_image = None
         self.rotation_state = 0  # Initial rotation state
         self.dpi = 72
-
         self.selected_images = []  # Store selected images
         self.all_checkboxes = []   # Store references to all checkboxes
         self.current_camera_index = 0
@@ -77,14 +78,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.getDpi)
         self.ui.resolution_drop.currentIndexChanged.connect(
             self.resolution_set)
-
+        
         self.ui.export_drop.currentIndexChanged.connect(
             self.export_change)
         self.setFocusPolicy(Qt.StrongFocus)
         self.ui.save_btn.clicked.connect(self.save)
         self.ui.undo_btn.clicked.connect(self.undo)
         self.ui.discard_btn.clicked.connect(self.discard)
-        # self.ui.jpeg_btn.clicked.connect(self.export_image)
+        self.ui.camset_btn.clicked.connect(self.settings_page)
         self.ui.ok_btn.clicked.connect(self.ok_btn_clicked)
         self.ui.ok1_btn.clicked.connect(self.ok1_btn_clicked)
 
@@ -115,6 +116,29 @@ class MainWindow(QtWidgets.QMainWindow):
         print(self.captured_images_crop)
         print(self.captured_images_main)
         print(self.captured_images)
+        
+        
+    def update_brightness_cam(self,brightness):
+        self.video_stream.brightness = brightness
+        self.video_stream.update_display()
+        # self.setWindow.ui.brightness_slider.setValue(self.video_stream.brightness)
+
+        
+    def update_contrast_cam(self,contrast):
+        self.video_stream.contrast = contrast
+        self.video_stream.update_display()
+        # self.setWindow.ui.contrast_slider.setValue(self.video_stream.contrast)
+    
+    def update_exposure_cam(self,exposure):
+        self.video_stream.exposure = exposure
+        self.video_stream.update_display()
+        # self.setWindow.ui.exposure_slider.setValue(self.video_stream.exposure)
+    def default(self):
+        self.video_stream.brightness = 0
+        self.video_stream.contrast = 0
+        self.video_stream.exposure = -5
+        self.video_stream.update_display()
+        self.setWindow.ui.contrast_slider.setValue(self.video_stream.contrast)
 
     def get_resolutions_for_camera(self, camera_id):
         resolutions = {
@@ -316,6 +340,24 @@ class MainWindow(QtWidgets.QMainWindow):
             # Inform the user if no images are selected
             QMessageBox.information(self, "No Selection",
                                     "No image selected for editing.")
+            
+    def settings_page(self):
+        self.setWindow = SetWindow()
+        self.setWindow.show()
+        self.setWindow.ui.contrast_slider.valueChanged.connect(
+            self.update_contrast_cam)
+        self.setWindow.ui.contrast_slider.setValue(self.video_stream.contrast)
+        self.setWindow.ui.brightness_slider.valueChanged.connect(
+            self.update_brightness_cam)
+        self.setWindow.ui.brightness_slider.setValue(
+            self.video_stream.brightness)
+        self.setWindow.ui.exposure_slider.valueChanged.connect(
+            self.update_exposure_cam)
+        self.setWindow.ui.exposure_slider.setValue(self.video_stream.exposure)
+        self.setWindow.ui.default_btn.clicked.connect(self.default)
+        # self.setWindow.ui.contrast_slider.setValue(self.video_stream.contrast)
+        self.setWindow.ui.brightness_slider.setValue(self.video_stream.brightness)
+        self.setWindow.ui.exposure_slider.setValue(self.video_stream.exposure)
 
     def image_double_clicked(self, label, path, index):
         if self.imageIndex != index:
@@ -917,7 +959,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # self.latestImage.append(rotated_image)
             # self.image = rotated_image
             self.image = rotated_image
-            self.load_image1()
+            self.load_image()
 
     def rotate_image_left(self):
         if self.image is not None:
@@ -932,7 +974,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # self.image = rotated_image
             self.image = rotated_image
             # self.display_captured_images_main()
-            self.load_image1()
+            self.load_image()
 
     def display_image(self, image):
         pixmap = QPixmap.fromImage(QImage(
@@ -1004,7 +1046,19 @@ class MainWindow(QtWidgets.QMainWindow):
             App = CropApp(root, img_file_name)
         else:
             App = CropApp(root, img_file_name, inplace=True,
-                          coordinates=self.captured_images_crop[self.imageIndex])
+                          coordinates= self.captured_images_crop[self.imageIndex])
+            
+
+        def resize_window():
+            current_width = root.winfo_width()
+            current_height = root.winfo_height()
+            new_width = int(current_width * 0.8)  # Scale width to 80% of current width
+            new_height = int(current_height * 0.8)  # Scale height to 80% of current height
+            root.geometry(f"{new_width}x{new_height}")  # Set the new size
+
+        # Button to trigger resizing
+        # resize_button = tk.Button(root, text="Resize", command=resize_window)
+        # resize_button.pack()
         root.mainloop()
         print(App.crop_pressed)
         if App.crop_pressed:

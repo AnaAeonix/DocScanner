@@ -1,7 +1,7 @@
-from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox
+from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox, QSplashScreen,QLabel
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtGui import QImage, QPixmap, QMovie
 from PIL import Image, ImageEnhance, ImageOps, ImageQt
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -1336,6 +1336,30 @@ class MainWindow(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
+    # Predefined GIF path
+    # Replace with your actual GIF file path
+    gif_file = r"C:\Users\sdas\Downloads\cargando-loading.gif"
+
+    # Create the splash screen with a fixed small size
+    splash_pix = QPixmap(500, 300)  # Create a pixmap with fixed size
+    splash_pix.fill(Qt.transparent)  # Make the pixmap transparent
+    splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
+
+    # Create a label to display the GIF
+    splash_label = QLabel(splash)
+    splash_movie = QMovie(gif_file)
+    splash_label.setMovie(splash_movie)
+    # Set the label size to match the splash screen
+    splash_label.setGeometry(0, 0, 500, 300)
+
+    splash_movie.start()
+    splash.show()
     window = MainWindow()
-    window.showMaximized()
+    def finish_splash():
+        splash.close()
+        window.showMaximized()
+
+    QTimer.singleShot(3000, finish_splash)  # Delay in milliseconds
+    # window = MainWindow()
+    # window.showMaximized()
     sys.exit(app.exec())

@@ -43,6 +43,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.contrasted_image = None
         self.rotation_state = 0  # Initial rotation state
         self.dpi = 72
+        self.effect = "Original"
         self.selected_images = []  # Store selected images
         self.all_checkboxes = []   # Store references to all checkboxes
         self.current_camera_index = 0
@@ -76,6 +77,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.video_stream.set_focus)
         self.ui.dpi_drop.currentIndexChanged.connect(
             self.getDpi)
+        self.ui.effect_drop.currentIndexChanged.connect(
+            self.geteffect)
         self.ui.resolution_drop.currentIndexChanged.connect(
             self.resolution_set)
         
@@ -178,6 +181,17 @@ class MainWindow(QtWidgets.QMainWindow):
             self.dpi = 200
         if index == 4:
             self.dpi = 300
+    
+    def geteffect(self, index):
+        # (["Original","Gray", "Binarized", "Optimized Document"])
+        if index == 0:
+            self.effect = "Original"
+        if index == 1:
+            self.effect = "Gray"
+        if index == 2:
+            self.effect = "Binarized"
+        if index == 3:
+            self.effect = "Optimized Document"
 
     def export_change(self, index):
         self.export = index
@@ -369,6 +383,22 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.stackedWidget.setCurrentIndex(1)
             self.load_image()
 
+    def get_effects(self,frame):
+        if frame is not None:
+            # Perform selected processing if not 'Original'
+            if self.effect == 'Gray':
+                processed_image = cv2.cvtColor(
+                    frame, cv2.COLOR_BGR2GRAY)
+            elif self.effect == 'Binarized':
+                _, processed_image = cv2.threshold(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY),
+                                                   127, 255, cv2.THRESH_BINARY)
+            elif self.effect == 'Optimized Document':
+                processed_image = cv2.adaptiveThreshold(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY),
+                                                        255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+            else:  # 'Original'
+                processed_image = frame
+        
+        return processed_image
     def display_captured_images_main(self):
         self.all_checkboxes = []
         # Clear existing images and checkboxes
@@ -736,6 +766,7 @@ class MainWindow(QtWidgets.QMainWindow):
             filepath = os.path.join(temp_dir, filename)
 
             try:
+                frame = self.get_effects(frame)
                 original_res = (frame.shape[1], frame.shape[0])
                 height, width = self.getRes()
                 if (height is None):

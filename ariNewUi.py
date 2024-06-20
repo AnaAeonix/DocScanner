@@ -390,6 +390,13 @@ class Ui_MainWindow(object):
         self.export_label = QtWidgets.QLabel(self.page)
         self.export_label.setGeometry(QtCore.QRect(1060, 20, 61, 21))
         self.export_label.setObjectName("export_label")
+        self.effect_drop = QtWidgets.QComboBox(self.page)
+        self.effect_drop.setGeometry(QtCore.QRect(1330, 20, 131, 22))
+        self.effect_drop.addItems(["Original","Gray", "Binarized", "Optimized Document"])
+        self.effect_drop.setObjectName("effect_drop")
+        self.effect_label = QtWidgets.QLabel(self.page)
+        self.effect_label.setGeometry(QtCore.QRect(1280, 20, 61, 21))
+        self.effect_label.setObjectName("effect_label")
         self.stackedWidget.addWidget(self.page)
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setObjectName("page_2")
@@ -1002,6 +1009,7 @@ class Ui_MainWindow(object):
         self.choosecam_label.setText(_translate("MainWindow", "Select Camera:"))
         self.dpi_label.setText(_translate("MainWindow", "Select DPI:"))
         self.resolution_label.setText(_translate("MainWindow", "Resolution:"))
+        self.effect_label.setText(_translate("MainWindow", "Effect:"))
 
 
 

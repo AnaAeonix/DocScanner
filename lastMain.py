@@ -1338,7 +1338,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     # Predefined GIF path
     # Replace with your actual GIF file path
-    gif_file = r"C:\Users\sdas\Downloads\cargando-loading.gif"
+    gif_file = "cargando-loading.gif"
 
     # Create the splash screen with a fixed small size
     splash_pix = QPixmap(500, 300)  # Create a pixmap with fixed size

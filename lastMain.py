@@ -71,8 +71,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.horizontalSlider_2.valueChanged.connect(self.update_sharpness)
         self.ui.horizontalSlider.valueChanged.connect(self.update_contrast)
         # self.ui.delete_btn.clicked.connect(self.delete)
-        self.ui.ai_btn.toggled.connect(
-            self.video_stream.toggle_contour_detection)
+        # self.ui.ai_btn.toggled.connect(
+        #     self.video_stream.toggle_contour_detection)
         self.ui.foc_drop.currentIndexChanged.connect(
             self.video_stream.set_focus)
         self.ui.dpi_drop.currentIndexChanged.connect(
@@ -81,6 +81,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.geteffect)
         self.ui.resolution_drop.currentIndexChanged.connect(
             self.resolution_set)
+        self.ui.crop_drop.currentIndexChanged.connect(
+            self.crop_type)
         
         self.ui.export_drop.currentIndexChanged.connect(
             self.export_change)
@@ -192,6 +194,13 @@ class MainWindow(QtWidgets.QMainWindow):
             self.effect = "Binarized"
         if index == 3:
             self.effect = "Optimized Document"
+            
+    def crop_type(self,index):
+        if index== 0 :
+            self.video_stream.checked = False
+        if index == 1:
+            self.video_stream.checked = True
+            self.video_stream.update_frame()
 
     def export_change(self, index):
         self.export = index
@@ -740,6 +749,19 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.show_image.setScaledContents(True)
         self.ui.show_image.setPixmap(pixmap.scaled(
             self.ui.show_image.size(), Qt.KeepAspectRatio))
+        
+    def load_image1(self):
+        cv2.imwrite(self.imagepath, self.image)
+        pixmap = QPixmap(self.imagepath)
+
+        self.ui.show_image.setAlignment(Qt.AlignCenter)
+        self.ui.show_image.setPixmap(pixmap)
+
+        self.ui.show_image.setAlignment(Qt.AlignCenter)
+
+        self.ui.show_image.setScaledContents(True)
+        self.ui.show_image.setPixmap(pixmap)
+
 
     def _handle_index_change(self):
         self.current_camera_index = self.ui.cam_drop_down.currentIndex()
@@ -990,7 +1012,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # self.latestImage.append(rotated_image)
             # self.image = rotated_image
             self.image = rotated_image
-            self.load_image()
+            self.load_image1()
 
     def rotate_image_left(self):
         if self.image is not None:
@@ -1333,7 +1355,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Apply adaptive thresholding with inverted binary threshold
         enhanced_image = cv2.adaptiveThreshold(
-            blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 4)
+            blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 4)
+        enhanced_image = cv2.bitwise_not(enhanced_image)
 
         self.image = enhanced_image
         self.load_image()

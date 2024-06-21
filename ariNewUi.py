@@ -348,18 +348,42 @@ class Ui_MainWindow(object):
         self.shutter_btn.setAutoExclusive(True)
         self.shutter_btn.setFlat(True)
         self.shutter_btn.setObjectName("shutter_btn") 
-        self.ai_btn = QtWidgets.QRadioButton(self.page)
-        self.ai_btn.setGeometry(QtCore.QRect(60, 20, 152, 57))
-        self.ai_btn.setCheckable(True)
-        self.ai_btn.setAutoExclusive(False)
-        self.ai_btn.setObjectName("ai_btn")
+        # self.ai_btn = QtWidgets.QRadioButton(self.page)
+        # self.ai_btn.setGeometry(QtCore.QRect(60, 30, 100, 57))
+        # self.ai_btn.setCheckable(True)
+        # self.ai_btn.setAutoExclusive(False)
+        # self.ai_btn.setObjectName("ai_btn")
+
+        # # Create a QFont object
+        # font = QtGui.QFont()
+        # font.setPointSize(10)  # Set the desired font size
+
+        # # Apply the font to the button
+        # self.ai_btn.setFont(font)
+        self.autoSave_btn = QtWidgets.QRadioButton(self.page)
+        self.autoSave_btn.setGeometry(QtCore.QRect(150, 30, 80, 57))
+        self.autoSave_btn.setCheckable(True)
+        self.autoSave_btn.setAutoExclusive(False)
+        self.autoSave_btn.setObjectName("autoSave_btn")
 
         # Create a QFont object
         font = QtGui.QFont()
-        font.setPointSize(16)  # Set the desired font size
+        font.setPointSize(10)  # Set the desired font size
 
         # Apply the font to the button
-        self.ai_btn.setFont(font)
+        self.autoSave_btn.setFont(font)
+        self.trim_btn = QtWidgets.QRadioButton(self.page)
+        self.trim_btn.setGeometry(QtCore.QRect(240, 30, 80, 57))
+        self.trim_btn.setCheckable(True)
+        self.trim_btn.setAutoExclusive(False)
+        self.trim_btn.setObjectName("trim_btn")
+
+        # Create a QFont object
+        font = QtGui.QFont()
+        font.setPointSize(10)  # Set the desired font size
+
+        # Apply the font to the button
+        self.trim_btn.setFont(font)
         self.foc_drop = QtWidgets.QComboBox(self.page)
         self.foc_drop.setGeometry(QtCore.QRect(530, 20, 101, 22))
         self.foc_drop.addItems(["Auto Focus", "Fixed Focus"])
@@ -373,6 +397,13 @@ class Ui_MainWindow(object):
         self.resolution_label = QtWidgets.QLabel(self.page)
         self.resolution_label.setGeometry(QtCore.QRect(460, 900, 61, 21))
         self.resolution_label.setObjectName("resolution_label")
+        self.crop_drop = QtWidgets.QComboBox(self.page)
+        self.crop_drop.setGeometry(QtCore.QRect(150, 20, 101, 22))
+        self.crop_drop.addItems(["Manual Crop", "Ai Crop"])
+        self.crop_drop.setObjectName("crop_drop")
+        self.crop_label = QtWidgets.QLabel(self.page)
+        self.crop_label.setGeometry(QtCore.QRect(100, 20, 61, 21))
+        self.crop_label.setObjectName("crop_label")
         self.dpi_drop = QtWidgets.QComboBox(self.page)
         self.dpi_drop.setGeometry(QtCore.QRect(330, 20, 101, 22))
         self.dpi_drop.addItems(["72", "96", "150","200", "300"])
@@ -527,7 +558,7 @@ class Ui_MainWindow(object):
             20, 322, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_15.addItem(spacerItem)
         self.show_image = QtWidgets.QLabel(self.page_2)
-        self.show_image.setGeometry(QtCore.QRect(480, 30, 921, 661))
+        self.show_image.setGeometry( QtCore.QRect(400, 30, 1100, 661))  # 921, 661
         self.show_image.setFrameShape(QtWidgets.QFrame.Box)
         self.show_image.setText("")
         self.show_image.setStyleSheet("QLabel {"
@@ -1003,13 +1034,16 @@ class Ui_MainWindow(object):
         self.ok1_btn.setText(_translate("MainWindow", "OK"))
         self.settings_btn.setText(_translate("MainWindow", "Manual Crop"))
         self.name.setText(_translate("MainWindow", "Aeonix Document Scanner"))
-        self.ai_btn.setText(_translate("MainWindow", "AI Mode"))
+        # self.ai_btn.setText(_translate("MainWindow", "AI Mode"))
         self.foc_label.setText(_translate("MainWindow", "Set Focus:"))
         self.export_label.setText(_translate("MainWindow", "Export to:"))
         self.choosecam_label.setText(_translate("MainWindow", "Select Camera:"))
         self.dpi_label.setText(_translate("MainWindow", "Select DPI:"))
         self.resolution_label.setText(_translate("MainWindow", "Resolution:"))
         self.effect_label.setText(_translate("MainWindow", "Effect:"))
+        self.autoSave_btn.setText(_translate("MainWindow", "Auto Save"))
+        self.trim_btn.setText(_translate("MainWindow", "Trim"))
+        self.crop_label.setText(_translate("MainWindow", "Crop:"))
 
 
 

@@ -93,6 +93,7 @@ class VideoStream:
     #         self.show_loader()
 
     def display_camera_feed1(self, checked):
+        self.checked = checked
         if not self.video.isOpened():
             # Display error message if camera not open
             font = QFont()
@@ -116,7 +117,7 @@ class VideoStream:
                     frame, [np.array(self.points)], True, (0, 255, 0), 6)
 
             # Check if contour detection is enabled
-            if checked:
+            if self.checked:
                 document_contour = self.detect_document(frame)
 
                 if document_contour is not None:
@@ -296,8 +297,8 @@ class VideoStream:
     def update_frame(self):
         self.display_camera_feed1(self.checked)
 
-    def toggle_contour_detection(self, checked):
-        self.checked = checked
+    # def toggle_contour_detection(self, checked):
+    #     self.checked = checked
 
     def set_focus(self, index):
         # Simulate changing focus

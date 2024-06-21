@@ -39,6 +39,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.imagepath = os.path.join(temp_dir, filename)
         self.image = None  # Track the currently displayed image
         self.imageIndex = None
+        self.AutoSaveChecked = False
+        self.AutoSaveFolder = None
+        self.setWindow = SetWindow()
         self.sharp_img = None
         self.contrasted_image = None
         self.rotation_state = 0  # Initial rotation state
@@ -93,6 +96,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.camset_btn.clicked.connect(self.settings_page)
         self.ui.ok_btn.clicked.connect(self.ok_btn_clicked)
         self.ui.ok1_btn.clicked.connect(self.ok1_btn_clicked)
+        self.ui.autoSave_btn.toggled.connect(self.on_autoSave_toggled)
 
         self.ui.mag1_btn.clicked.connect(self.magic1)
         self.ui.mag2_btn.clicked.connect(self.magic2)
@@ -205,7 +209,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def export_change(self, index):
         self.export = index
 
-    def exportTo(self, export_format):
+    def exportTo(self):
         export_format = self.export
         if export_format == 0:
             if self.selected_images:
@@ -344,6 +348,61 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             QMessageBox.information(None, "Invalid Format",
                                     "The specified format is not supported.")
+            
+
+
+
+    def exportToAutoSaveFolder(self, image_path):
+        export_format = self.export
+        timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
+
+        if export_format == 0:  # Export as PDF
+            save_path = os.path.join(self.AutoSaveFolder, f"{timestamp}.pdf")
+            img = Image.open(image_path)
+            img_width, img_height = img.size
+
+            # Create PDF with page size matching the image
+            pdf_canvas = canvas.Canvas(save_path, pagesize=(img_width, img_height))
+
+            # Draw white background
+            pdf_canvas.setFillGray(1)
+            pdf_canvas.rect(0, 0, img_width, img_height, fill=1)
+
+            # Draw image
+            pdf_canvas.drawImage(image_path, 0, 0, width=img_width, height=img_height)
+            pdf_canvas.save()
+        
+        elif export_format == 1:  # Export as JPEG
+            save_path = os.path.join(self.AutoSaveFolder, f"{timestamp}.jpeg")
+            image = cv2.imread(image_path)
+
+            if image is not None:
+                # Convert BGR image to RGB
+                image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+                # Convert the RGB numpy array to PIL Image
+                pil_image = Image.fromarray(image_rgb)
+
+                # Save image as JPEG with DPI
+                pil_image.save(save_path, dpi=(self.dpi, self.dpi))
+        
+        elif export_format == 2:  # Export as TIFF
+            save_path = os.path.join(self.AutoSaveFolder, f"{timestamp}.tiff")
+            image = cv2.imread(image_path)
+
+            if image is not None:
+                # Convert BGR image to RGB
+                image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+                # Convert the RGB numpy array to PIL Image
+                pil_image = Image.fromarray(image_rgb)
+
+                # Save image as TIFF with DPI
+                pil_image.save(save_path, format="TIFF", dpi=(self.dpi, self.dpi))
+        
+        else:
+            QMessageBox.information(None, "Invalid Format", "The specified format is not supported.")
+
 
     def editing(self):
         # Increment the click counter for the clicked image
@@ -365,7 +424,6 @@ class MainWindow(QtWidgets.QMainWindow):
                                     "No image selected for editing.")
             
     def settings_page(self):
-        self.setWindow = SetWindow()
         self.setWindow.show()
         self.setWindow.ui.contrast_slider.valueChanged.connect(
             self.update_contrast_cam)
@@ -532,6 +590,17 @@ class MainWindow(QtWidgets.QMainWindow):
                 image_path = self.captured_images[index]
                 if (index, image_path) in self.selected_images:
                     self.selected_images.remove((index, image_path))
+
+    
+        
+
+    def on_autoSave_toggled(self, checked):
+        if checked:
+            self.AutoSaveChecked = True
+        else:
+            self.AutoSaveChecked = False
+
+
 
     def delete_image(self):
         # Check if there are selected images
@@ -819,6 +888,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 else:
                     self.captured_images_crop.insert(0, [0, 0])
                 # Append the filepath to the captured images list
+                if self.AutoSaveChecked:
+                    self.AutoSaveFolder = self.setWindow.AutoSaveFolder
+                    print(self.AutoSaveFolder)
+                    print(filepath)
+                    self.exportToAutoSaveFolder(filepath)
                 self.captured_images.insert(0, filepath)
                 self.selected_images.clear()
                 # Call display_captured_images to update the display

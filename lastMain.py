@@ -13,6 +13,7 @@ import numpy as np
 import win32com.client
 from datetime import datetime
 import tempfile
+from rembg import remove
 # Remove the duplicate import statement
 from ariNewUi import Ui_MainWindow
 from VideoStream import VideoStream
@@ -54,6 +55,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.captured_images_crop = []
         self.captured_images_main = []
         self.export = 0
+        self.trimmed = False
 
         self.ui.edit_btn.clicked.connect(self.editing)
         self.video_stream = VideoStream(
@@ -76,6 +78,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.ui.delete_btn.clicked.connect(self.delete)
         # self.ui.ai_btn.toggled.connect(
         #     self.video_stream.toggle_contour_detection)
+        self.ui.trim_btn.toggled.connect(self.trim_condition)
         self.ui.foc_drop.currentIndexChanged.connect(
             self.video_stream.set_focus)
         self.ui.dpi_drop.currentIndexChanged.connect(
@@ -466,6 +469,65 @@ class MainWindow(QtWidgets.QMainWindow):
                 processed_image = frame
         
         return processed_image
+
+    def trim_condition(self,trimmed):
+        self.trimmed = trimmed
+        
+    # def trim(self,frame):
+    #     if frame is not None:
+    #         # Remove the background from the input image
+    #         output_image = remove(frame)
+    #         # Ensure output_image is in 'RGB' mode to have only two dimensions
+    #     # Convert output_image (NumPy array) to a PIL Image
+    #         if isinstance(output_image, np.ndarray):
+    #             output_image = Image.fromarray(output_image)
+    #         if output_image.mode == 'RGBA':
+    #             output_image = output_image.convert('RGB')
+
+    #             # Create a new image with a white background
+    #         output_with_white_bg = Image.new("RGB", output_image.size, (255, 255, 255))
+
+    #         # Extract the alpha channel as the transparency mask
+    #         # alpha = output_image.split()[2]
+
+    #         # Paste the output image onto the white background using the alpha channel as mask
+    #         # output_with_white_bg.paste(output_image.convert('RGB'), (0, 0), mask=alpha)
+    #         output_with_white_bg.paste(output_image, (0, 0), output_image)
+    #         # Convert the final image back to a NumPy array
+    #         final_image = np.array(output_with_white_bg)
+
+        
+            
+    #         return final_image
+        
+
+    def trim(self, frame):
+        if frame is not None:
+            # Remove the background from the input image
+            output_image = remove(frame)
+
+            # Convert output_image (NumPy array) to a PIL Image if necessary
+            if isinstance(output_image, np.ndarray):
+                output_image = Image.fromarray(output_image)
+
+            # Ensure the image mode is 'RGB'
+            if output_image.mode == 'RGBA':
+                # Extract the alpha channel
+                alpha = output_image.split()[3]  # Assuming RGBA mode
+                # Create a new image with a white background
+                output_with_white_bg = Image.new(
+                    "RGB", output_image.size, (255, 255, 255))
+                # Paste the output image onto the white background using alpha as mask
+                output_with_white_bg.paste(output_image, (0, 0), mask=alpha)
+            else:
+                # If no transparency, paste directly
+                output_with_white_bg = output_image.copy()
+
+            # Convert the final image back to a NumPy array
+            final_image = np.array(output_with_white_bg)
+
+            return final_image
+        
     def display_captured_images_main(self):
         self.all_checkboxes = []
         # Clear existing images and checkboxes
@@ -780,12 +842,10 @@ class MainWindow(QtWidgets.QMainWindow):
         usb_cameras = self.list_usb_cameras()
 
         # Creating a dictionary for USB camera details keyed by name
-        camera_details = {camera['device_id']
-            : camera for camera in usb_cameras}
+        camera_details = {camera['device_id']: camera for camera in usb_cameras}
 
         i = 0
         for index in camera_indices:
-
             cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
             if cap.isOpened():
                 backend_id = cap.get(cv2.CAP_PROP_BACKEND)
@@ -793,7 +853,18 @@ class MainWindow(QtWidgets.QMainWindow):
                 details = camera_details.get(name, {})
                 description = details.get('device_id', 'Unknown')
                 manufacturer = details.get('manufacturer', 'Unknown')
-                camera_name = f"{name} ({description})"
+
+                # Assign custom name based on the device ID
+                if name == "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000":
+                    custom_name = 'A2 Scanner'
+                elif name == "USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000":
+                    custom_name = 'A4 Scanner'
+                # Add more conditions as needed
+                else:
+                    custom_name = f"{name} ({description})"
+
+                camera_name = custom_name
+
                 available_cameras.append((index, camera_name))
                 cap.release()
 
@@ -858,6 +929,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
             try:
                 frame = self.get_effects(frame)
+                # if self.trimmed== True:
+                #     frame = self.trim(frame)
                 original_res = (frame.shape[1], frame.shape[0])
                 height, width = self.getRes()
                 if (height is None):
@@ -865,6 +938,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     width = 3264
                 frame = cv2.resize(
                     frame, (width, height), interpolation=cv2.INTER_AREA)
+                if self.trimmed == True:
+                    frame = self.trim(frame)
                 self.captured_images_main.insert(0, frame)
                 if self.video_stream.checked == True:
                     if self.video_stream.ai_crop is not None:
@@ -942,124 +1017,137 @@ class MainWindow(QtWidgets.QMainWindow):
         new_h = (int(hwidth * scale_x), int(hheight * scale_y))
 
         return [new_x, new_y, new_w, new_h]
-
+    
     def getRes(self):
         global indexRes
         device = usb_cameras[self.current_camera_index]["device_id"]
-        if device == "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000":
-            if indexRes == 5:
-                width = 4208
-                height = 3120
-                return height, width
-            if indexRes == 1:
-                width = 4896
-                height = 3672
-                return height, width
-            if indexRes == 2:
-                width = 4656
-                height = 3496
-                return height, width
-            if indexRes == 3:
-                width = 4160
-                height = 3120
-                return height, width
-            if indexRes == 4:
-                width = 4000
-                height = 3000
-                return height, width
-            if indexRes == 0:
-                width = 3264
-                height = 2448
-                return height, width
-            if indexRes == 6:
-                width = 2592
-                height = 1944
-                return height, width
-            if indexRes == 7:
-                width = 2320
-                height = 1744
-                return height, width
-            if indexRes == 8:
-                width = 2304
-                height = 1728
-                return height, width
+        available_resolutions = self.get_resolutions_for_camera(device)
 
-        elif device == "USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000":
-            if indexRes == 0:
-                width = 3264
-                height = 2448
-                return height, width
-            if indexRes == 1:
-                width = 2592
-                height = 1944
-                return height, width
-            if indexRes == 2:
-                width = 2560
-                height = 1440
-                return height, width
-            if indexRes == 3:
-                width = 1920
-                height = 1080
-                return height, width
-            if indexRes == 4:
-                width = 1280
-                height = 720
-                return height, width
-            if indexRes == 5:
-                width = 640
-                height = 480
-                return height, width
-        elif device == "USB\\VID_30C9&PID_0013&MI_00\\6&2E17A80F&0&0000":
-            if indexRes == 5:
-                width = 4208
-                height = 3120
-                return height, width
-            if indexRes == 1:
-                width = 4896
-                height = 3672
-                return height, width
-            if indexRes == 2:
-                width = 4656
-                height = 3496
-                return height, width
-            if indexRes == 3:
-                width = 4160
-                height = 3120
-                return height, width
-            if indexRes == 4:
-                width = 4000
-                height = 3000
-                return height, width
-            if indexRes == 0:
-                width = 3264
-                height = 2448
-                return height, width
-            if indexRes == 6:
-                width = 2592
-                height = 1944
-                return height, width
-            if indexRes == 7:
-                width = 2320
-                height = 1744
-                return height, width
-            if indexRes == 8:
-                width = 2304
-                height = 1728
-                return height, width
+        if indexRes < len(available_resolutions):
+            resolution = available_resolutions[indexRes]
+            width, height = map(int, resolution.split('x'))
+            return height, width
 
-            else:
-                if indexRes == 0:
-                    width = 1920
-                    height = 1080
-                    return height, width
-                if indexRes == 1:
-                    width = 1280
-                    height = 720
-                    return height, width
-                if indexRes == 2:
-                    width = 640
-                    height = 480
-                    return height, width
+        # Default resolution if indexRes is out of range
+        return 1920, 1080  # Example default resolution
+
+    # def getRes(self):
+    #     global indexRes
+    #     device = usb_cameras[self.current_camera_index]["device_id"]
+    #     if device == "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000":
+    #         if indexRes == 5:
+    #             width = 4208
+    #             height = 3120
+    #             return height, width
+    #         if indexRes == 1:
+    #             width = 4896
+    #             height = 3672
+    #             return height, width
+    #         if indexRes == 2:
+    #             width = 4656
+    #             height = 3496
+    #             return height, width
+    #         if indexRes == 3:
+    #             width = 4160
+    #             height = 3120
+    #             return height, width
+    #         if indexRes == 4:
+    #             width = 4000
+    #             height = 3000
+    #             return height, width
+    #         if indexRes == 0:
+    #             width = 3264
+    #             height = 2448
+    #             return height, width
+    #         if indexRes == 6:
+    #             width = 2592
+    #             height = 1944
+    #             return height, width
+    #         if indexRes == 7:
+    #             width = 2320
+    #             height = 1744
+    #             return height, width
+    #         if indexRes == 8:
+    #             width = 2304
+    #             height = 1728
+    #             return height, width
+
+    #     elif device == "USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000":
+    #         if indexRes == 0:
+    #             width = 3264
+    #             height = 2448
+    #             return height, width
+    #         if indexRes == 1:
+    #             width = 2592
+    #             height = 1944
+    #             return height, width
+    #         if indexRes == 2:
+    #             width = 2560
+    #             height = 1440
+    #             return height, width
+    #         if indexRes == 3:
+    #             width = 1920
+    #             height = 1080
+    #             return height, width
+    #         if indexRes == 4:
+    #             width = 1280
+    #             height = 720
+    #             return height, width
+    #         if indexRes == 5:
+    #             width = 640
+    #             height = 480
+    #             return height, width
+    #     elif device == "USB\\VID_30C9&PID_0013&MI_00\\6&2E17A80F&0&0000":
+    #         if indexRes == 5:
+    #             width = 4208
+    #             height = 3120
+    #             return height, width
+    #         if indexRes == 1:
+    #             width = 4896
+    #             height = 3672
+    #             return height, width
+    #         if indexRes == 2:
+    #             width = 4656
+    #             height = 3496
+    #             return height, width
+    #         if indexRes == 3:
+    #             width = 4160
+    #             height = 3120
+    #             return height, width
+    #         if indexRes == 4:
+    #             width = 4000
+    #             height = 3000
+    #             return height, width
+    #         if indexRes == 0:
+    #             width = 3264
+    #             height = 2448
+    #             return height, width
+    #         if indexRes == 6:
+    #             width = 2592
+    #             height = 1944
+    #             return height, width
+    #         if indexRes == 7:
+    #             width = 2320
+    #             height = 1744
+    #             return height, width
+    #         if indexRes == 8:
+    #             width = 2304
+    #             height = 1728
+    #             return height, width
+
+    #         else:
+    #             if indexRes == 0:
+    #                 width = 1920
+    #                 height = 1080
+    #                 return height, width
+    #             if indexRes == 1:
+    #                 width = 1280
+    #                 height = 720
+    #                 return height, width
+    #             if indexRes == 2:
+    #                 width = 640
+    #                 height = 480
+    #                 return height, width
 
     def returntocamera(self):
         self.imageIndex = None
@@ -1418,7 +1506,6 @@ class MainWindow(QtWidgets.QMainWindow):
         elif len(self.image.shape) == 2:
             # Image is already grayscale
             image = self.image
-
         # Check if the image was read successfully
         if image is None:
             print("Error: Unable to read the image.")

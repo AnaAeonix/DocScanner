@@ -264,7 +264,7 @@ class Ui_MainWindow1(object):
         self.storage_label.setStyleSheet("QLabel {"
                                      #  "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
                                      "border: 2px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);"
-                                     "border-radius: 10px;"   # Adjust the value for desired curve
+                                     "/*border-radius: 10px;*/"   # Adjust the value for desired curve
                                      "}")
         self.open_btn = QPushButton(self.centralwidget)
         self.open_btn.setObjectName("open_btn")

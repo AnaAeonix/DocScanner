@@ -232,7 +232,7 @@ class Ui_MainWindow1(object):
 
         self.browse_btn = QPushButton(self.centralwidget)
         self.browse_btn.setObjectName("browse_btn")
-        self.browse_btn.setGeometry(230, 432, 89, 35)
+        self.browse_btn.setGeometry(310, 432, 89, 35)
         self.browse_btn.setStyleSheet("QPushButton {\n"
                                        "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                        "        border-radius: 20px; \n"
@@ -259,39 +259,39 @@ class Ui_MainWindow1(object):
 
         self.storage_label = QLabel(self.centralwidget)
         self.storage_label.setObjectName("storage_label")
-        self.storage_label.setGeometry(20, 440, 201, 21)
+        self.storage_label.setGeometry(20, 440, 281, 21)
         self.storage_label.setFrameShape(QFrame.Box)
         self.storage_label.setStyleSheet("QLabel {"
                                      #  "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
                                      "border: 2px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);"
                                      "/*border-radius: 10px;*/"   # Adjust the value for desired curve
                                      "}")
-        self.open_btn = QPushButton(self.centralwidget)
-        self.open_btn.setObjectName("open_btn")
-        self.open_btn.setGeometry(320, 432, 80, 35)
-        self.open_btn.setStyleSheet("QPushButton {\n"
-                                      "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
-                                      "        border-radius: 20px; \n"
-                                      "    color: white; /* Text color */\n"
-                                      "    font-weight: bold;\n"
-                                      "border:none; /* Border color */\n"
-                                      "    padding: 10px 10px; /* Adjust padding as needed */\n"
-                                      "    margin:0px; /* Margin to create distance between buttons */\n"
-                                      "}\n"
-                                      " QPushButton {\n"
-                                      "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-                                      "    color: white; /* Text color */\n"
-                                      "    font-weight: bold;\n"
-                                      "\n"
-                                      "    padding: 10px 20px;\n"
-                                      "        /*height:50px;*/\n"
-                                      "margin: 0px;\n"
-                                      "        \n"
-                                      "        /* border-bottom: 1px solid #b0b0b0; */\n"
-                                      "    }\n"
-                                      "QPushButton:hover {\n"
-                                      "        background-color:#073c6d;\n"
-                                      "    }")
+        # self.open_btn = QPushButton(self.centralwidget)
+        # self.open_btn.setObjectName("open_btn")
+        # self.open_btn.setGeometry(320, 432, 80, 35)
+        # self.open_btn.setStyleSheet("QPushButton {\n"
+        #                               "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+        #                               "        border-radius: 20px; \n"
+        #                               "    color: white; /* Text color */\n"
+        #                               "    font-weight: bold;\n"
+        #                               "border:none; /* Border color */\n"
+        #                               "    padding: 10px 10px; /* Adjust padding as needed */\n"
+        #                               "    margin:0px; /* Margin to create distance between buttons */\n"
+        #                               "}\n"
+        #                               " QPushButton {\n"
+        #                               "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+        #                               "    color: white; /* Text color */\n"
+        #                               "    font-weight: bold;\n"
+        #                               "\n"
+        #                               "    padding: 10px 20px;\n"
+        #                               "        /*height:50px;*/\n"
+        #                               "margin: 0px;\n"
+        #                               "        \n"
+        #                               "        /* border-bottom: 1px solid #b0b0b0; */\n"
+        #                               "    }\n"
+        #                               "QPushButton:hover {\n"
+        #                               "        background-color:#073c6d;\n"
+        #                               "    }")
 
 
         MainWindow.setCentralWidget(self.centralwidget)
@@ -313,4 +313,4 @@ class Ui_MainWindow1(object):
         self.label_5.setText(_translate("MainWindow", "Storage Path:"))
         self.browse_btn.setText(_translate("MainWindow", "Browse"))
         self.storage_label.setText("")
-        self.open_btn.setText(_translate("MainWindow", "Open"))
+        # self.open_btn.setText(_translate("MainWindow", "Open"))

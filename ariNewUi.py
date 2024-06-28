@@ -428,6 +428,57 @@ class Ui_MainWindow(object):
         self.effect_label = QtWidgets.QLabel(self.page)
         self.effect_label.setGeometry(QtCore.QRect(1280, 20, 61, 21))
         self.effect_label.setObjectName("effect_label")
+        self.rotate_widget = QtWidgets.QWidget(self.page)
+        self.rotate_widget.setGeometry(QtCore.QRect(5, 350, 51, 101))
+        self.rotate_widget.setStyleSheet("#rotate_widget {\n"
+                               "        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+                               "        width:50px;\n"
+                               "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                               "    }\n"
+                               "\n"
+                               "    /* style for QPushButton and QLabel */\n"
+                               "    #rotate_widget QToolButton {\n"
+                               "        border-radius: 1px; /* Adjust the value to change the curve radius */\n"
+                               "    color: white; /* Text color */\n"
+                               "    font-weight: bold;\n"
+                               " /*border: 2px solid #4CAF50; *//* Border color */\n"
+                               "    /*padding: 10px 20px*/;\n"
+                               "        /*height:50px;*/\n"
+                               "/*margin: 10px*/;\n"
+                               "        \n"
+                               "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                               "    }\n"
+                               "#rotate_widget Qlabel{\n"
+                               "border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                               "    color: white; /* Text color */\n"
+                               "    font-weight: bold;\n"
+                               " border: 2px solid #4CAF50; /* Border color */\n"
+                               "    padding: 10px 20px;\n"
+                               "        /*height:50px;*/\n"
+                               "margin: 10px;\n"
+                               "}\n"
+                               "\n"
+                               "    #rotate_widget QToolButton:hover {\n"
+                               "        background-color:#073c6d\n"
+                               "    }\n"
+                               "")
+        self.rotate_widget.setObjectName("rotate_widget")
+        self.feed_rotate_right = QtWidgets.QToolButton(self.rotate_widget)
+        self.feed_rotate_right.setGeometry(QtCore.QRect(8, 10, 35, 29))
+        icon10 = QtGui.QIcon()
+        icon10.addPixmap(QtGui.QPixmap(
+            ":/newPrefix/rotateRight.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.feed_rotate_right.setIcon(icon10)
+        self.feed_rotate_right.setIconSize(QtCore.QSize(20, 20))
+        self.feed_rotate_right.setObjectName("feed_rotate_right")
+        self.feed_rotate_left = QtWidgets.QToolButton(self.rotate_widget)
+        self.feed_rotate_left.setGeometry(QtCore.QRect(12, 50, 35, 29))
+        icon9 = QtGui.QIcon()
+        icon9.addPixmap(QtGui.QPixmap(":/newPrefix/rotateLeft.svg"),
+                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.feed_rotate_left.setIcon(icon9)
+        self.feed_rotate_left.setIconSize(QtCore.QSize(20, 20))
+        self.feed_rotate_left.setObjectName("feed_rotate_left")
         self.stackedWidget.addWidget(self.page)
         self.page_2 = QtWidgets.QWidget()
         self.page_2.setObjectName("page_2")

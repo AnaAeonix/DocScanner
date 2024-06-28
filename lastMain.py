@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox, QSplashScreen,QLabel
 from PyQt5.QtCore import QTimer, Qt
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtGui import QImage, QPixmap, QMovie
+from PyQt5.QtGui import QImage, QPixmap, QMovie, QTransform
 from PIL import Image, ImageEnhance, ImageOps, ImageQt
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
@@ -464,7 +464,8 @@ class MainWindow(QtWidgets.QMainWindow):
                                                    127, 255, cv2.THRESH_BINARY)
             elif self.effect == 'Optimized Document':
                 processed_image = cv2.adaptiveThreshold(cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY),
-                                                        255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
+                                                        255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 10)
+                processed_image = cv2.bitwise_not(processed_image)
             else:  # 'Original'
                 processed_image = frame
         
@@ -878,17 +879,17 @@ class MainWindow(QtWidgets.QMainWindow):
             lambda: self._handle_index_change())
 
     def load_image(self):
-        cv2.imwrite(self.imagepath, self.image)
-        pixmap = QPixmap(self.imagepath)
-
+        image = self.image
+        height, width, channel = image.shape
+        bytes_per_line = 3 * width
+        qimage = QImage(image.data, width, height,
+                        bytes_per_line, QImage.Format_RGB888)
+        pixmap = QPixmap.fromImage(qimage)
+        label_size = self.ui.show_image.size()
+        scaled_pixmap = pixmap.scaled(
+            label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        self.ui.show_image.setPixmap(scaled_pixmap)
         self.ui.show_image.setAlignment(Qt.AlignCenter)
-        self.ui.show_image.setPixmap(pixmap)
-
-        self.ui.show_image.setAlignment(Qt.AlignCenter)
-
-        self.ui.show_image.setScaledContents(True)
-        self.ui.show_image.setPixmap(pixmap.scaled(
-            self.ui.show_image.size(), Qt.KeepAspectRatio))
         
     def load_image1(self):
         cv2.imwrite(self.imagepath, self.image)
@@ -1174,7 +1175,7 @@ class MainWindow(QtWidgets.QMainWindow):
             # self.latestImage.append(rotated_image)
             # self.image = rotated_image
             self.image = rotated_image
-            self.load_image1()
+            self.load_image()
 
     def rotate_image_left(self):
         if self.image is not None:
@@ -1186,7 +1187,6 @@ class MainWindow(QtWidgets.QMainWindow):
             rotated_image = cv2.rotate(
                 rotated_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
             # self.latestImage.append(rotated_image)
-            # self.image = rotated_image
             self.image = rotated_image
             # self.display_captured_images_main()
             self.load_image()
@@ -1516,7 +1516,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # Apply adaptive thresholding with inverted binary threshold
         enhanced_image = cv2.adaptiveThreshold(
-            blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 4)
+            blurred, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 10)
         enhanced_image = cv2.bitwise_not(enhanced_image)
 
         self.image = enhanced_image
@@ -1551,30 +1551,30 @@ class MainWindow(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    # Predefined GIF path
-    # Replace with your actual GIF file path
-    gif_file = "cargando-loading.gif"
+    # # Predefined GIF path
+    # # Replace with your actual GIF file path
+    # gif_file = "load.gif"
 
-    # Create the splash screen with a fixed small size
-    splash_pix = QPixmap(500, 300)  # Create a pixmap with fixed size
-    splash_pix.fill(Qt.transparent)  # Make the pixmap transparent
-    splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
+    # # Create the splash screen with a fixed small size
+    # splash_pix = QPixmap(500, 300)  # Create a pixmap with fixed size
+    # splash_pix.fill(Qt.transparent)  # Make the pixmap transparent
+    # splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
 
-    # Create a label to display the GIF
-    splash_label = QLabel(splash)
-    splash_movie = QMovie(gif_file)
-    splash_label.setMovie(splash_movie)
-    # Set the label size to match the splash screen
-    splash_label.setGeometry(0, 0, 500, 300)
+    # # Create a label to display the GIF
+    # splash_label = QLabel(splash)
+    # splash_movie = QMovie(gif_file)
+    # splash_label.setMovie(splash_movie)
+    # # Set the label size to match the splash screen
+    # splash_label.setGeometry(0, 0, 500, 300)
 
-    splash_movie.start()
-    splash.show()
-    window = MainWindow()
-    def finish_splash():
-        splash.close()
-        window.showMaximized()
-
-    QTimer.singleShot(3000, finish_splash)  # Delay in milliseconds
+    # splash_movie.start()
+    # splash.show()
     # window = MainWindow()
-    # window.showMaximized()
+    # def finish_splash():
+    #     splash.close()
+    #     window.showMaximized()
+
+    # QTimer.singleShot(3000, finish_splash)  # Delay in milliseconds
+    window = MainWindow()
+    window.showMaximized()
     sys.exit(app.exec())

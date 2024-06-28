@@ -100,6 +100,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.ok_btn.clicked.connect(self.ok_btn_clicked)
         self.ui.ok1_btn.clicked.connect(self.ok1_btn_clicked)
         self.ui.autoSave_btn.toggled.connect(self.on_autoSave_toggled)
+        self.ui.feed_rotate_left.clicked.connect(self.leftOn)
+        self.ui.feed_rotate_right.clicked.connect(self.rightOn)
 
         self.ui.mag1_btn.clicked.connect(self.magic1)
         self.ui.mag2_btn.clicked.connect(self.magic2)
@@ -1409,6 +1411,16 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.setWindow:
             self.setWindow.close()
         event.accept()
+        
+    def leftOn(self):
+        self.video_stream.right = False
+        self.video_stream.left = True
+        
+
+    def rightOn(self):
+        self.video_stream.left = False
+        self.video_stream.right = True
+        
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

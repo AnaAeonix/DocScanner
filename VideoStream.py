@@ -23,6 +23,9 @@ class VideoStream:
         self.brightness = 0
         self.contrast = 0
         self.exposure = -5
+        self.left = False
+        self.right = False
+        self.rotation_state = 0
 
     def set_resolution(self):
         # Check if camera is open
@@ -92,156 +95,187 @@ class VideoStream:
     #             # Display loader while camera is changing
     #         self.show_loader()
 
+    # def display_camera_feed1(self, checked):
+    #     self.checked = checked
+    #     if not self.video.isOpened():
+    #         # Display error message if camera not open
+    #         font = QFont()
+    #         font.setPointSize(30)
+    #         self.parent_label.setFont(font)
+    #         if self.firstTime:
+    #             self.parent_label.setText(
+    #                 "<p style='font-size:20pt'>Please Select the Camera...</p>")
+    #         else:
+    #             self.parent_label.setText(
+    #                 "<p style='font-size:20pt'>Changing Camera...</p>")
+    #         return
+
+    #     ret, frame = self.video.read()
+
+    #     if ret:
+    #         self.firstTime = False
+
+    #         if self.points is not None:
+    #             cv2.polylines(
+    #                 frame, [np.array(self.points)], True, (0, 255, 0), 6)
+
+    #         # Check if contour detection is enabled
+    #         if self.checked:
+    #             document_contour = self.detect_document(frame)
+
+    #             if document_contour is not None:
+    #         # Calculate the area of the detected contour
+    #                 area = cv2.contourArea(document_contour)
+
+    #             # # Update the biggest contour if the detected one is larger or if the biggest contour is None
+    #             # if area > max_area or biggest_contour is None:
+    #             #     biggest_contour = document_contour
+    #             #     max_area = area
+
+    #             # # Update the biggest contour if a smaller valid contour is found
+    #             # elif area < max_area and area > 1000:  # Add a minimum area threshold to avoid noise
+    #             #     biggest_contour = document_contour
+    #             #     max_area = area
+    #                 biggest_contour = document_contour
+    #             # Draw the biggest contour on the frame
+    #                 cv2.drawContours(frame, [biggest_contour], -1, (0, 255, 0), 6)
+    #                 p = self.order_points(biggest_contour.reshape(4, 2))
+
+    #                 self.ai_crop = p
+
+    #         rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    #         frame_resized = cv2.resize(rgb_image, (2120, 1280))
+    #         # h, w, ch = frame_resized.shape
+    #         # bytes_per_line = ch * w
+    #         # q_img = QImage(frame_resized.data, w, h,
+    #         #                bytes_per_line, QImage.Format_RGB888)
+    #         # pixmap = QPixmap.fromImage(q_img)
+    #         # self.parent_label.setPixmap(pixmap.scaled(
+    #         #     self.parent_label.size(), Qt.KeepAspectRatio))
+    #         self.image = frame_resized
+    #         # self.rotation_state = 0
+    #         if self.image is not None:
+    #             # if self.right:
+    #             #     if self.rotation_state == 270:
+    #             #         self.rotation_state = 0
+                        
+    #             #     else:
+    #             #         self.rotation_state += 90
+    #             #     # rotated_image = self.image.copy()
+    #             #     rotated_image = cv2.rotate(
+    #             #         self.image, cv2.ROTATE_90_CLOCKWISE)
+    #             #     self.image = rotated_image
+    #             # if self.left:
+    #             #     if self.rotation_state == 270:
+    #             #         self.rotation_state = 0
+    #             #     else:
+    #             #         self.rotation_state += 90
+    #             #     # rotated_image = self.image.copy()
+    #             #     rotated_image = cv2.rotate(
+    #             #         self.image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    #             #     # self.latestImage.append(rotated_image)
+    #             #     # self.image = rotated_image
+    #             #     self.image = rotated_image
+    #             if self.right:
+    #                 self.rotation_state = (self.rotation_state + 90) % 360
+    #                 rotated_image = self.image.copy()
+    #                 rotated_image = cv2.rotate(rotated_image, cv2.ROTATE_90_CLOCKWISE)
+    #                 self.image = rotated_image
+
+    #             if self.left:
+    #                 self.rotation_state = (self.rotation_state - 90) % 360
+    #                 rotated_image = self.image.copy()
+    #                 rotated_image = cv2.rotate(
+    #                     rotated_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+    #                 self.image = rotated_image
+    #         h, w, ch = self.image.shape
+    #         bytes_per_line = 3 * w
+    #         q_img = QImage(self.image.data, w, h,
+    #                        bytes_per_line, QImage.Format_RGB888)
+    #         pixmap = QPixmap.fromImage(q_img)
+    #         # label_size = self.parent_label.size()
+    #         self.parent_label.setPixmap(pixmap.scaled(
+    #             self.parent_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+    #         self.parent_label.setAlignment(Qt.AlignCenter)
+    #     else:
+    #         # Display loader while camera is changing
+    #         self.show_loader()
+    
     def display_camera_feed1(self, checked):
         self.checked = checked
         if not self.video.isOpened():
-            # Display error message if camera not open
-            font = QFont()
-            font.setPointSize(30)
-            self.parent_label.setFont(font)
-            if self.firstTime:
-                self.parent_label.setText(
-                    "<p style='font-size:20pt'>Please Select the Camera...</p>")
-            else:
-                self.parent_label.setText(
-                    "<p style='font-size:20pt'>Changing Camera...</p>")
-            return
+                # Display error message if camera not open
+                font = QFont()
+                font.setPointSize(30)
+                self.parent_label.setFont(font)
+                if self.firstTime:
+                    self.parent_label.setText(
+                        "<p style='font-size:20pt'>Please Select the Camera...</p>")
+                else:
+                    self.parent_label.setText(
+                        "<p style='font-size:20pt'>Changing Camera...</p>")
+                return
 
         ret, frame = self.video.read()
 
         if ret:
-            self.firstTime = False
+                self.firstTime = False
 
-            if self.points is not None:
-                cv2.polylines(
-                    frame, [np.array(self.points)], True, (0, 255, 0), 6)
+                if self.points is not None:
+                    cv2.polylines(
+                        frame, [np.array(self.points)], True, (0, 255, 0), 6)
 
-            # Check if contour detection is enabled
-            if self.checked:
-                document_contour = self.detect_document(frame)
+                # Check if contour detection is enabled
+                if self.checked:
+                    document_contour = self.detect_document(frame)
 
-                if document_contour is not None:
-            # Calculate the area of the detected contour
-                    area = cv2.contourArea(document_contour)
+                    if document_contour is not None:
+                        # Calculate the area of the detected contour
+                        area = cv2.contourArea(document_contour)
 
-                # # Update the biggest contour if the detected one is larger or if the biggest contour is None
-                # if area > max_area or biggest_contour is None:
-                #     biggest_contour = document_contour
-                #     max_area = area
+                        # Update the biggest contour if the detected one is larger
+                        biggest_contour = document_contour
+                        # Draw the biggest contour on the frame
+                        cv2.drawContours(
+                            frame, [biggest_contour], -1, (0, 255, 0), 6)
+                        p = self.order_points(biggest_contour.reshape(4, 2))
 
-                # # Update the biggest contour if a smaller valid contour is found
-                # elif area < max_area and area > 1000:  # Add a minimum area threshold to avoid noise
-                #     biggest_contour = document_contour
-                #     max_area = area
-                    biggest_contour = document_contour
-                # Draw the biggest contour on the frame
-                    cv2.drawContours(frame, [biggest_contour], -1, (0, 255, 0), 6)
-                    p = self.order_points(biggest_contour.reshape(4, 2))
+                        self.ai_crop = p
 
-                # Apply perspective transform
+                rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                frame_resized = cv2.resize(rgb_image, (2120, 1280))
+                self.image = frame_resized
 
-                # self.scan_document = True
-                # if self.scan_document:
-                #     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-                #     kernel = np.ones((5, 5), np.uint8)
-                #     dilation = cv2.dilate(gray, kernel, iterations=5)
-                #     blur = cv2.GaussianBlur(dilation, (3, 3), 0)
-                #     blur = cv2.erode(blur, kernel, iterations=5)
-                #     edge = cv2.Canny(blur, 100, 200)
+                if self.image is not None:
+                    if self.right:
+                        self.rotation_state = (self.rotation_state + 90) % 360
+                        self.right = False  # Reset the flag after rotation
 
-                # t = 300
-                # j = 0
-                # linesP = None
-                # while j < 8 and t > 0:
-                #     try:
-                #         linesP = cv2.HoughLines(edge, 1, np.pi / 180, t)
-                #         if linesP is not None:
-                #             j = linesP.shape[0]
-                #         else:
-                #             j = 0
-                #     except:
-                #         j = 0
-                #     t -= 10
+                    if self.left:
+                        self.rotation_state = (self.rotation_state - 90) % 360
+                        self.left = False  # Reset the flag after rotation
 
-                # if linesP is not None:
-                #     lines = linesP.reshape(linesP.shape[0], 2)
-                #     lu = []
-                #     for c, l in enumerate(lines):
-                #         rho, theta = l
-                #         for lt in lines[c + 1:]:
-                #             if lt[0] != l[0]:
-                #                 k = abs(lt - l) < [50, 0.5]
-                #                 if k[0] and k[1]:
-                #                     break
-                #         else:
-                #             lu.append(l)
+                    # Apply cumulative rotation based on rotation_state
+                    if self.rotation_state == 90:
+                        self.image = cv2.rotate(
+                            self.image, cv2.ROTATE_90_CLOCKWISE)
+                    elif self.rotation_state == 180:
+                        self.image = cv2.rotate(self.image, cv2.ROTATE_180)
+                    elif self.rotation_state == 270:
+                        self.image = cv2.rotate(
+                            self.image, cv2.ROTATE_90_COUNTERCLOCKWISE)
 
-                #     if len(lu) >= 4:
-                #         lr = np.asarray(lu[:4])
-                #         intersections = self.points_inter(lr)
-
-                #         if len(intersections) >= 4:
-                #             p = np.array(intersections[:4]).reshape(4, 2)
-
-                #             r = np.zeros((4, 2), dtype="float32")
-                #             s = np.sum(p, axis=1)
-                #             r[0] = p[np.argmin(s)]
-                #             r[2] = p[np.argmax(s)]
-                #             d = np.diff(p, axis=1)
-                #             r[1] = p[np.argmin(d)]
-                #             r[3] = p[np.argmax(d)]
-                #             (tl, tr, br, bl) = r
-                #             wA = np.sqrt((tl[0] - tr[0]) **
-                #                          2 + (tl[1] - tr[1])**2)
-                #             wB = np.sqrt((bl[0] - br[0]) **
-                #                          2 + (bl[1] - br[1])**2)
-                #             maxW = max(int(wA), int(wB))
-                #             hA = np.sqrt((tl[0] - bl[0]) **
-                #                          2 + (tl[1] - bl[1])**2)
-                #             hB = np.sqrt((tr[0] - br[0]) **
-                #                          2 + (tr[1] - br[1])**2)
-                #             maxH = max(int(hA), int(hB))
-                #             ds = np.array(
-                #                 [[0, 0], [maxW - 1, 0], [maxW - 1, maxH - 1], [0, maxH - 1]], dtype="float32")
-                #             transformMatrix = cv2.getPerspectiveTransform(
-                #                 r, ds)
-                #             scan = cv2.warpPerspective(
-                #                 gray, transformMatrix, (maxW, maxH))
-                #             # T = threshold_local(
-                #             #     scan, 21, offset=10, method="gaussian")
-                #             # scanBW = (scan > T).astype("uint8") * 255
-
-                #             # Drawing detected lines and intersection points on the original image
-                #             for line in lr:
-                #                 rho, theta = line
-                #                 a = np.cos(theta)
-                #                 b = np.sin(theta)
-                #                 x0 = a * rho
-                #                 y0 = b * rho
-                #                 pt1 = (int(x0 + 1000 * (-b)),
-                #                        int(y0 + 1000 * a))
-                #                 pt2 = (int(x0 - 1000 * (-b)),
-                #                        int(y0 - 1000 * a))
-                #                 # cv2.line(frame, pt1, pt2, (0, 255, 0), 10)
-
-                #             for pt in p:
-                #                 cv2.circle(frame, tuple(pt),
-                #                            30, (255, 0, 0), -1)
-
-                    self.ai_crop = p
-
-            rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            frame_resized = cv2.resize(rgb_image, (2120, 1280))
-            h, w, ch = frame_resized.shape
-            bytes_per_line = ch * w
-            q_img = QImage(frame_resized.data, w, h,
-                           bytes_per_line, QImage.Format_RGB888)
-            pixmap = QPixmap.fromImage(q_img)
-            self.parent_label.setPixmap(pixmap.scaled(
-                self.parent_label.size(), Qt.KeepAspectRatio))
+                h, w, ch = self.image.shape
+                bytes_per_line = 3 * w
+                q_img = QImage(self.image.data, w, h,
+                            bytes_per_line, QImage.Format_RGB888)
+                pixmap = QPixmap.fromImage(q_img)
+                self.parent_label.setPixmap(pixmap.scaled(
+                    self.parent_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
+                self.parent_label.setAlignment(Qt.AlignCenter)
         else:
-            # Display loader while camera is changing
-            self.show_loader()
+                # Display loader while camera is changing
+                self.show_loader()
 
     def change_camera(self, camera_index):
         # Stop the timer if it's running

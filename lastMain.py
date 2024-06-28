@@ -474,32 +474,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def trim_condition(self,trimmed):
         self.trimmed = trimmed
         
-    # def trim(self,frame):
-    #     if frame is not None:
-    #         # Remove the background from the input image
-    #         output_image = remove(frame)
-    #         # Ensure output_image is in 'RGB' mode to have only two dimensions
-    #     # Convert output_image (NumPy array) to a PIL Image
-    #         if isinstance(output_image, np.ndarray):
-    #             output_image = Image.fromarray(output_image)
-    #         if output_image.mode == 'RGBA':
-    #             output_image = output_image.convert('RGB')
-
-    #             # Create a new image with a white background
-    #         output_with_white_bg = Image.new("RGB", output_image.size, (255, 255, 255))
-
-    #         # Extract the alpha channel as the transparency mask
-    #         # alpha = output_image.split()[2]
-
-    #         # Paste the output image onto the white background using the alpha channel as mask
-    #         # output_with_white_bg.paste(output_image.convert('RGB'), (0, 0), mask=alpha)
-    #         output_with_white_bg.paste(output_image, (0, 0), output_image)
-    #         # Convert the final image back to a NumPy array
-    #         final_image = np.array(output_with_white_bg)
-
-        
-            
-    #         return final_image
         
 
     def trim(self, frame):
@@ -1032,123 +1006,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # Default resolution if indexRes is out of range
         return 1920, 1080  # Example default resolution
 
-    # def getRes(self):
-    #     global indexRes
-    #     device = usb_cameras[self.current_camera_index]["device_id"]
-    #     if device == "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000":
-    #         if indexRes == 5:
-    #             width = 4208
-    #             height = 3120
-    #             return height, width
-    #         if indexRes == 1:
-    #             width = 4896
-    #             height = 3672
-    #             return height, width
-    #         if indexRes == 2:
-    #             width = 4656
-    #             height = 3496
-    #             return height, width
-    #         if indexRes == 3:
-    #             width = 4160
-    #             height = 3120
-    #             return height, width
-    #         if indexRes == 4:
-    #             width = 4000
-    #             height = 3000
-    #             return height, width
-    #         if indexRes == 0:
-    #             width = 3264
-    #             height = 2448
-    #             return height, width
-    #         if indexRes == 6:
-    #             width = 2592
-    #             height = 1944
-    #             return height, width
-    #         if indexRes == 7:
-    #             width = 2320
-    #             height = 1744
-    #             return height, width
-    #         if indexRes == 8:
-    #             width = 2304
-    #             height = 1728
-    #             return height, width
-
-    #     elif device == "USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000":
-    #         if indexRes == 0:
-    #             width = 3264
-    #             height = 2448
-    #             return height, width
-    #         if indexRes == 1:
-    #             width = 2592
-    #             height = 1944
-    #             return height, width
-    #         if indexRes == 2:
-    #             width = 2560
-    #             height = 1440
-    #             return height, width
-    #         if indexRes == 3:
-    #             width = 1920
-    #             height = 1080
-    #             return height, width
-    #         if indexRes == 4:
-    #             width = 1280
-    #             height = 720
-    #             return height, width
-    #         if indexRes == 5:
-    #             width = 640
-    #             height = 480
-    #             return height, width
-    #     elif device == "USB\\VID_30C9&PID_0013&MI_00\\6&2E17A80F&0&0000":
-    #         if indexRes == 5:
-    #             width = 4208
-    #             height = 3120
-    #             return height, width
-    #         if indexRes == 1:
-    #             width = 4896
-    #             height = 3672
-    #             return height, width
-    #         if indexRes == 2:
-    #             width = 4656
-    #             height = 3496
-    #             return height, width
-    #         if indexRes == 3:
-    #             width = 4160
-    #             height = 3120
-    #             return height, width
-    #         if indexRes == 4:
-    #             width = 4000
-    #             height = 3000
-    #             return height, width
-    #         if indexRes == 0:
-    #             width = 3264
-    #             height = 2448
-    #             return height, width
-    #         if indexRes == 6:
-    #             width = 2592
-    #             height = 1944
-    #             return height, width
-    #         if indexRes == 7:
-    #             width = 2320
-    #             height = 1744
-    #             return height, width
-    #         if indexRes == 8:
-    #             width = 2304
-    #             height = 1728
-    #             return height, width
-
-    #         else:
-    #             if indexRes == 0:
-    #                 width = 1920
-    #                 height = 1080
-    #                 return height, width
-    #             if indexRes == 1:
-    #                 width = 1280
-    #                 height = 720
-    #                 return height, width
-    #             if indexRes == 2:
-    #                 width = 640
-    #                 height = 480
-    #                 return height, width
 
     def returntocamera(self):
         self.imageIndex = None
@@ -1548,6 +1405,10 @@ class MainWindow(QtWidgets.QMainWindow):
         except Exception as e:
             print("Error:", e)
 
+    def closeEvent(self, event):
+        if self.setWindow:
+            self.setWindow.close()
+        event.accept()
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

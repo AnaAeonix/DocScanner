@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import QTimer, Qt, QPoint
 from SettingsUi import Ui_MainWindow1
 
 
@@ -24,6 +24,7 @@ class SetWindow(QMainWindow):
         else:
             self.AutoSaveFolder = "C:/image_test"
         self.ui.storage_label.setText(self.AutoSaveFolder)
+        self.old_pos = None
 
     def select_folder(self):
         # Open the folder dialog without creating a new QApplication instance
@@ -35,3 +36,17 @@ class SetWindow(QMainWindow):
             with open(self.cache_file_path, 'w') as file:
                 file.write(self.AutoSaveFolder)
             print(folder_selected)
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.old_pos = event.globalPos()
+
+    def mouseMoveEvent(self, event):
+        if self.old_pos:
+            delta = QPoint(event.globalPos() - self.old_pos)
+            self.move(self.x() + delta.x(), self.y() + delta.y())
+            self.old_pos = event.globalPos()
+
+    def mouseReleaseEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            self.old_pos = None

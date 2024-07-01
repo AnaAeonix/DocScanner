@@ -854,12 +854,48 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.cam_drop_down.currentIndexChanged.connect(
             lambda: self._handle_index_change())
 
+    # def load_image(self):
+    #     image = self.image
+    #     height, width, channel = image.shape
+    #     bytes_per_line = 3 * width
+    #     qimage = QImage(image.data, width, height,
+    #                     bytes_per_line, QImage.Format_RGB888)
+    #     pixmap = QPixmap.fromImage(qimage)
+    #     label_size = self.ui.show_image.size()
+    #     scaled_pixmap = pixmap.scaled(
+    #         label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    #     self.ui.show_image.setPixmap(scaled_pixmap)
+    #     self.ui.show_image.setAlignment(Qt.AlignCenter)
+        
     def load_image(self):
         image = self.image
-        height, width, channel = image.shape
-        bytes_per_line = 3 * width
-        qimage = QImage(image.data, width, height,
-                        bytes_per_line, QImage.Format_RGB888)
+
+        # Check if the image is 2D or 3D
+        if len(image.shape) == 3:
+            height, width, channels = image.shape
+        elif len(image.shape) == 2:
+            height, width = image.shape
+            channels = 1
+        else:
+            raise ValueError("Unsupported image format")
+
+        if channels == 3:
+            # Convert BGR to RGB git
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            bytes_per_line = 3 * width
+            qimage_format = QImage.Format_RGB888
+        elif channels == 2:
+            # For Grayscale with Alpha channel (though rare, you can handle it if needed)
+            bytes_per_line = 2 * width
+            qimage_format = QImage.Format_Grayscale8
+        elif channels == 1:
+            # For Grayscale image
+            bytes_per_line = width
+            qimage_format = QImage.Format_Grayscale8
+        else:
+            raise ValueError("Unsupported image format")
+
+        qimage = QImage(image.data, width, height, bytes_per_line, qimage_format)
         pixmap = QPixmap.fromImage(qimage)
         label_size = self.ui.show_image.size()
         scaled_pixmap = pixmap.scaled(

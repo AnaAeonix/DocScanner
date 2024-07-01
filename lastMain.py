@@ -13,7 +13,7 @@ import numpy as np
 import win32com.client
 from datetime import datetime
 import tempfile
-from rembg import remove
+# from rembg import remove
 # Remove the duplicate import statement
 from ariNewUi import Ui_MainWindow
 from VideoStream import VideoStream
@@ -55,7 +55,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.captured_images_crop = []
         self.captured_images_main = []
         self.export = 0
-        self.trimmed = False
+        # self.trimmed = False
 
         self.ui.edit_btn.clicked.connect(self.editing)
         self.video_stream = VideoStream(
@@ -78,7 +78,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.ui.delete_btn.clicked.connect(self.delete)
         # self.ui.ai_btn.toggled.connect(
         #     self.video_stream.toggle_contour_detection)
-        self.ui.trim_btn.toggled.connect(self.trim_condition)
+        # self.ui.trim_btn.toggled.connect(self.trim_condition)
         self.ui.foc_drop.currentIndexChanged.connect(
             self.video_stream.set_focus)
         self.ui.dpi_drop.currentIndexChanged.connect(
@@ -116,7 +116,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.cap = None
         self.populate_camera_dropdown()
-
+    
     def write(self, imagee):
         self.image = cv2.imread(imagee)
 
@@ -473,37 +473,37 @@ class MainWindow(QtWidgets.QMainWindow):
         
         return processed_image
 
-    def trim_condition(self,trimmed):
-        self.trimmed = trimmed
+    # def trim_condition(self,trimmed):
+    #     self.trimmed = trimmed
         
         
 
-    def trim(self, frame):
-        if frame is not None:
-            # Remove the background from the input image
-            output_image = remove(frame)
+    # def trim(self, frame):
+    #     if frame is not None:
+    #         # Remove the background from the input image
+    #         output_image = remove(frame)
 
-            # Convert output_image (NumPy array) to a PIL Image if necessary
-            if isinstance(output_image, np.ndarray):
-                output_image = Image.fromarray(output_image)
+    #         # Convert output_image (NumPy array) to a PIL Image if necessary
+    #         if isinstance(output_image, np.ndarray):
+    #             output_image = Image.fromarray(output_image)
 
-            # Ensure the image mode is 'RGB'
-            if output_image.mode == 'RGBA':
-                # Extract the alpha channel
-                alpha = output_image.split()[3]  # Assuming RGBA mode
-                # Create a new image with a white background
-                output_with_white_bg = Image.new(
-                    "RGB", output_image.size, (255, 255, 255))
-                # Paste the output image onto the white background using alpha as mask
-                output_with_white_bg.paste(output_image, (0, 0), mask=alpha)
-            else:
-                # If no transparency, paste directly
-                output_with_white_bg = output_image.copy()
+    #         # Ensure the image mode is 'RGB'
+    #         if output_image.mode == 'RGBA':
+    #             # Extract the alpha channel
+    #             alpha = output_image.split()[3]  # Assuming RGBA mode
+    #             # Create a new image with a white background
+    #             output_with_white_bg = Image.new(
+    #                 "RGB", output_image.size, (255, 255, 255))
+    #             # Paste the output image onto the white background using alpha as mask
+    #             output_with_white_bg.paste(output_image, (0, 0), mask=alpha)
+    #         else:
+    #             # If no transparency, paste directly
+    #             output_with_white_bg = output_image.copy()
 
-            # Convert the final image back to a NumPy array
-            final_image = np.array(output_with_white_bg)
+    #         # Convert the final image back to a NumPy array
+    #         final_image = np.array(output_with_white_bg)
 
-            return final_image
+    #         return final_image
         
     def display_captured_images_main(self):
         self.all_checkboxes = []
@@ -951,13 +951,15 @@ class MainWindow(QtWidgets.QMainWindow):
                     width = 3264
                 frame = cv2.resize(
                     frame, (width, height), interpolation=cv2.INTER_AREA)
-                if self.trimmed == True:
-                    frame = self.trim(frame)
+                # if self.trimmed == True:
+                #     frame = self.trim(frame)
                 self.captured_images_main.insert(0, frame)
                 if self.video_stream.checked == True:
                     if self.video_stream.ai_crop is not None:
+                        temp = self.scale_crop_coordinates(
+                            self.video_stream.ai_crop, original_res, (width, height))
                         frame = self.warp_perspective(
-                            frame, self.video_stream.ai_crop)
+                            frame, temp)
                 if self.auto_crop is not None:
                     if len(self.auto_crop) == 4:
                         temp = self.scale_crop_coordinates(

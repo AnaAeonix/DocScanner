@@ -55,7 +55,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.captured_images_crop = []
         self.captured_images_main = []
         self.export = 0
-        # self.trimmed = False
+        self.trimmed = False
 
         self.ui.edit_btn.clicked.connect(self.editing)
         self.video_stream = VideoStream(
@@ -78,7 +78,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.ui.delete_btn.clicked.connect(self.delete)
         # self.ui.ai_btn.toggled.connect(
         #     self.video_stream.toggle_contour_detection)
-        # self.ui.trim_btn.toggled.connect(self.trim_condition)
+        self.ui.trim_btn.toggled.connect(self.trim_condition)
         self.ui.foc_drop.currentIndexChanged.connect(
             self.video_stream.set_focus)
         self.ui.dpi_drop.currentIndexChanged.connect(
@@ -473,8 +473,8 @@ class MainWindow(QtWidgets.QMainWindow):
         
         return processed_image
 
-    # def trim_condition(self,trimmed):
-    #     self.trimmed = trimmed
+    def trim_condition(self,trimmed):
+        self.trimmed = trimmed
         
         
 
@@ -503,8 +503,64 @@ class MainWindow(QtWidgets.QMainWindow):
     #         # Convert the final image back to a NumPy array
     #         final_image = np.array(output_with_white_bg)
 
-    #         return final_image
-        
+    #         return final_imag e
+    
+    def trim(self, img) :
+        if img is not None:
+            original = img.copy()
+
+            l = int(max(30, 10))  # (5, 6)
+            u = int(min(20, 10))  # 6, 6
+
+            ed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+            edges = cv2.GaussianBlur(img, (21, 51), 3)  # 21,51
+            edges = cv2.cvtColor(edges, cv2.COLOR_BGR2GRAY)
+            edges = cv2.Canny(edges, l, u)
+
+            _, thresh = cv2.threshold(
+                edges, 180, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)  # 0  180
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))  # 5,5
+            mask = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=4)  # 4
+
+            data = mask.tolist()
+
+            sys.setrecursionlimit(10**8)
+            for i in range(len(data)):
+                for j in range(len(data[i])):
+                    if data[i][j] != 255:
+                        data[i][j] = -1
+                    else:
+                        break
+                for j in range(len(data[i])-1, -1, -1):
+                    if data[i][j] != 255:
+                        data[i][j] = -1
+                    else:
+                        break
+            image = np.array(data)
+            image[image != -1] = 255
+            image[image == -1] = 0
+
+            mask = np.array(image, np.uint8)
+
+            result = cv2.bitwise_and(original, original, mask=mask)
+            result[mask == 0] = 255
+
+            # Convert to RGBA
+            img = Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
+            img = img.convert("RGBA")
+            datas = img.getdata()
+
+            newData = []
+            for item in datas:
+                if item[0] == 255 and item[1] == 255 and item[2] == 255:
+                    newData.append((255, 255, 255, 0))
+                else:
+                    newData.append(item)
+
+            img.putdata(newData)
+
+            return np.array(img)
+ 
     def display_captured_images_main(self):
         self.all_checkboxes = []
         # Clear existing images and checkboxes
@@ -951,8 +1007,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     width = 3264
                 frame = cv2.resize(
                     frame, (width, height), interpolation=cv2.INTER_AREA)
-                # if self.trimmed == True:
-                #     frame = self.trim(frame)
+                if self.trimmed == True:
+                    frame = self.trim(frame)
                 self.captured_images_main.insert(0, frame)
                 if self.video_stream.checked == True:
                     if self.video_stream.ai_crop is not None:

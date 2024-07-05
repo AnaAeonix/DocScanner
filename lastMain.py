@@ -893,6 +893,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 elif name == "USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000":
                     custom_name = 'A4 Scanner'
                 # Add more conditions as needed
+                elif name == "USB\\VID_30C9&PID_0013&MI_00\\6&2E17A80F&0&0000":
+                    custom_name = 'A2 Scanner'
                 else:
                     custom_name = f"{name} ({description})"
 

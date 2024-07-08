@@ -5,14 +5,17 @@ from PyQt5.QtGui import QImage, QPixmap, QMovie, QTransform
 from PIL import Image, ImageEnhance, ImageOps, ImageQt
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
+import threading
+import time
 import sys
 import os
 import cv2
 import tkinter as tk
 import numpy as np
-import win32com.client
+# import win32com.client
 from datetime import datetime
 import tempfile
+from pyusbcameraindex import enumerate_usb_video_devices_windows
 # from rembg import remove
 # Remove the duplicate import statement
 from ariNewUi import Ui_MainWindow
@@ -32,6 +35,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.image_click_counter = {}
         self.crop_size = []
         self.latestImage = []
+        self.devices = []
         now = datetime.now()
         timestamp = now.strftime("%Y%m%d_%H%M%S")  # Format timestamp
         filename = f"captured_image_{timestamp}.jpg"
@@ -75,6 +79,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.delete_btn.clicked.connect(self.delete_image)
         self.ui.horizontalSlider_2.valueChanged.connect(self.update_sharpness)
         self.ui.horizontalSlider.valueChanged.connect(self.update_contrast)
+        self.ui.cam_drop_down.currentIndexChanged.connect(lambda:self._handle_index_change())
         # self.ui.delete_btn.clicked.connect(self.delete)
         # self.ui.ai_btn.toggled.connect(
         #     self.video_stream.toggle_contour_detection)
@@ -157,8 +162,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def get_resolutions_for_camera(self, camera_id):
         resolutions = {
             "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000": ["3264x2448", "4896x3672", "4656x3496", "4160x3120", "4000x3000", "4208x3120", "2592x1944", "2320x1744", "2304x1728"],
-            "USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000": ["3264x2448", "2592x1944", "2560x1440", "1920x1080", "1280x720", "640x480"],
-            "USB\\VID_30C9&PID_0013&MI_00\\6&2E17A80F&0&0000": ["3264x2448", "4896x3672", "4656x3496", "4160x3120", "4000x3000", "4208x3120", "2592x1944", "2320x1744", "2304x1728"]
+            "bc15": ["3264x2448", "2592x1944", "2560x1440", "1920x1080", "1280x720", "640x480"],
+            "bc07": ["3264x2448", "4896x3672", "4656x3496", "4160x3120", "4000x3000", "4208x3120", "2592x1944", "2320x1744", "2304x1728"]
         }
         res = ["1920x1080", "1280x720", "640x480"]
         res1 = resolutions.get(camera_id, [])
@@ -865,52 +870,110 @@ class MainWindow(QtWidgets.QMainWindow):
                 cameras.append(camera_info)
         return cameras
 
+    
+    # def populate_camera_dropdown(self):
+    #     global available_cameras
+    #     available_cameras = []
+
+    #     # List available camera indices
+    #     camera_indices = self.list_cameras()
+    #     global usb_cameras
+    #     usb_cameras = self.list_usb_cameras()
+
+    #     # Creating a dictionary for USB camera details keyed by name
+    #     camera_details = {camera['device_id']: camera for camera in usb_cameras}
+
+    #     i = 0
+    #     for index in camera_indices:
+    #         cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
+    #         if cap.isOpened():
+    #             backend_id = cap.get(cv2.CAP_PROP_BACKEND)
+    #             name = usb_cameras[index]['device_id']
+    #             details = camera_details.get(name, {})
+    #             description = details.get('device_id', 'Unknown')
+    #             manufacturer = details.get('manufacturer', 'Unknown')
+
+    #             # Assign custom name based on the device ID
+    #             if name == "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000":
+    #                 custom_name = 'A2 Scanner'
+    #             elif name == "USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000":
+    #                 custom_name = 'A4 Scanner'
+    #             # Add more conditions as needed
+    #             # elif name == "USB\\VID_30C9&PID_0013&MI_00\\6&2E17A80F&0&0000":
+    #             #     custom_name = 'A2 Scanner'
+    #             else:
+    #                 custom_name = f"{name} ({description})"
+
+    #             camera_name = custom_name
+
+    #             available_cameras.append((index, camera_name))
+    #             self.video_stream.available_cameras.append((index, camera_name))
+    #             cap.release()
+
+    #     self.ui.cam_drop_down.clear()
+    #     self.ui.cam_drop_down.setPlaceholderText("Please select a camera")
+
+    #     camera_names = [camera_name for _, camera_name in available_cameras]
+    #     self.ui.cam_drop_down.addItems(camera_names)
+
+    #     self.ui.cam_drop_down.currentIndexChanged.connect(
+    #         lambda: self._handle_index_change())
+
     def populate_camera_dropdown(self):
+        # Clear the existing list
         global available_cameras
         available_cameras = []
+        available_cameras.clear()
+        
 
-        # List available camera indices
-        camera_indices = self.list_cameras()
-        global usb_cameras
-        usb_cameras = self.list_usb_cameras()
 
-        # Creating a dictionary for USB camera details keyed by name
-        camera_details = {camera['device_id']: camera for camera in usb_cameras}
 
-        i = 0
-        for index in camera_indices:
-            cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
-            if cap.isOpened():
-                backend_id = cap.get(cv2.CAP_PROP_BACKEND)
-                name = usb_cameras[index]['device_id']
-                details = camera_details.get(name, {})
-                description = details.get('device_id', 'Unknown')
-                manufacturer = details.get('manufacturer', 'Unknown')
+        # Define a function to update cameras in a thread
+        def update_cameras():
+            while True:
+                # Enumerate USB video devices
+                self.devices = enumerate_usb_video_devices_windows()
 
-                # Assign custom name based on the device ID
-                if name == "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000":
-                    custom_name = 'A2 Scanner'
-                elif name == "USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000":
-                    custom_name = 'A4 Scanner'
-                # Add more conditions as needed
-                elif name == "USB\\VID_30C9&PID_0013&MI_00\\6&2E17A80F&0&0000":
-                    custom_name = 'A2 Scanner'
-                else:
-                    custom_name = f"{name} ({description})"
+                # Clear and populate available cameras list
+                available_cameras.clear()
+                for device in self.devices:
+                    index = device.index
+                    name = device.vid
 
-                camera_name = custom_name
+                    # Assign custom name based on device ID (example custom names)
+                    if name == "bc07":
+                        custom_name = 'A2 Scanner'
+                    elif name == "bc15":  # USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000":
+                        custom_name = 'A4 Scanner'
+                    else:
+                        custom_name = f"{name}"
 
-                available_cameras.append((index, camera_name))
-                cap.release()
+                    camera_name = custom_name
 
-        self.ui.cam_drop_down.clear()
-        self.ui.cam_drop_down.setPlaceholderText("Please select a camera")
+                    available_cameras.append((index, camera_name))
+                    self.video_stream.available_cameras.append((index,camera_name))
 
-        camera_names = [camera_name for _, camera_name in available_cameras]
-        self.ui.cam_drop_down.addItems(camera_names)
+                # Update the UI with the new camera list
+                self.update_ui_camera_dropdown()
 
-        self.ui.cam_drop_down.currentIndexChanged.connect(
-            lambda: self._handle_index_change())
+                # Sleep for a short interval before checking again
+                time.sleep(5)  # Adjust interval as needed
+
+        # Start the camera update thread
+        self.camera_thread = threading.Thread(target=update_cameras, daemon=True)
+        self.camera_thread.start()
+
+    def update_ui_camera_dropdown(self):
+        # Ensure UI updates are done in the main thread
+        if self.ui:
+            # Clear existing items
+            self.ui.cam_drop_down.clear()
+            self.ui.cam_drop_down.setPlaceholderText("Please select a camera")
+
+            # Add new items
+            camera_names = [camera_name for _, camera_name in available_cameras]
+            self.ui.cam_drop_down.addItems(camera_names)
+
 
     # def load_image(self):
     #     image = self.image
@@ -979,7 +1042,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.resolution_drop.clear()
         self.video_stream.change_camera(self.current_camera_index)
         resolutions = self.get_resolutions_for_camera(
-            usb_cameras[self.current_camera_index]["device_id"])
+            self.devices[self.current_camera_index].vid)
         self.ui.resolution_drop.addItems(resolutions)
 
     def capture_image(self):
@@ -1093,7 +1156,7 @@ class MainWindow(QtWidgets.QMainWindow):
     
     def getRes(self):
         global indexRes
-        device = usb_cameras[self.current_camera_index]["device_id"]
+        device = self.devices[self.current_camera_index].vid
         available_resolutions = self.get_resolutions_for_camera(device)
 
         if indexRes < len(available_resolutions):
@@ -1102,7 +1165,7 @@ class MainWindow(QtWidgets.QMainWindow):
             return height, width
 
         # Default resolution if indexRes is out of range
-        return 1920, 1080  # Example default resolution
+        return 1080, 1920  # Example default resolution
 
 
     def returntocamera(self):

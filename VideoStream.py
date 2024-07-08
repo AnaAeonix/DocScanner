@@ -26,6 +26,7 @@ class VideoStream:
         self.left = False
         self.right = False
         self.rotation_state = 0
+        self.available_cameras = []
 
     def set_resolution(self):
         # Check if camera is open
@@ -56,151 +57,7 @@ class VideoStream:
         self.video.set(cv2.CAP_PROP_EXPOSURE, float(self.exposure))
 
 
-    # def display_camera_feed(self):
-    #     if not self.video.isOpened():
-    #         # Display error message if camera not open
-    #         font = QFont()
-    #         font.setPointSize(30)
-    #         self.parent_label.setFont(font)
-    #         if self.firstTime:
-    #             self.parent_label.setText(
-    #                 "<p style='font-size:20pt'>Please Select the Camera...</p>")
-    #         else:
-    #             self.parent_label.setText(
-    #                 "<p style='font-size:20pt'>Changing Camera...</p>")
-    #         return
 
-    #     ret, frame = self.video.read()
-    #     if ret:
-    #         self.firstTime = False
-
-    #         # (h, w) = frame.shape[:2]
-    #         # center = (w / 2, h / 2)
-    #         # M = cv2.getRotationMatrix2D(center, 45, 1.0)
-    #             # rotated_frame = cv2.warpAffine(frame, M, (w, h))
-    #         if self.points is not None:
-    #             cv2.polylines(frame, [np.array(self.points)], True,(0, 255, 0), 6)
-    #         rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    #         frame_resized = cv2.resize(rgb_image, (640, 480))
-    #         h, w, ch = frame_resized.shape
-    #         bytes_per_line = ch * w
-    #         q_img = QImage(frame_resized.data, w, h,
-    #                         bytes_per_line, QImage.Format_RGB888)
-    #         pixmap = QPixmap.fromImage(q_img)
-    #         self.parent_label.setPixmap(pixmap.scaled(
-    #                 self.parent_label.size(), Qt.KeepAspectRatio))
-
-    #             # self.parent_label.setFixedSize(w, h)
-    #     else:
-    #             # Display loader while camera is changing
-    #         self.show_loader()
-
-    # def display_camera_feed1(self, checked):
-    #     self.checked = checked
-    #     if not self.video.isOpened():
-    #         # Display error message if camera not open
-    #         font = QFont()
-    #         font.setPointSize(30)
-    #         self.parent_label.setFont(font)
-    #         if self.firstTime:
-    #             self.parent_label.setText(
-    #                 "<p style='font-size:20pt'>Please Select the Camera...</p>")
-    #         else:
-    #             self.parent_label.setText(
-    #                 "<p style='font-size:20pt'>Changing Camera...</p>")
-    #         return
-
-    #     ret, frame = self.video.read()
-
-    #     if ret:
-    #         self.firstTime = False
-
-    #         if self.points is not None:
-    #             cv2.polylines(
-    #                 frame, [np.array(self.points)], True, (0, 255, 0), 6)
-
-    #         # Check if contour detection is enabled
-    #         if self.checked:
-    #             document_contour = self.detect_document(frame)
-
-    #             if document_contour is not None:
-    #         # Calculate the area of the detected contour
-    #                 area = cv2.contourArea(document_contour)
-
-    #             # # Update the biggest contour if the detected one is larger or if the biggest contour is None
-    #             # if area > max_area or biggest_contour is None:
-    #             #     biggest_contour = document_contour
-    #             #     max_area = area
-
-    #             # # Update the biggest contour if a smaller valid contour is found
-    #             # elif area < max_area and area > 1000:  # Add a minimum area threshold to avoid noise
-    #             #     biggest_contour = document_contour
-    #             #     max_area = area
-    #                 biggest_contour = document_contour
-    #             # Draw the biggest contour on the frame
-    #                 cv2.drawContours(frame, [biggest_contour], -1, (0, 255, 0), 6)
-    #                 p = self.order_points(biggest_contour.reshape(4, 2))
-
-    #                 self.ai_crop = p
-
-    #         rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    #         frame_resized = cv2.resize(rgb_image, (2120, 1280))
-    #         # h, w, ch = frame_resized.shape
-    #         # bytes_per_line = ch * w
-    #         # q_img = QImage(frame_resized.data, w, h,
-    #         #                bytes_per_line, QImage.Format_RGB888)
-    #         # pixmap = QPixmap.fromImage(q_img)
-    #         # self.parent_label.setPixmap(pixmap.scaled(
-    #         #     self.parent_label.size(), Qt.KeepAspectRatio))
-    #         self.image = frame_resized
-    #         # self.rotation_state = 0
-    #         if self.image is not None:
-    #             # if self.right:
-    #             #     if self.rotation_state == 270:
-    #             #         self.rotation_state = 0
-                        
-    #             #     else:
-    #             #         self.rotation_state += 90
-    #             #     # rotated_image = self.image.copy()
-    #             #     rotated_image = cv2.rotate(
-    #             #         self.image, cv2.ROTATE_90_CLOCKWISE)
-    #             #     self.image = rotated_image
-    #             # if self.left:
-    #             #     if self.rotation_state == 270:
-    #             #         self.rotation_state = 0
-    #             #     else:
-    #             #         self.rotation_state += 90
-    #             #     # rotated_image = self.image.copy()
-    #             #     rotated_image = cv2.rotate(
-    #             #         self.image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    #             #     # self.latestImage.append(rotated_image)
-    #             #     # self.image = rotated_image
-    #             #     self.image = rotated_image
-    #             if self.right:
-    #                 self.rotation_state = (self.rotation_state + 90) % 360
-    #                 rotated_image = self.image.copy()
-    #                 rotated_image = cv2.rotate(rotated_image, cv2.ROTATE_90_CLOCKWISE)
-    #                 self.image = rotated_image
-
-    #             if self.left:
-    #                 self.rotation_state = (self.rotation_state - 90) % 360
-    #                 rotated_image = self.image.copy()
-    #                 rotated_image = cv2.rotate(
-    #                     rotated_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-    #                 self.image = rotated_image
-    #         h, w, ch = self.image.shape
-    #         bytes_per_line = 3 * w
-    #         q_img = QImage(self.image.data, w, h,
-    #                        bytes_per_line, QImage.Format_RGB888)
-    #         pixmap = QPixmap.fromImage(q_img)
-    #         # label_size = self.parent_label.size()
-    #         self.parent_label.setPixmap(pixmap.scaled(
-    #             self.parent_label.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation))
-    #         self.parent_label.setAlignment(Qt.AlignCenter)
-    #     else:
-    #         # Display loader while camera is changing
-    #         self.show_loader()
-    
     def display_camera_feed1(self, checked):
         self.checked = checked
         if not self.video.isOpened():
@@ -281,7 +138,8 @@ class VideoStream:
         # Stop the timer if it's running
         if self.timer is not None:
             self.timer.stop()
-
+        # Extract the actual camera index from available_cameras based on dropdown selection
+        selected_index, _ = self.available_cameras[camera_index]
         # Create a thread for camera switching (optional, but recommended for responsiveness)
         self.camera_change_thread = threading.Thread(
             target=self._change_camera_in_thread, args=(camera_index,))
@@ -291,7 +149,9 @@ class VideoStream:
 
     def _change_camera_in_thread(self, camera_index):
         # Release the current video capture
-        self.video.release()
+        if self.video.isOpened():
+            self.video.release()
+
 
         # Open the new camera capture
         self.video = cv2.VideoCapture(camera_index, cv2.CAP_DSHOW)
@@ -331,8 +191,6 @@ class VideoStream:
     def update_frame(self):
         self.display_camera_feed1(self.checked)
 
-    # def toggle_contour_detection(self, checked):
-    #     self.checked = checked
 
     def set_focus(self, index):
         # Simulate changing focus

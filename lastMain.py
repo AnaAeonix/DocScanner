@@ -1591,7 +1591,7 @@ if __name__ == "__main__":
     gif_file = ":/newPrefix/load.gif"
 
     # Create the splash screen with a fixed small size
-    splash_pix = QPixmap(500, 300)  # Create a pixmap with fixed size
+    splash_pix = QPixmap(250, 300)  # Create a pixmap with fixed size
     splash_pix.fill(Qt.transparent)  # Make the pixmap transparent
     splash = QSplashScreen(splash_pix, Qt.WindowStaysOnTopHint)
 
@@ -1600,7 +1600,7 @@ if __name__ == "__main__":
     splash_movie = QMovie(gif_file)
     splash_label.setMovie(splash_movie)
     # Set the label size to match the splash screen
-    splash_label.setGeometry(0, 0, 500, 300)
+    splash_label.setGeometry(0, 0, 250, 300)
 
     splash_movie.start()
     splash.show()

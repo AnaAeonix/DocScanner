@@ -104,7 +104,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.camset_btn.clicked.connect(self.settings_page)
         self.ui.ok_btn.clicked.connect(self.ok_btn_clicked)
         self.ui.ok1_btn.clicked.connect(self.ok1_btn_clicked)
-        self.ui.autoSave_btn.toggled.connect(self.on_autoSave_toggled)
+        # self.ui.autoSave_btn.toggled.connect(self.on_autoSave_toggled)
         self.ui.feed_rotate_left.clicked.connect(self.leftOn)
         self.ui.feed_rotate_right.clicked.connect(self.rightOn)
 
@@ -435,6 +435,7 @@ class MainWindow(QtWidgets.QMainWindow):
             
     def settings_page(self):
         self.setWindow.show()
+        self.setWindow.ui.autoSave_btn.toggled.connect(self.on_autoSave_toggled)   
         self.setWindow.ui.contrast_slider.valueChanged.connect(
             self.update_contrast_cam)
         self.setWindow.ui.contrast_slider.setValue(self.video_stream.contrast)
@@ -841,34 +842,36 @@ class MainWindow(QtWidgets.QMainWindow):
         i = 10
         while i > 0:
             cap = cv2.VideoCapture(index)
+            c = cv2.VideoCapture
+            print(c)
             if cap.read()[0]:
                 arr.append(index)
                 cap.release()
             index += 1
-            i -= 1
+            i -= 1  
         return arr
 
-    def list_usb_cameras(self):
-        strComputer = "."
-        objWMIService = win32com.client.Dispatch("WbemScripting.SWbemLocator")
-        objSWbemServices = objWMIService.ConnectServer(
-            strComputer, "root\\cimv2")
+    # def list_usb_cameras(self):
+    #     strComputer = "."
+    #     objWMIService = win32com.client.Dispatch("WbemScripting.SWbemLocator")
+    #     objSWbemServices = objWMIService.ConnectServer(
+    #         strComputer, "root\\cimv2")
 
-        colItems = objSWbemServices.ExecQuery(
-            "Select * from Win32_PnPEntity where DeviceID like '%VID_%&PID_%'")
+    #     colItems = objSWbemServices.ExecQuery(
+    #         "Select * from Win32_PnPEntity where DeviceID like '%VID_%&PID_%'")
 
-        cameras = []
-        for objItem in colItems:
-            if "camera" in objItem.Description.lower() or "video" in objItem.Description.lower():
-                camera_info = {
-                    'description': objItem.Description,
-                    'device_id': objItem.DeviceID,
-                    'manufacturer': objItem.Manufacturer,
-                    'name': objItem.Name,
-                    'status': objItem.Status
-                }
-                cameras.append(camera_info)
-        return cameras
+    #     cameras = []
+    #     for objItem in colItems:
+    #         if "camera" in objItem.Description.lower() or "video" in objItem.Description.lower():
+    #             camera_info = {
+    #                 'description': objItem.Description,
+    #                 'device_id': objItem.DeviceID,
+    #                 'manufacturer': objItem.Manufacturer,
+    #                 'name': objItem.Name,
+    #                 'status': objItem.Status
+    #             }
+    #             cameras.append(camera_info)
+    #     return cameras
 
     
     # def populate_camera_dropdown(self):

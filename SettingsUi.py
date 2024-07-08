@@ -207,6 +207,26 @@ class Ui_MainWindow1(object):
         #                             "    }")
         # self.save_btn.setObjectName("save_btn")
         # self.save_btn.setGeometry(30, 400, 71, 31)
+        self.autoSave_btn = QtWidgets.QRadioButton(self.centralwidget)
+        self.autoSave_btn.setGeometry(QtCore.QRect(30, 330, 120, 57))
+        self.autoSave_btn.setCheckable(True)
+        self.autoSave_btn.setAutoExclusive(False)
+        self.autoSave_btn.setObjectName("autoSave_btn")
+        self.autoSave_btn.setStyleSheet("""
+            QRadioButton::indicator {
+                width: 20px;
+                height: 20px;
+            }
+            QRadioButton {
+                color: blue;
+            }
+        """)
+        # Create a QFont object
+        font = QtGui.QFont()
+        font.setPointSize(10)  # Set the desired font size
+
+        # Apply the font to the button
+        self.autoSave_btn.setFont(font)
         
         self.hor_line =QFrame(self.centralwidget)
         self.hor_line.setObjectName("hor_line")
@@ -313,4 +333,5 @@ class Ui_MainWindow1(object):
         self.label_5.setText(_translate("MainWindow", "Storage Path:"))
         self.browse_btn.setText(_translate("MainWindow", "Browse"))
         self.storage_label.setText("")
+        self.autoSave_btn.setText(_translate("MainWindow", "Auto Save"))
         # self.open_btn.setText(_translate("MainWindow", "Open"))

@@ -311,7 +311,7 @@ class Ui_MainWindow(object):
                                      "border-radius: 10px;"   # Adjust the value for desired curve
                                      "}")
         self.cam_drop_down = QtWidgets.QComboBox(self.page)
-        self.cam_drop_down.setGeometry(QtCore.QRect(750, 20, 281, 22))
+        self.cam_drop_down.setGeometry(QtCore.QRect(800, 20, 220, 22))
         self.cam_drop_down.setObjectName("cam_drop_down")
         self.shutter_btn = QtWidgets.QPushButton(self.page)
         self.shutter_btn.setGeometry(QtCore.QRect(750, 880, 101, 61))
@@ -360,20 +360,20 @@ class Ui_MainWindow(object):
 
         # # Apply the font to the button
         # self.ai_btn.setFont(font)
-        self.autoSave_btn = QtWidgets.QRadioButton(self.page)
-        self.autoSave_btn.setGeometry(QtCore.QRect(150, 30, 80, 57))
-        self.autoSave_btn.setCheckable(True)
-        self.autoSave_btn.setAutoExclusive(False)
-        self.autoSave_btn.setObjectName("autoSave_btn")
+        # self.autoSave_btn = QtWidgets.QRadioButton(self.page)
+        # self.autoSave_btn.setGeometry(QtCore.QRect(150, 30, 80, 57))
+        # self.autoSave_btn.setCheckable(True)
+        # self.autoSave_btn.setAutoExclusive(False)
+        # self.autoSave_btn.setObjectName("autoSave_btn")
 
-        # Create a QFont object
-        font = QtGui.QFont()
-        font.setPointSize(10)  # Set the desired font size
+        # # Create a QFont object
+        # font = QtGui.QFont()
+        # font.setPointSize(10)  # Set the desired font size
 
-        # Apply the font to the button
-        self.autoSave_btn.setFont(font)
+        # # Apply the font to the button
+        # self.autoSave_btn.setFont(font)
         self.trim_btn = QtWidgets.QRadioButton(self.page)
-        self.trim_btn.setGeometry(QtCore.QRect(240, 30, 80, 57))
+        self.trim_btn.setGeometry(QtCore.QRect(610, 3, 80, 57))
         self.trim_btn.setCheckable(True)
         self.trim_btn.setAutoExclusive(False)
         self.trim_btn.setObjectName("trim_btn")
@@ -412,21 +412,21 @@ class Ui_MainWindow(object):
         self.dpi_label.setGeometry(QtCore.QRect(210, 20, 61, 21))
         self.dpi_label.setObjectName("dpi_label")
         self.choosecam_label = QtWidgets.QLabel(self.page)
-        self.choosecam_label.setGeometry(QtCore.QRect(650, 20, 101, 21))
+        self.choosecam_label.setGeometry(QtCore.QRect(700, 20, 101, 21))
         self.choosecam_label.setObjectName("choosecam_label")
         self.export_drop = QtWidgets.QComboBox(self.page)
         self.export_drop.setGeometry(QtCore.QRect(1330, 20, 101, 22))
         self.export_drop.addItems(["PDF", "JPEG", "TIFF"])
         self.export_drop.setObjectName("export_drop")
         self.export_label = QtWidgets.QLabel(self.page)
-        self.export_label.setGeometry(QtCore.QRect(1060, 20, 61, 21))
+        self.export_label.setGeometry(QtCore.QRect(1260, 20, 61, 21))
         self.export_label.setObjectName("export_label")
         self.effect_drop = QtWidgets.QComboBox(self.page)
-        self.effect_drop.setGeometry(QtCore.QRect(1130, 20, 131, 22))
+        self.effect_drop.setGeometry(QtCore.QRect(1110, 20, 131, 22))
         self.effect_drop.addItems(["Original","Gray", "Binarized", "Optimized Document"])
         self.effect_drop.setObjectName("effect_drop")
         self.effect_label = QtWidgets.QLabel(self.page)
-        self.effect_label.setGeometry(QtCore.QRect(1280, 20, 61, 21))
+        self.effect_label.setGeometry(QtCore.QRect(1060, 20, 61, 21))
         self.effect_label.setObjectName("effect_label")
         self.rotate_widget = QtWidgets.QWidget(self.page)
         self.rotate_widget.setGeometry(QtCore.QRect(5, 350, 51, 171))
@@ -1112,7 +1112,7 @@ class Ui_MainWindow(object):
         self.dpi_label.setText(_translate("MainWindow", "Select DPI:"))
         self.resolution_label.setText(_translate("MainWindow", "Resolution:"))
         self.effect_label.setText(_translate("MainWindow", "Effect:"))
-        self.autoSave_btn.setText(_translate("MainWindow", "Auto Save"))
+        # self.autoSave_btn.setText(_translate("MainWindow", "Auto Save"))
         self.trim_btn.setText(_translate("MainWindow", "Trim"))
         self.crop_label.setText(_translate("MainWindow", "Crop:"))
 

@@ -140,7 +140,7 @@ class CropApp:
         self.but_frame = tk.Frame(self.master)
         self.but_frame.pack()
 
-        # self.coord_butt = tk.Button(
+        # self.coord_butt = tk.Button(  
         #     self.but_frame, text="Show Coordinates", command=self.printBoxDetails)
         # self.coord_butt.pack(side=tk.LEFT)
 

@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="newPrefix">
+    <file>load.gif</file>
     <file>focus.svg</file>
     <file>minimize.svg</file>
     <file>close.svg</file>

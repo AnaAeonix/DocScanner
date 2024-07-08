@@ -178,7 +178,7 @@ class Ui_MainWindow1(object):
                                     "        background-color:#073c6d;\n"
                                     "    }")
         self.default_btn.setObjectName("more_btn")
-        self.default_btn.setGeometry(300, 340, 89, 35)
+        self.default_btn.setGeometry(300, 340, 95, 35)
         self.default_btn.setFont(font)
 
         # self.save_btn = QPushButton(self.centralwidget)
@@ -252,7 +252,7 @@ class Ui_MainWindow1(object):
 
         self.browse_btn = QPushButton(self.centralwidget)
         self.browse_btn.setObjectName("browse_btn")
-        self.browse_btn.setGeometry(310, 432, 89, 35)
+        self.browse_btn.setGeometry(300, 432, 95, 35)
         self.browse_btn.setStyleSheet("QPushButton {\n"
                                        "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                        "        border-radius: 20px; \n"
@@ -279,7 +279,7 @@ class Ui_MainWindow1(object):
 
         self.storage_label = QLabel(self.centralwidget)
         self.storage_label.setObjectName("storage_label")
-        self.storage_label.setGeometry(20, 440, 281, 21)
+        self.storage_label.setGeometry(20, 440, 261, 21)
         self.storage_label.setFrameShape(QFrame.Box)
         self.storage_label.setStyleSheet("QLabel {"
                                      #  "border: 2px solid #0e86f6;"  # Change 'red' to desired border color

@@ -1,5 +1,5 @@
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox, QSplashScreen,QLabel
-from PyQt5.QtCore import QTimer, Qt
+from PyQt5.QtCore import QSettings, Qt, QPoint, QStandardPaths,QTimer
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtGui import QImage, QPixmap, QMovie, QTransform
 from PIL import Image, ImageEnhance, ImageOps, ImageQt
@@ -39,7 +39,7 @@ class MainWindow(QtWidgets.QMainWindow):
         now = datetime.now()
         timestamp = now.strftime("%Y%m%d_%H%M%S")  # Format timestamp
         filename = f"captured_image_{timestamp}.jpg"
-        self.auto_crop = None
+
         temp_dir = tempfile.mkdtemp()
         self.imagepath = os.path.join(temp_dir, filename)
         self.image = None  # Track the currently displayed image
@@ -60,10 +60,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.captured_images_main = []
         self.export = 0
         self.trimmed = False
-
+        self.manual_crop = True
+        
+        self.settings = QSettings("YourOrganization", "YourApplication")
+        self.auto_crop = self.settings.value(
+            "autocrop", None)
+        
         self.ui.edit_btn.clicked.connect(self.editing)
         self.video_stream = VideoStream(
             self.ui.cam_label, self.current_camera_index)
+        
+        self.video_stream.points = self.settings.value(
+            "points", None)
         self.ui.shutter_btn.clicked.connect(self.capture_image)
         self.ui.rotateleft_btn.clicked.connect(self.rotate_image_left)
         self.ui.rotateright_btn.clicked.connect(self.rotate_image_right)
@@ -83,7 +91,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.ui.delete_btn.clicked.connect(self.delete)
         # self.ui.ai_btn.toggled.connect(
         #     self.video_stream.toggle_contour_detection)
-        self.ui.trim_btn.toggled.connect(self.trim_condition)
+        self.ui.trim_drop.currentIndexChanged.connect(self.trim_condition)
         self.ui.foc_drop.currentIndexChanged.connect(
             self.video_stream.set_focus)
         self.ui.dpi_drop.currentIndexChanged.connect(
@@ -211,10 +219,19 @@ class MainWindow(QtWidgets.QMainWindow):
             
     def crop_type(self,index):
         if index== 0 :
+            self.auto_crop = self.video_stream.points
             self.video_stream.checked = False
+            self.manual_crop = True
         if index == 1:
             self.video_stream.checked = True
             self.video_stream.update_frame()
+        if index == 2:
+            self.video_stream.checked = False
+            self.video_stream.points = None
+            self.auto_crop = None
+            self.settings.setValue("points", None)
+            self.settings.setValue("autocrop", None)
+            self.manual_crop = False
 
     def export_change(self, index):
         self.export = index
@@ -742,6 +759,7 @@ class MainWindow(QtWidgets.QMainWindow):
         print(tk.TkVersion)
 
         if ret:
+            self.video_stream.rotation_state =  0
             image_resolution = frame.shape[:2]  # Get only the rows and columns
 
             now = datetime.now()
@@ -758,6 +776,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 root = tk.Tk()
                 root.title("Auto Crop")
+                # if frame is not None:
+                #     # Apply cumulative rotation based on rotation_state
+                #     if self.video_stream.rotation_state == 90:
+                #             frame = cv2.rotate(
+                #                 frame, cv2.ROTATE_90_CLOCKWISE)
+                #     elif self.video_stream.rotation_state == 180:
+                #             frame = cv2.rotate(frame, cv2.ROTATE_180)
+                #     elif self.video_stream.rotation_state == 270:
+                #             frame = cv2.rotate(
+                #                 frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
                 img_file_name = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 cv2.imwrite("Hello2.jpg", img_file_name)
                 # coordinates = [[5, 5], [1029, 5], [742, 209], [5, 773]]
@@ -779,11 +807,14 @@ class MainWindow(QtWidgets.QMainWindow):
                                       for A in self.auto_crop]
                     print(self.auto_crop)
                     self.video_stream.points = self.auto_crop
+                    self.settings.setValue("points", self.video_stream.points)
                     print(A)
                     print(B)
                     print(C)
                     print(D)
-
+                    root.destroy()
+                self.settings.setValue("autocrop", self.auto_crop)
+                
             except Exception as e:
                 print(f"Error saving image: {e}")
 
@@ -794,6 +825,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if ret:
             image_resolution = frame.shape[:2]  # Get only the rows and columns
+            self.video_stream.rotation_state =  0
 
             now = datetime.now()
             timestamp = now.strftime("%Y%m%d_%H%M%S")  # Format timestamp
@@ -819,6 +851,7 @@ class MainWindow(QtWidgets.QMainWindow):
                 obj.run()
                 if obj.crop_pressed:
                     corners = obj.get_draggable_points()
+                    
 
                     split1, split2, warpped_image = obj.get_warpped(corners)
                     # cv2.imwrite("1714054747202_warpped_1.jpg",
@@ -829,6 +862,8 @@ class MainWindow(QtWidgets.QMainWindow):
                     #     warpped_image, cv2.COLOR_BGR2RGB))
                     self.auto_crop = corners
                     self.video_stream.points = corners
+                    self.settings.setValue("points", self.video_stream.points)
+                    self.settings.setValue("autocrop", self.video_stream.points)
                     print(corners)
             except Exception as e:
                 print(f"Error saving image: {e}")
@@ -1079,6 +1114,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     frame = self.trim(frame)
                 self.captured_images_main.insert(0, frame)
                 if self.video_stream.checked == True:
+                    self.auto_crop = None
                     if self.video_stream.ai_crop is not None:
                         temp = self.scale_crop_coordinates(
                             self.video_stream.ai_crop, original_res, (width, height))
@@ -1095,6 +1131,15 @@ class MainWindow(QtWidgets.QMainWindow):
                             self.auto_crop, original_res, (width, height))
                         frame = self.cutting_6(Image.fromarray(
                             frame), temp[0], temp[1], temp[2], temp[3], temp[4], temp[5])
+                
+                if self.video_stream.rotation_state == 90:
+                        frame = cv2.rotate(
+                            frame, cv2.ROTATE_90_CLOCKWISE)
+                elif self.video_stream.rotation_state == 180:
+                        frame = cv2.rotate(frame, cv2.ROTATE_180)
+                elif self.video_stream.rotation_state == 270:
+                        frame = cv2.rotate(
+                            frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
                 cv2.imwrite(filepath, frame)
 
                 if (self.auto_crop != None):
@@ -1231,20 +1276,27 @@ class MainWindow(QtWidgets.QMainWindow):
         self.load_image()
 
     def askQuestion_settings(self):
-        msgBox = QMessageBox()
-        msgBox.setWindowTitle("Crop Type")
-        msgBox.setText("What type of crop do you want?")
-        yes_button = msgBox.addButton(QMessageBox.Yes)
-        yes_button.setText("Single Page Crop")
-        yes_button1 = msgBox.addButton(QMessageBox.Yes)
-        yes_button1.setText("Double Page Crop")
-        msgBox.addButton(QMessageBox.No)
-        msgBox.exec()
+        if self.manual_crop == False:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("Please select manual crop")
+            msg.setWindowTitle("Alert")
+            msg.exec_()
+        if self.manual_crop == True:
+            msgBox = QMessageBox()
+            msgBox.setWindowTitle("Crop Type")
+            msgBox.setText("What type of crop do you want?")
+            yes_button = msgBox.addButton(QMessageBox.Yes)
+            yes_button.setText("Single Page Crop")
+            yes_button1 = msgBox.addButton(QMessageBox.Yes)
+            yes_button1.setText("Double Page Crop")
+            msgBox.addButton(QMessageBox.No)
+            msgBox.exec()
 
-        if msgBox.clickedButton() == yes_button:
-            self.crop_settings()
-        elif msgBox.clickedButton() == yes_button1:
-            self.crop_settings_6()
+            if msgBox.clickedButton() == yes_button:
+                self.crop_settings()
+            elif msgBox.clickedButton() == yes_button1:
+                self.crop_settings_6()
 
     def askQuestion(self):
         if self.captured_images_crop[self.imageIndex] == [0, 0]:

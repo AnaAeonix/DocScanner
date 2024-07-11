@@ -78,16 +78,17 @@ class VideoStream:
         if ret:
                 self.firstTime = False
 
-                if self.points is not None:
+                if self.points is not None and self.checked == False:
                     cv2.polylines(
                         frame, [np.array(self.points)], True, (0, 255, 0), 6)
 
                 # Check if contour detection is enabled
                 if self.checked:
+                    # self.points = None
                     document_contour = self.detect_document(frame)
 
                     if document_contour is not None:
-                        # Calculate the area of the detected contour
+                        # Calculate the area of the detected contour         
                         area = cv2.contourArea(document_contour)
 
                         # Update the biggest contour if the detected one is larger
@@ -100,7 +101,7 @@ class VideoStream:
                         self.ai_crop = p
 
                 rgb_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                frame_resized = cv2.resize(rgb_image, (2120, 1280))
+                frame_resized = cv2.resize(rgb_image, (3264, 2448))
                 self.image = frame_resized
 
                 if self.image is not None:

@@ -89,6 +89,7 @@ class SmartCrop:
 
     def crop(self):
         self.crop_pressed = True
+        self.root.destroy()
 
     def drag(self, event, item):
         x, y = event.x, event.y

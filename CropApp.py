@@ -185,6 +185,7 @@ class CropApp:
 
     def crop(self):
         self.crop_pressed = True
+        self.master.destroy()
 
     def restCorners(self):
         self.NW.reset()

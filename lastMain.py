@@ -226,12 +226,24 @@ class MainWindow(QtWidgets.QMainWindow):
             self.video_stream.checked = True
             self.video_stream.update_frame()
         if index == 2:
-            self.video_stream.checked = False
-            self.video_stream.points = None
-            self.auto_crop = None
-            self.settings.setValue("points", None)
-            self.settings.setValue("autocrop", None)
-            self.manual_crop = False
+            
+                # Ask for confirmation
+                confirm_dialog = QMessageBox()
+                confirm_dialog.setIcon(QMessageBox.Question)
+                confirm_dialog.setText(
+                    "Are you sure you want to reset the selected area?")
+                confirm_dialog.setWindowTitle("Confirmation")
+                confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+
+                # Execute based on user's choice
+                choice = confirm_dialog.exec_()
+                if choice == QMessageBox.Yes:
+                    self.video_stream.checked = False
+                    self.video_stream.points = None
+                    self.auto_crop = None
+                    self.settings.setValue("points", None)
+                    self.settings.setValue("autocrop", None)
+                    self.manual_crop = False
 
     def export_change(self, index):
         self.export = index

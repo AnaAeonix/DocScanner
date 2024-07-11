@@ -16,7 +16,7 @@ import numpy as np
 from datetime import datetime
 import tempfile
 from pyusbcameraindex import enumerate_usb_video_devices_windows
-# from rembg import remove
+from rembg import remove
 # Remove the duplicate import statement
 from ariNewUi import Ui_MainWindow
 from VideoStream import VideoStream
@@ -501,88 +501,88 @@ class MainWindow(QtWidgets.QMainWindow):
         
         
 
-    # def trim(self, frame):
-    #     if frame is not None:
-    #         # Remove the background from the input image
-    #         output_image = remove(frame)
+    def trim(self, frame):
+        if frame is not None:
+            # Remove the background from the input image
+            output_image = remove(frame)
 
-    #         # Convert output_image (NumPy array) to a PIL Image if necessary
-    #         if isinstance(output_image, np.ndarray):
-    #             output_image = Image.fromarray(output_image)
+            # Convert output_image (NumPy array) to a PIL Image if necessary
+            if isinstance(output_image, np.ndarray):
+                output_image = Image.fromarray(output_image)
 
-    #         # Ensure the image mode is 'RGB'
-    #         if output_image.mode == 'RGBA':
-    #             # Extract the alpha channel
-    #             alpha = output_image.split()[3]  # Assuming RGBA mode
-    #             # Create a new image with a white background
-    #             output_with_white_bg = Image.new(
-    #                 "RGB", output_image.size, (255, 255, 255))
-    #             # Paste the output image onto the white background using alpha as mask
-    #             output_with_white_bg.paste(output_image, (0, 0), mask=alpha)
-    #         else:
-    #             # If no transparency, paste directly
-    #             output_with_white_bg = output_image.copy()
+            # Ensure the image mode is 'RGB'
+            if output_image.mode == 'RGBA':
+                # Extract the alpha channel
+                alpha = output_image.split()[3]  # Assuming RGBA mode
+                # Create a new image with a white background
+                output_with_white_bg = Image.new(
+                    "RGB", output_image.size, (255, 255, 255))
+                # Paste the output image onto the white background using alpha as mask
+                output_with_white_bg.paste(output_image, (0, 0), mask=alpha)
+            else:
+                # If no transparency, paste directly
+                output_with_white_bg = output_image.copy()
 
-    #         # Convert the final image back to a NumPy array
-    #         final_image = np.array(output_with_white_bg)
+            # Convert the final image back to a NumPy array
+            final_image = np.array(output_with_white_bg)
 
-    #         return final_imag e
+            return final_image
     
-    def trim(self, img) :
-        if img is not None:
-            original = img.copy()
+    # def trim(self, img) :
+    #     if img is not None:
+    #         original = img.copy()
 
-            l = int(max(30, 10))  # (5, 6)
-            u = int(min(20, 10))  # 6, 6
+    #         l = int(max(30, 10))  # (5, 6)
+    #         u = int(min(20, 10))  # 6, 6
 
-            ed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            edges = cv2.GaussianBlur(img, (21, 51), 3)  # 21,51
-            edges = cv2.cvtColor(edges, cv2.COLOR_BGR2GRAY)
-            edges = cv2.Canny(edges, l, u)
+    #         ed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    #         edges = cv2.GaussianBlur(img, (21, 51), 3)  # 21,51
+    #         edges = cv2.cvtColor(edges, cv2.COLOR_BGR2GRAY)
+    #         edges = cv2.Canny(edges, l, u)
 
-            _, thresh = cv2.threshold(
-                edges, 180, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)  # 0  180
-            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))  # 5,5
-            mask = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=4)  # 4
+    #         _, thresh = cv2.threshold(
+    #             edges, 180, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)  # 0  180
+    #         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))  # 5,5
+    #         mask = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=4)  # 4
 
-            data = mask.tolist()
+    #         data = mask.tolist()
 
-            sys.setrecursionlimit(10**8)
-            for i in range(len(data)):
-                for j in range(len(data[i])):
-                    if data[i][j] != 255:
-                        data[i][j] = -1
-                    else:
-                        break
-                for j in range(len(data[i])-1, -1, -1):
-                    if data[i][j] != 255:
-                        data[i][j] = -1
-                    else:
-                        break
-            image = np.array(data)
-            image[image != -1] = 255
-            image[image == -1] = 0
+    #         sys.setrecursionlimit(10**8)
+    #         for i in range(len(data)):
+    #             for j in range(len(data[i])):
+    #                 if data[i][j] != 255:
+    #                     data[i][j] = -1
+    #                 else:
+    #                     break
+    #             for j in range(len(data[i])-1, -1, -1):
+    #                 if data[i][j] != 255:
+    #                     data[i][j] = -1
+    #                 else:
+    #                     break
+    #         image = np.array(data)
+    #         image[image != -1] = 255
+    #         image[image == -1] = 0
 
-            mask = np.array(image, np.uint8)
+    #         mask = np.array(image, np.uint8)
 
-            result = cv2.bitwise_and(original, original, mask=mask)
-            result[mask == 0] = 255
+    #         result = cv2.bitwise_and(original, original, mask=mask)
+    #         result[mask == 0] = 255
 
-            # Convert to RGBA
-            img = Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
-            img = img.convert("RGBA")
-            datas = img.getdata()
+    #         # Convert to RGBA
+    #         img = Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
+    #         img = img.convert("RGBA")
+    #         datas = img.getdata()
 
-            newData = []
-            for item in datas:
-                if item[0] == 255 and item[1] == 255 and item[2] == 255:
-                    newData.append((255, 255, 255, 0))
-                else:
-                    newData.append(item)
+    #         newData = []
+    #         for item in datas:
+    #             if item[0] == 255 and item[1] == 255 and item[2] == 255:
+    #                 newData.append((255, 255, 255, 0))
+    #             else:
+    #                 newData.append(item)
 
-            img.putdata(newData)
+    #         img.putdata(newData)
 
-            return np.array(img)
+    #         return np.array(img)
  
     def display_captured_images_main(self):
         self.all_checkboxes = []
@@ -1062,18 +1062,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.show_image.setPixmap(scaled_pixmap)
         self.ui.show_image.setAlignment(Qt.AlignCenter)
         
-    def load_image1(self):
-        cv2.imwrite(self.imagepath, self.image)
-        pixmap = QPixmap(self.imagepath)
-
-        self.ui.show_image.setAlignment(Qt.AlignCenter)
-        self.ui.show_image.setPixmap(pixmap)
-
-        self.ui.show_image.setAlignment(Qt.AlignCenter)
-
-        self.ui.show_image.setScaledContents(True)
-        self.ui.show_image.setPixmap(pixmap)
-
 
     def _handle_index_change(self):
         self.current_camera_index = self.ui.cam_drop_down.currentIndex()
@@ -1495,22 +1483,23 @@ class MainWindow(QtWidgets.QMainWindow):
     def update_sharpness(self, value):
         sharpness = value / 100.0
         self.sharp_img = self.sharpen_image(self.image, sharpness)
-        # self.image = sharpened_image
-        cv2.imwrite(self.imagepath, self.sharp_img)
-        pixmap = QPixmap(self.imagepath)
-        # pixmap = pixmap.scaled(391, 541, Qt.KeepAspectRatio)
+        self.image = self.sharp_img
+        self.load_image()
+        # cv2.imwrite(self.imagepath, self.sharp_img)
+        # pixmap = QPixmap(self.imagepath)
+        # # pixmap = pixmap.scaled(391, 541, Qt.KeepAspectRatio)
 
-        # Set alignment to center
-        self.ui.show_image.setAlignment(Qt.AlignCenter)
-        self.ui.show_image.setPixmap(pixmap)
+        # # Set alignment to center
+        # self.ui.show_image.setAlignment(Qt.AlignCenter)
+        # self.ui.show_image.setPixmap(pixmap)
 
-        # Set alignment to center
-        self.ui.show_image.setAlignment(Qt.AlignCenter)
+        # # Set alignment to center
+        # self.ui.show_image.setAlignment(Qt.AlignCenter)
 
-        # Set aspect ratio mode to keep the aspect ratio
-        self.ui.show_image.setScaledContents(True)
-        self.ui.show_image.setPixmap(pixmap.scaled(
-            self.ui.show_image.size(), Qt.KeepAspectRatio))
+        # # Set aspect ratio mode to keep the aspect ratio
+        # self.ui.show_image.setScaledContents(True)
+        # self.ui.show_image.setPixmap(pixmap.scaled(
+        #     self.ui.show_image.size(), Qt.KeepAspectRatio))
 
     def sharpen_image(self, image, sharpness):
         blurred = cv2.GaussianBlur(image, (0, 0), 3)
@@ -1521,22 +1510,23 @@ class MainWindow(QtWidgets.QMainWindow):
     def update_contrast(self, value):
         contrast = value
         self.contrasted_image = self.adjust_contrast(self.image, contrast)
-        # self.image = sharpened_image
-        cv2.imwrite(self.imagepath, self.contrasted_image)
-        pixmap = QPixmap(self.imagepath)
-        # pixmap = pixmap.scaled(391, 541, Qt.KeepAspectRatio)
+        self.image = self.contrasted_image
+        self.load_image()
+        # cv2.imwrite(self.imagepath, self.contrasted_image)
+        # pixmap = QPixmap(self.imagepath)
+        # # pixmap = pixmap.scaled(391, 541, Qt.KeepAspectRatio)
 
-        # Set alignment to center
-        self.ui.show_image.setAlignment(Qt.AlignCenter)
-        self.ui.show_image.setPixmap(pixmap)
+        # # Set alignment to center
+        # self.ui.show_image.setAlignment(Qt.AlignCenter)
+        # self.ui.show_image.setPixmap(pixmap)
 
-        # Set alignment to center
-        self.ui.show_image.setAlignment(Qt.AlignCenter)
+        # # Set alignment to center
+        # self.ui.show_image.setAlignment(Qt.AlignCenter)
 
-        # Set aspect ratio mode to keep the aspect ratio
-        self.ui.show_image.setScaledContents(True)
-        self.ui.show_image.setPixmap(pixmap.scaled(
-            self.ui.show_image.size(), Qt.KeepAspectRatio))
+        # # Set aspect ratio mode to keep the aspect ratio
+        # self.ui.show_image.setScaledContents(True)
+        # self.ui.show_image.setPixmap(pixmap.scaled(
+        #     self.ui.show_image.size(), Qt.KeepAspectRatio))
 
     def adjust_contrast(self, image, contrast):
         alpha = (100.0 + contrast) / 100.0

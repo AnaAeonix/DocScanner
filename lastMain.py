@@ -80,7 +80,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.rotate_btn.clicked.connect(self.clicked_rotate_btn)
         self.ui.pdf_btn.clicked.connect(self.exportTo)
         self.ui.cam_back.clicked.connect(self.returntocamera)
-        self.ui.enhance_btn.clicked.connect(self.AutoEnhance)
+        # self.ui.enhance_btn.clicked.connect(self.AutoEnhance)
         self.ui.crop_btn.clicked.connect(self.askQuestion)
 
         self.ui.settings_btn.clicked.connect(self.check_mode)
@@ -116,8 +116,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.feed_rotate_left.clicked.connect(self.leftOn)
         self.ui.feed_rotate_right.clicked.connect(self.rightOn)
 
-        self.ui.mag1_btn.clicked.connect(self.magic1)
-        self.ui.mag2_btn.clicked.connect(self.magic2)
+        self.ui.original_btn.clicked.connect(self.original)
+        self.ui.gray_btn.clicked.connect(self.gray)
+        self.ui.binarized_btn.clicked.connect(self.binarized)
+        self.ui.optimized_btn.clicked.connect(self.optimized)
 
         self.setWindowFlags(Qt.FramelessWindowHint)  # Hide default title bar
         self.ui.minimize.clicked.connect(self.showMinimized)
@@ -217,6 +219,43 @@ class MainWindow(QtWidgets.QMainWindow):
         if index == 3:
             self.effect = "Optimized Document"
             
+    def original(self):
+        self.undo()
+    # def gray(self):
+    #     # self.effect = "Gray"
+    #     # self.image = self.get_effects(self.image)
+    #     self.image = cv2.cvtColor(
+    #         self.image, cv2.COLOR_BGR2GRAY)
+    #     self.load_image()
+    # def binarized(self):
+    #     _, self.image = cv2.threshold(cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY),
+    #                                        127, 255, cv2.THRESH_BINARY)
+    #     self.load_image()
+    # def optimized(self):
+    #     self.image = cv2.adaptiveThreshold(cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY),
+    #                                             255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 10)
+    #     self.image = cv2.bitwise_not(self.image)
+    #     self.load_image()
+    
+    def gray(self):
+        if len(self.image.shape) == 3:  # Check if the image is not already in grayscale
+            self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+        self.load_image()
+
+    def binarized(self):
+        if len(self.image.shape) == 3:  # Check if the image is not already in grayscale
+            self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+        _, self.image = cv2.threshold(self.image, 127, 255, cv2.THRESH_BINARY)
+        self.load_image()
+
+    def optimized(self):
+        if len(self.image.shape) == 3:  # Check if the image is not already in grayscale
+            self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
+        self.image = cv2.adaptiveThreshold(
+            self.image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 10)
+        self.image = cv2.bitwise_not(self.image)
+        self.load_image()
+                
     def crop_type(self,index):
         if index== 0 :
             self.auto_crop = self.video_stream.points
@@ -489,6 +528,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.latestImage.append(self.image)
             self.ui.stackedWidget.setCurrentIndex(1)
             self.load_image()
+            self.ui.horizontalSlider.setValue(0)
+            self.ui.horizontalSlider_2.setValue(0)
 
     def get_effects(self,frame):
         if frame is not None:
@@ -1042,38 +1083,39 @@ class MainWindow(QtWidgets.QMainWindow):
         image = self.image
 
         # Check if the image is 2D or 3D
-        if len(image.shape) == 3:
-            height, width, channels = image.shape
-        elif len(image.shape) == 2:
-            height, width = image.shape
-            channels = 1
-        else:
-            raise ValueError("Unsupported image format")
+        if image is not None:
+            if len(image.shape) == 3:
+                height, width, channels = image.shape
+            elif len(image.shape) == 2:
+                height, width = image.shape
+                channels = 1
+            else:
+                raise ValueError("Unsupported image format")
 
-        if channels == 3:
-            # Convert BGR to RGB git
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            bytes_per_line = 3 * width
-            qimage_format = QImage.Format_RGB888
-        elif channels == 2:
-            # For Grayscale with Alpha channel (though rare, you can handle it if needed)
-            bytes_per_line = 2 * width
-            qimage_format = QImage.Format_Grayscale8
-        elif channels == 1:
-            # For Grayscale image
-            bytes_per_line = width
-            qimage_format = QImage.Format_Grayscale8
-        else:
-            raise ValueError("Unsupported image format")
+            if channels == 3:
+                # Convert BGR to RGB git
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                bytes_per_line = 3 * width
+                qimage_format = QImage.Format_RGB888
+            elif channels == 2:
+                # For Grayscale with Alpha channel (though rare, you can handle it if needed)
+                bytes_per_line = 2 * width
+                qimage_format = QImage.Format_Grayscale8
+            elif channels == 1:
+                # For Grayscale image
+                bytes_per_line = width
+                qimage_format = QImage.Format_Grayscale8
+            else:
+                raise ValueError("Unsupported image format")
 
-        qimage = QImage(image.data, width, height, bytes_per_line, qimage_format)
-        pixmap = QPixmap.fromImage(qimage)
-        label_size = self.ui.show_image.size()
-        scaled_pixmap = pixmap.scaled(
-            label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        self.ui.show_image.setPixmap(scaled_pixmap)
-        self.ui.show_image.setAlignment(Qt.AlignCenter)
-        
+            qimage = QImage(image.data, width, height, bytes_per_line, qimage_format)
+            pixmap = QPixmap.fromImage(qimage)
+            label_size = self.ui.show_image.size()
+            scaled_pixmap = pixmap.scaled(
+                label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.ui.show_image.setPixmap(scaled_pixmap)
+            self.ui.show_image.setAlignment(Qt.AlignCenter)
+            
 
     def _handle_index_change(self):
         self.current_camera_index = self.ui.cam_drop_down.currentIndex()
@@ -1220,6 +1262,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.imageIndex = None
         self.image = None
         self.ui.stackedWidget.setCurrentIndex(0)
+        self.ui.horizontalSlider.setValue(0)
+        self.ui.horizontalSlider_2.setValue(0)
 
     def clicked_adjust_btn(self):
         self.ui.edit_stack.setCurrentIndex(0)
@@ -1495,23 +1539,44 @@ class MainWindow(QtWidgets.QMainWindow):
     def update_sharpness(self, value):
         sharpness = value / 100.0
         self.sharp_img = self.sharpen_image(self.image, sharpness)
-        self.image = self.sharp_img
-        self.load_image()
-        # cv2.imwrite(self.imagepath, self.sharp_img)
-        # pixmap = QPixmap(self.imagepath)
-        # # pixmap = pixmap.scaled(391, 541, Qt.KeepAspectRatio)
+        # self.image = self.sharp_img
+        self.load_image()               #not using load image for the aspect ratio
+        image = self.sharp_img
 
-        # # Set alignment to center
-        # self.ui.show_image.setAlignment(Qt.AlignCenter)
-        # self.ui.show_image.setPixmap(pixmap)
+        # Check if the image is 2D or 3D
+        if image is not None:
+            if len(image.shape) == 3:
+                height, width, channels = image.shape
+            elif len(image.shape) == 2:
+                height, width = image.shape
+                channels = 1
+            else:
+                raise ValueError("Unsupported image format")
 
-        # # Set alignment to center
-        # self.ui.show_image.setAlignment(Qt.AlignCenter)
+            if channels == 3:
+                # Convert BGR to RGB git
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                bytes_per_line = 3 * width
+                qimage_format = QImage.Format_RGB888
+            elif channels == 2:
+                # For Grayscale with Alpha channel (though rare, you can handle it if needed)
+                bytes_per_line = 2 * width
+                qimage_format = QImage.Format_Grayscale8
+            elif channels == 1:
+                # For Grayscale image
+                bytes_per_line = width
+                qimage_format = QImage.Format_Grayscale8
+            else:
+                raise ValueError("Unsupported image format")
 
-        # # Set aspect ratio mode to keep the aspect ratio
-        # self.ui.show_image.setScaledContents(True)
-        # self.ui.show_image.setPixmap(pixmap.scaled(
-        #     self.ui.show_image.size(), Qt.KeepAspectRatio))
+            qimage = QImage(image.data, width, height,
+                            bytes_per_line, qimage_format)
+            pixmap = QPixmap.fromImage(qimage)
+            label_size = self.ui.show_image.size()
+            scaled_pixmap = pixmap.scaled(
+                label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.ui.show_image.setPixmap(scaled_pixmap)
+            self.ui.show_image.setAlignment(Qt.AlignCenter)
 
     def sharpen_image(self, image, sharpness):
         blurred = cv2.GaussianBlur(image, (0, 0), 3)
@@ -1522,23 +1587,44 @@ class MainWindow(QtWidgets.QMainWindow):
     def update_contrast(self, value):
         contrast = value
         self.contrasted_image = self.adjust_contrast(self.image, contrast)
-        self.image = self.contrasted_image
-        self.load_image()
-        # cv2.imwrite(self.imagepath, self.contrasted_image)
-        # pixmap = QPixmap(self.imagepath)
-        # # pixmap = pixmap.scaled(391, 541, Qt.KeepAspectRatio)
+        # self.image = self.contrasted_image
+        self.load_image()             #not using load image for the aspect ratio
+        image = self.contrasted_image
 
-        # # Set alignment to center
-        # self.ui.show_image.setAlignment(Qt.AlignCenter)
-        # self.ui.show_image.setPixmap(pixmap)
+        # Check if the image is 2D or 3D
+        if image is not None:
+            if len(image.shape) == 3:
+                height, width, channels = image.shape
+            elif len(image.shape) == 2:
+                height, width = image.shape
+                channels = 1
+            else:
+                raise ValueError("Unsupported image format")
 
-        # # Set alignment to center
-        # self.ui.show_image.setAlignment(Qt.AlignCenter)
+            if channels == 3:
+                # Convert BGR to RGB git
+                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+                bytes_per_line = 3 * width
+                qimage_format = QImage.Format_RGB888
+            elif channels == 2:
+                # For Grayscale with Alpha channel (though rare, you can handle it if needed)
+                bytes_per_line = 2 * width
+                qimage_format = QImage.Format_Grayscale8
+            elif channels == 1:
+                # For Grayscale image
+                bytes_per_line = width
+                qimage_format = QImage.Format_Grayscale8
+            else:
+                raise ValueError("Unsupported image format")
 
-        # # Set aspect ratio mode to keep the aspect ratio
-        # self.ui.show_image.setScaledContents(True)
-        # self.ui.show_image.setPixmap(pixmap.scaled(
-        #     self.ui.show_image.size(), Qt.KeepAspectRatio))
+            qimage = QImage(image.data, width, height,
+                            bytes_per_line, qimage_format)
+            pixmap = QPixmap.fromImage(qimage)
+            label_size = self.ui.show_image.size()
+            scaled_pixmap = pixmap.scaled(
+                label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            self.ui.show_image.setPixmap(scaled_pixmap)
+            self.ui.show_image.setAlignment(Qt.AlignCenter)
 
     def adjust_contrast(self, image, contrast):
         alpha = (100.0 + contrast) / 100.0

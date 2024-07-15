@@ -740,9 +740,9 @@ class Ui_MainWindow(object):
         self.edit_stack.addWidget(self.page_3)
         self.page_4 = QtWidgets.QWidget()
         self.page_4.setObjectName("page_4")
-        self.enhance_btn = QtWidgets.QPushButton(self.page_4)
-        self.enhance_btn.setGeometry(QtCore.QRect(100, 0, 211, 41))
-        self.enhance_btn.setStyleSheet("QPushButton {\n"
+        self.original_btn = QtWidgets.QPushButton(self.page_4)
+        self.original_btn.setGeometry(QtCore.QRect(100, 0, 211, 41))
+        self.original_btn.setStyleSheet("QPushButton {\n"
                                        "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                        "        border-radius: 20px; \n"
                                        "    color: white; /* Text color */\n"
@@ -765,10 +765,10 @@ class Ui_MainWindow(object):
                                        " QPushButton:hover {\n"
                                        "        background-color:#073c6d\n"
                                        "    }")
-        self.enhance_btn.setObjectName("enhance_btn")
-        self.mag1_btn = QtWidgets.QPushButton(self.page_4)
-        self.mag1_btn.setGeometry(QtCore.QRect(604, 0, 211, 41))
-        self.mag1_btn.setStyleSheet("QPushButton {\n"
+        self.original_btn.setObjectName("original_btn")
+        self.gray_btn = QtWidgets.QPushButton(self.page_4)
+        self.gray_btn.setGeometry(QtCore.QRect(604, 0, 211, 41))
+        self.gray_btn.setStyleSheet("QPushButton {\n"
                                     "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                     "        border-radius: 20px; \n"
                                     "    color: white; /* Text color */\n"
@@ -791,10 +791,10 @@ class Ui_MainWindow(object):
                                     " QPushButton:hover {\n"
                                     "        background-color:#073c6d\n"
                                     "    }")
-        self.mag1_btn.setObjectName("mag1_btn")
-        self.color_btn_2 = QtWidgets.QPushButton(self.page_4)
-        self.color_btn_2.setGeometry(QtCore.QRect(100, 50, 211, 41))
-        self.color_btn_2.setStyleSheet("QPushButton {\n"
+        self.gray_btn.setObjectName("gray_btn")
+        self.binarized_btn = QtWidgets.QPushButton(self.page_4)
+        self.binarized_btn.setGeometry(QtCore.QRect(100, 50, 211, 41))
+        self.binarized_btn.setStyleSheet("QPushButton {\n"
                                        "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                        "        border-radius: 20px; \n"
                                        "    color: white; /* Text color */\n"
@@ -817,10 +817,10 @@ class Ui_MainWindow(object):
                                        " QPushButton:hover {\n"
                                        "        background-color:#073c6d\n"
                                        "    }")
-        self.color_btn_2.setObjectName("color_btn_2")
-        self.mag2_btn = QtWidgets.QPushButton(self.page_4)
-        self.mag2_btn.setGeometry(QtCore.QRect(604, 50, 211, 41))
-        self.mag2_btn.setStyleSheet("QPushButton {\n"
+        self.binarized_btn.setObjectName("binarized_btn")
+        self.optimized_btn = QtWidgets.QPushButton(self.page_4)
+        self.optimized_btn.setGeometry(QtCore.QRect(604, 50, 211, 41))
+        self.optimized_btn.setStyleSheet("QPushButton {\n"
                                     "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                     "        border-radius: 20px; \n"
                                     "    color: white; /* Text color */\n"
@@ -843,7 +843,7 @@ class Ui_MainWindow(object):
                                     " QPushButton:hover {\n"
                                     "        background-color:#073c6d\n"
                                     "    }")
-        self.mag2_btn.setObjectName("mag2_btn")
+        self.optimized_btn.setObjectName("optimized_btn")
         self.edit_stack.addWidget(self.page_4)
         self.page_5 = QtWidgets.QWidget()
         self.page_5.setObjectName("page_5")
@@ -1099,10 +1099,10 @@ class Ui_MainWindow(object):
         self.crop_btn.setText(_translate("MainWindow", "Crop"))
         self.label.setText(_translate("MainWindow", "Contrast"))
         self.label_2.setText(_translate("MainWindow", "Sharpness"))
-        self.enhance_btn.setText(_translate("MainWindow", "Enhance"))
-        self.mag1_btn.setText(_translate("MainWindow", "Magic Color 1"))
-        self.color_btn_2.setText(_translate("MainWindow", "Color"))
-        self.mag2_btn.setText(_translate("MainWindow", "Magic Color 2"))
+        self.original_btn.setText(_translate("MainWindow", "Original"))
+        self.gray_btn.setText(_translate("MainWindow", "Gray Scale"))
+        self.binarized_btn.setText(_translate("MainWindow", "Binarized"))
+        self.optimized_btn.setText(_translate("MainWindow", "Optimized Document"))
         self.rotateleft_btn.setText(_translate("MainWindow", " Left"))
         self.rotateright_btn.setText(_translate("MainWindow", " Right"))
         self.undo_btn.setText(_translate("MainWindow", "Undo"))

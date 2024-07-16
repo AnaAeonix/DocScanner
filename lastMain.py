@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox, QSplashScreen,QLabel
+from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox, QSplashScreen, QLabel, QProgressDialog
 from PyQt5.QtCore import QSettings, Qt, QPoint, QStandardPaths,QTimer
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtGui import QImage, QPixmap, QMovie, QTransform
@@ -17,6 +17,7 @@ from datetime import datetime
 import tempfile
 from pyusbcameraindex import enumerate_usb_video_devices_windows
 from rembg import remove
+from paddleocr import PaddleOCR
 # Remove the duplicate import statement
 from ariNewUi import Ui_MainWindow
 from VideoStream import VideoStream
@@ -36,6 +37,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.crop_size = []
         self.latestImage = []
         self.devices = []
+        self.sharpness = 0
         now = datetime.now()
         timestamp = now.strftime("%Y%m%d_%H%M%S")  # Format timestamp
         filename = f"captured_image_{timestamp}.jpg"
@@ -61,6 +63,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.export = 0
         self.trimmed = False
         self.manual_crop = True
+        self.app = QApplication([])
+        self.main_window = QLabel()
+        self.main_window.setWindowTitle("OCR Application")
+        self.main_window.setGeometry(100, 100, 800, 600)
+        self.loading_label = QLabel(self.main_window)
+        self.loading_label.setGeometry(350, 250, 100, 100)
+        self.loading_label.setAlignment(Qt.AlignCenter)
+        self.loading_label.hide()  # Hide the loading GIF initially
         
         self.settings = QSettings("YourOrganization", "YourApplication")
         self.auto_crop = self.settings.value(
@@ -78,7 +88,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.adjust_btn.clicked.connect(self.clicked_adjust_btn)
         self.ui.color_btn.clicked.connect(self.clicked_color_btn)
         self.ui.rotate_btn.clicked.connect(self.clicked_rotate_btn)
-        self.ui.pdf_btn.clicked.connect(self.exportTo)
+        self.ui.export_btn.clicked.connect(self.exportTo)
         self.ui.cam_back.clicked.connect(self.returntocamera)
         # self.ui.enhance_btn.clicked.connect(self.AutoEnhance)
         self.ui.crop_btn.clicked.connect(self.askQuestion)
@@ -115,6 +125,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.ui.autoSave_btn.toggled.connect(self.on_autoSave_toggled)
         self.ui.feed_rotate_left.clicked.connect(self.leftOn)
         self.ui.feed_rotate_right.clicked.connect(self.rightOn)
+        self.ui.ocr_btn.clicked.connect(self.ocr)
 
         self.ui.original_btn.clicked.connect(self.original)
         self.ui.gray_btn.clicked.connect(self.gray)
@@ -427,7 +438,67 @@ class MainWindow(QtWidgets.QMainWindow):
             QMessageBox.information(None, "Invalid Format",
                                     "The specified format is not supported.")
             
+    def show_alert(self, message):
+        alert = QLabel(message, self)
+        # self.layout.addWidget(alert)
 
+    def ocr(self):
+        if len(self.selected_images) != 1:
+            self.show_alert("Please select exactly one image.")
+            return
+
+        image_path = self.selected_images[0][1]
+
+        # Initialize and configure the progress dialog
+        self.progress_dialog = QProgressDialog(
+            "Processing image...", "Cancel", 0, 100, self)
+        self.progress_dialog.setWindowTitle("OCR Progress")
+        self.progress_dialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
+        # self.progress_dialog.setWindowModality(Qt.WindowModal)
+        self.progress_dialog.setValue(0)
+        self.progress_dialog.show()
+
+        # Function to update the progress dialog
+        def update_progress(value):
+            self.progress_dialog.setValue(value)
+            QApplication.processEvents()  # Process pending events
+            if value >= 100:
+                self.progress_dialog.hide()
+
+        # Update progress to 10%
+        update_progress(10)
+
+        # Initialize PaddleOCR
+        ocr = PaddleOCR(use_angle_cls=True, lang='en')
+        update_progress(30)
+
+        # Read the image
+        image = cv2.imread(image_path)
+        update_progress(50)
+
+        # Perform OCR on the image
+        result = ocr.ocr(image, cls=True)
+        update_progress(70)
+
+        # Extract text from the OCR result
+        extracted_text = ''
+        for line in result:
+            for element in line:
+                bbox, text = element[0], element[1][0]
+                extracted_text += f"{text}\n"
+
+        update_progress(90)
+
+        # Ask the user where to save the extracted text
+        output_txt_path, _ = QFileDialog.getSaveFileName(
+            None, "Save Text File", "", "Text Files (*.txt)")
+        if output_txt_path:
+            with open(output_txt_path, 'w') as f:
+                f.write(extracted_text)
+            print(f"Text extracted and saved to {output_txt_path}")
+
+        update_progress(100)
+        self.show_alert("OCR process completed.")
 
 
     def exportToAutoSaveFolder(self, image_path):
@@ -1537,46 +1608,47 @@ class MainWindow(QtWidgets.QMainWindow):
         self.load_image()
 
     def update_sharpness(self, value):
-        sharpness = value / 100.0
-        self.sharp_img = self.sharpen_image(self.image, sharpness)
-        # self.image = self.sharp_img
+        # sharpness = value / 100.0
+        temp = abs(self.sharpness - value / 100.0)
+        self.sharp_img = self.sharpen_image(self.image, temp)
+        self.image = self.sharp_img
         self.load_image()               #not using load image for the aspect ratio
-        image = self.sharp_img
+        # image = self.sharp_img
 
-        # Check if the image is 2D or 3D
-        if image is not None:
-            if len(image.shape) == 3:
-                height, width, channels = image.shape
-            elif len(image.shape) == 2:
-                height, width = image.shape
-                channels = 1
-            else:
-                raise ValueError("Unsupported image format")
+        # # Check if the image is 2D or 3D
+        # if image is not None:
+        #     if len(image.shape) == 3:
+        #         height, width, channels = image.shape
+        #     elif len(image.shape) == 2:
+        #         height, width = image.shape
+        #         channels = 1
+        #     else:
+        #         raise ValueError("Unsupported image format")
 
-            if channels == 3:
-                # Convert BGR to RGB git
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                bytes_per_line = 3 * width
-                qimage_format = QImage.Format_RGB888
-            elif channels == 2:
-                # For Grayscale with Alpha channel (though rare, you can handle it if needed)
-                bytes_per_line = 2 * width
-                qimage_format = QImage.Format_Grayscale8
-            elif channels == 1:
-                # For Grayscale image
-                bytes_per_line = width
-                qimage_format = QImage.Format_Grayscale8
-            else:
-                raise ValueError("Unsupported image format")
+        #     if channels == 3:
+        #         # Convert BGR to RGB git
+        #         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        #         bytes_per_line = 3 * width
+        #         qimage_format = QImage.Format_RGB888
+        #     elif channels == 2:
+        #         # For Grayscale with Alpha channel (though rare, you can handle it if needed)
+        #         bytes_per_line = 2 * width
+        #         qimage_format = QImage.Format_Grayscale8
+        #     elif channels == 1:
+        #         # For Grayscale image
+        #         bytes_per_line = width
+        #         qimage_format = QImage.Format_Grayscale8
+        #     else:
+        #         raise ValueError("Unsupported image format")
 
-            qimage = QImage(image.data, width, height,
-                            bytes_per_line, qimage_format)
-            pixmap = QPixmap.fromImage(qimage)
-            label_size = self.ui.show_image.size()
-            scaled_pixmap = pixmap.scaled(
-                label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            self.ui.show_image.setPixmap(scaled_pixmap)
-            self.ui.show_image.setAlignment(Qt.AlignCenter)
+        #     qimage = QImage(image.data, width, height,
+        #                     bytes_per_line, qimage_format)
+        #     pixmap = QPixmap.fromImage(qimage)
+        #     label_size = self.ui.show_image.size()
+        #     scaled_pixmap = pixmap.scaled(
+        #         label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        #     self.ui.show_image.setPixmap(scaled_pixmap)
+        #     self.ui.show_image.setAlignment(Qt.AlignCenter)
 
     def sharpen_image(self, image, sharpness):
         blurred = cv2.GaussianBlur(image, (0, 0), 3)

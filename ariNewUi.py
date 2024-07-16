@@ -26,9 +26,9 @@ class Ui_MainWindow(object):
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.layout = QtWidgets.QHBoxLayout(self.centralwidget)
-        self.pdf_btn = QtWidgets.QPushButton(self.centralwidget)
-        self.pdf_btn.setGeometry(QtCore.QRect(610, 20, 211, 31))
-        self.pdf_btn.setStyleSheet("QPushButton {\n"
+        self.export_btn = QtWidgets.QPushButton(self.centralwidget)
+        self.export_btn.setGeometry(QtCore.QRect(610, 20, 211, 31))
+        self.export_btn.setStyleSheet("QPushButton {\n"
                                    "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                    "        border-radius: 20px; \n"
                                    "    color: white; /* Text color */\n"
@@ -54,12 +54,12 @@ class Ui_MainWindow(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/newPrefix/pdf.svg"),
                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.pdf_btn.setIcon(icon)
-        self.pdf_btn.setIconSize(QtCore.QSize(20, 20))
-        self.pdf_btn.setCheckable(True)
-        self.pdf_btn.setAutoExclusive(True)
-        self.pdf_btn.setFlat(False)
-        self.pdf_btn.setObjectName("pdf_btn")
+        self.export_btn.setIcon(icon)
+        self.export_btn.setIconSize(QtCore.QSize(20, 20))
+        self.export_btn.setCheckable(True)
+        self.export_btn.setAutoExclusive(True)
+        self.export_btn.setFlat(False)
+        self.export_btn.setObjectName("export_btn")
 
         self.show_page = QtWidgets.QLabel(self.centralwidget)
         # self.show_page.setGeometry(QtCore.QRect(700, 10, 231, 601))
@@ -121,40 +121,40 @@ class Ui_MainWindow(object):
         # self.pdf_btn.setFlat(False)
         # self.pdf_btn.setObjectName("pdf_btn")
         self.buttons_layout.addWidget(
-            self.pdf_btn, alignment=QtCore.Qt.AlignTop)
-        # self.camset_btn = QtWidgets.QPushButton(self.centralwidget)
-        # self.camset_btn.setGeometry(QtCore.QRect(710, 60, 101, 31))
-        # self.camset_btn.setStyleSheet("QPushButton {\n"
-        #                             "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
-        #                             "        border-radius: 20px; \n"
-        #                             "    color: white; /* Text color */\n"
-        #                             "    font-weight: bold;\n"
-        #                             "border:none; /* Border color */\n"
-        #                             "    padding: 10px 10px; /* Adjust padding as needed */\n"
-        #                             "    margin:0px; /* Margin to create distance between buttons */\n"
-        #                             "}\n"
-        #                             " QPushButton {\n"
-        #                             "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-        #                             "    color: white; /* Text color */\n"
-        #                             "    font-weight: bold;\n"
-        #                             "\n"
-        #                             "    padding: 10px 20px;\n"
-        #                             "        /*height:50px;*/\n"
-        #                             "margin: 0px;\n"
-        #                             "        \n"
-        #                             "        /* border-bottom: 1px solid #b0b0b0; */\n"
-        #                             "    }\n"
-        #                             " QPushButton:hover {\n"
-        #                             "        background-color:#073c6d\n"
-        #                             "    }")
-        # icon1 = QtGui.QIcon()
-        # icon1.addPixmap(QtGui.QPixmap(":/newPrefix/pdf.svg"),
-        #                 QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        # self.camset_btn.setIcon(icon1)
-        # self.camset_btn.setIconSize(QtCore.QSize(20, 20))
-        # self.camset_btn.setObjectName("jpeg_btn")
-        # self.buttons_layout.addWidget(
-        #     self.camset_btn, alignment=QtCore.Qt.AlignTop)
+            self.export_btn, alignment=QtCore.Qt.AlignTop)
+        self.ocr_btn = QtWidgets.QPushButton(self.centralwidget)
+        self.ocr_btn.setGeometry(QtCore.QRect(710, 60, 101, 31))
+        self.ocr_btn.setStyleSheet("QPushButton {\n"
+                                    "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+                                    "        border-radius: 20px; \n"
+                                    "    color: white; /* Text color */\n"
+                                    "    font-weight: bold;\n"
+                                    "border:none; /* Border color */\n"
+                                    "    padding: 10px 10px; /* Adjust padding as needed */\n"
+                                    "    margin:0px; /* Margin to create distance between buttons */\n"
+                                    "}\n"
+                                    " QPushButton {\n"
+                                    "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                                    "    color: white; /* Text color */\n"
+                                    "    font-weight: bold;\n"
+                                    "\n"
+                                    "    padding: 10px 20px;\n"
+                                    "        /*height:50px;*/\n"
+                                    "margin: 0px;\n"
+                                    "        \n"
+                                    "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                                    "    }\n"
+                                    " QPushButton:hover {\n"
+                                    "        background-color:#073c6d\n"
+                                    "    }")
+        icon1 = QtGui.QIcon()
+        icon1.addPixmap(QtGui.QPixmap(":/newPrefix/pdf.svg"),
+                        QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.ocr_btn.setIcon(icon1)
+        self.ocr_btn.setIconSize(QtCore.QSize(20, 20))
+        self.ocr_btn.setObjectName("jpeg_btn")
+        self.buttons_layout.addWidget(
+            self.ocr_btn, alignment=QtCore.Qt.AlignTop)
         self.edit_btn = QtWidgets.QPushButton(self.centralwidget)
         self.edit_btn.setGeometry(QtCore.QRect(710, 60, 101, 31))
         self.edit_btn.setStyleSheet("QPushButton {\n"
@@ -279,7 +279,7 @@ class Ui_MainWindow(object):
                                             "border: 2px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);"
                                             "border-radius: 10px;"   # Adjust the value for desired curve
                                             "}")
-        self.additional_label.setFixedSize(210, 720)  # 680
+        self.additional_label.setFixedSize(210, 675)  # 680
         self.buttons_layout.addWidget(
             self.additional_label, alignment=QtCore.Qt.AlignTop)
 
@@ -1088,9 +1088,9 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "DocScanner"))
-        self.pdf_btn.setText(_translate("MainWindow", " Export"))
+        self.export_btn.setText(_translate("MainWindow", " Export"))
         self.edit_btn.setText(_translate("MainWindow", "Edit"))
-        #  self.camset_btn.setText(_translate("MainWindow", "Camera Settings"))
+        self.ocr_btn.setText(_translate("MainWindow", "OCR"))
         self.delete_btn.setText(_translate("MainWindow", "Delete"))
         self.dash_label.setText(_translate("MainWindow", "Customize"))
         self.adjust_btn.setText(_translate("MainWindow", "Adjust"))

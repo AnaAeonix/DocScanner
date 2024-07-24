@@ -18,7 +18,7 @@ import tempfile
 from pyusbcameraindex import enumerate_usb_video_devices_windows
 from rembg import remove
 # from paddleocr import PaddleOCR
-# import easyocr 
+import easyocr 
 # Remove the duplicate import statement
 from ariNewUi import Ui_MainWindow
 from VideoStream import VideoStream
@@ -127,7 +127,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.ui.autoSave_btn.toggled.connect(self.on_autoSave_toggled)
         self.ui.feed_rotate_left.clicked.connect(self.leftOn)
         self.ui.feed_rotate_right.clicked.connect(self.rightOn)
-        # self.ui.ocr_btn.clicked.connect(self.ocr)
+        self.ui.ocr_btn.clicked.connect(self.ocr)
 
         self.ui.original_btn.clicked.connect(self.original)
         self.ui.gray_btn.clicked.connect(self.gray)
@@ -177,7 +177,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.setWindow.ui.exposure_slider.setValue(self.video_stream.exposure)
     def default(self):
         self.video_stream.brightness = 0
-        self.video_stream.contrast = 0
+        self.video_stream.contrast = 32
         self.video_stream.exposure = -5
         self.video_stream.update_display()
         self.setWindow.ui.contrast_slider.setValue(self.video_stream.contrast)
@@ -365,8 +365,37 @@ class MainWindow(QtWidgets.QMainWindow):
                     pdf_canvas.save()
             else:
                 # Inform the user if no images are selected
-                QMessageBox.information(
-                    None, "No Selection", "No image selected for making PDF.")
+                msg_box = QMessageBox()
+                msg_box.setIcon(QMessageBox.Information)
+                msg_box.setText("No images selected for deletion.")
+                msg_box.setWindowTitle("No Selection")
+
+                # Make the QMessageBox frameless
+                msg_box.setWindowFlags(msg_box.windowFlags() | Qt.FramelessWindowHint)
+
+                # Set the stylesheet for the QMessageBox
+                msg_box.setStyleSheet("""
+                    QMessageBox {
+                        background-color: #f0f0f0;
+                        font-size: 14px;
+                    }
+                    QMessageBox QLabel {
+                        color: #333333;
+                    }
+                    QMessageBox QPushButton {
+                        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                        color: white;
+                        border-radius: 5px;
+                        padding: 5px 10px;
+                    }
+                    QMessageBox QPushButton:hover {
+                        background-color: #073c6d;
+                    }
+                """)
+
+                # Show the QMessageBox
+                msg_box.exec_()
+
         elif export_format == 1:
             # Export as JPEG
             if len(self.selected_images) == 1:
@@ -412,8 +441,37 @@ class MainWindow(QtWidgets.QMainWindow):
                 else:
                     print("Save operation cancelled by the user.")
             else:
-                QMessageBox.information(
-                    self, "No Selection", "No images selected for export.")
+                msg_box = QMessageBox()
+                msg_box.setIcon(QMessageBox.Information)
+                msg_box.setText("No images selected for deletion.")
+                msg_box.setWindowTitle("No Selection")
+
+                # Make the QMessageBox frameless
+                msg_box.setWindowFlags(msg_box.windowFlags() | Qt.FramelessWindowHint)
+
+                # Set the stylesheet for the QMessageBox
+                msg_box.setStyleSheet("""
+                    QMessageBox {
+                        background-color: #f0f0f0;
+                        font-size: 14px;
+                    }
+                    QMessageBox QLabel {
+                        color: #333333;
+                    }
+                    QMessageBox QPushButton {
+                        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                        color: white;
+                        border-radius: 5px;
+                        padding: 5px 10px;
+                    }
+                    QMessageBox QPushButton:hover {
+                        background-color: #073c6d;
+                    }
+                """)
+
+                # Show the QMessageBox
+                msg_box.exec_()
+
         elif export_format == 2:
             # Export as TIFF
             # save_path, _ = QFileDialog.getSaveFileName(
@@ -465,8 +523,37 @@ class MainWindow(QtWidgets.QMainWindow):
                 else:
                     print("Save operation cancelled by the user.")
             else:
-                QMessageBox.information(
-                    self, "No Selection", "No images selected for export.")
+                msg_box = QMessageBox()
+                msg_box.setIcon(QMessageBox.Information)
+                msg_box.setText("No images selected for deletion.")
+                msg_box.setWindowTitle("No Selection")
+
+                # Make the QMessageBox frameless
+                msg_box.setWindowFlags(msg_box.windowFlags() | Qt.FramelessWindowHint)
+
+                # Set the stylesheet for the QMessageBox
+                msg_box.setStyleSheet("""
+                    QMessageBox {
+                        background-color: #f0f0f0;
+                        font-size: 14px;
+                    }
+                    QMessageBox QLabel {
+                        color: #333333;
+                    }
+                    QMessageBox QPushButton {
+                        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                        color: white;
+                        border-radius: 5px;
+                        padding: 5px 10px;
+                    }
+                    QMessageBox QPushButton:hover {
+                        background-color: #073c6d;
+                    }
+                """)
+
+                # Show the QMessageBox
+                msg_box.exec_()
+
         else:
             QMessageBox.information(None, "Invalid Format",
                                     "The specified format is not supported.")
@@ -533,65 +620,65 @@ class MainWindow(QtWidgets.QMainWindow):
     #     update_progress(100)
     #     self.show_alert("OCR process completed.")
         
-    # def ocr(self):
-    #     if len(self.selected_images) != 1:
-    #         self.show_alert("Please select exactly one image.")
-    #         return
+    def ocr(self):
+        if len(self.selected_images) != 1:
+            self.show_alert("Please select exactly one image.")
+            return
 
-    #     image_path = self.selected_images[0][1]
+        image_path = self.selected_images[0][1]
 
-    #     # Initialize and configure the progress dialog
-    #     self.progress_dialog = QProgressDialog(
-    #         "Processing image...", "Cancel", 0, 100, self)
-    #     self.progress_dialog.setWindowTitle("OCR Progress")
-    #     self.progress_dialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
-    #     self.progress_dialog.setValue(0)
-    #     self.progress_dialog.show()
+        # Initialize and configure the progress dialog
+        self.progress_dialog = QProgressDialog(
+            "Processing image...", "Cancel", 0, 100, self)
+        self.progress_dialog.setWindowTitle("OCR Progress")
+        self.progress_dialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
+        self.progress_dialog.setValue(0)
+        self.progress_dialog.show()
 
-    #     # Function to update the progress dialog
-    #     def update_progress(value):
-    #         self.progress_dialog.setValue(value)
-    #         QApplication.processEvents()  # Process pending events
-    #         if value >= 100:
-    #             self.progress_dialog.hide()
+        # Function to update the progress dialog
+        def update_progress(value):
+            self.progress_dialog.setValue(value)
+            QApplication.processEvents()  # Process pending events
+            if value >= 100:
+                self.progress_dialog.hide()
 
-    #     # Update progress to 10%
-    #     update_progress(10)
+        # Update progress to 10%
+        update_progress(10)
 
-    #     # Initialize EasyOCR reader
-    #     reader = easyocr.Reader(['en'])  # Add other languages if needed
-    #     update_progress(30)
+        # Initialize EasyOCR reader
+        reader = easyocr.Reader(['en'])  # Add other languages if needed
+        update_progress(30)
 
-    #     def preprocess_image(image_path):
-    #         image = cv2.imread(image_path)
-    #         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    #         gray = cv2.threshold(
-    #             gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-    #         gray = cv2.medianBlur(gray, 3)
-    #         return gray
+        def preprocess_image(image_path):
+            image = cv2.imread(image_path)
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            gray = cv2.threshold(
+                gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+            gray = cv2.medianBlur(gray, 3)
+            return gray
 
-    #     # Read the image
-    #     image = preprocess_image(image_path)
-    #     update_progress(50)
+        # Read the image
+        image = preprocess_image(image_path)
+        update_progress(50)
 
-    #     # Perform OCR on the image with EasyOCR
-    #     result = reader.readtext(image, detail=0)
-    #     update_progress(70)
+        # Perform OCR on the image with EasyOCR
+        result = reader.readtext(image, detail=0)
+        update_progress(70)
 
-    #     # Extract text from the OCR result
-    #     extracted_text = '\n'.join(result)
-    #     update_progress(90)
+        # Extract text from the OCR result
+        extracted_text = '\n'.join(result)
+        update_progress(90)
 
-    #     # Ask the user where to save the extracted text
-    #     output_txt_path, _ = QFileDialog.getSaveFileName(
-    #         None, "Save Text File", "", "Text Files (*.txt)")
-    #     if output_txt_path:
-    #         with open(output_txt_path, 'w', encoding='utf-8') as f:
-    #             f.write(extracted_text)
-    #         print(f"Text extracted and saved to {output_txt_path}")
+        # Ask the user where to save the extracted text
+        output_txt_path, _ = QFileDialog.getSaveFileName(
+            None, "Save Text File", "", "Text Files (*.txt)")
+        if output_txt_path:
+            with open(output_txt_path, 'w', encoding='utf-8') as f:
+                f.write(extracted_text)
+            print(f"Text extracted and saved to {output_txt_path}")
 
-    #     update_progress(100)
-    #     self.show_alert("OCR process completed.")
+        update_progress(100)
+        self.show_alert("OCR process completed.")
 
 
     def exportToAutoSaveFolder(self, image_path):
@@ -660,15 +747,74 @@ class MainWindow(QtWidgets.QMainWindow):
             self.ui.stackedWidget.setCurrentIndex(1)
             self.load_image()
         elif len(self.selected_images) > 1:
-            # Inform the user if no images are selected
-            QMessageBox.information(self, " Selection",
-                                    "More than one image is selected")
+            # # Inform the user if no images are selected
+            # QMessageBox.information(self, " Selection",
+            #                         "More than one image is selected")
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setText("More than one image is selected")
+            msg_box.setWindowTitle("No Selection")
+
+            # Make the QMessageBox frameless
+            msg_box.setWindowFlags(msg_box.windowFlags() | Qt.FramelessWindowHint)
+
+            # Set the stylesheet for the QMessageBox
+            msg_box.setStyleSheet("""
+                QMessageBox {
+                    background-color: #f0f0f0;
+                    font-size: 14px;
+                }
+                QMessageBox QLabel {
+                    color: #333333;
+                }
+                QMessageBox QPushButton {
+                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                    color: white;
+                    border-radius: 5px;
+                    padding: 5px 10px;
+                }
+                QMessageBox QPushButton:hover {
+                    background-color: #073c6d;
+                }
+            """)
+
+            # Show the QMessageBox
+            msg_box.exec_()
+
         else:
 
             # Inform the user if no images are selected
-            QMessageBox.information(self, "No Selection",
-                                    "No image selected for editing.")
-            
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setText("More than one image is selected")
+            msg_box.setWindowTitle("No Selection")
+
+            # Make the QMessageBox frameless
+            msg_box.setWindowFlags(msg_box.windowFlags() | Qt.FramelessWindowHint)
+
+            # Set the stylesheet for the QMessageBox
+            msg_box.setStyleSheet("""
+                QMessageBox {
+                    background-color: #f0f0f0;
+                    font-size: 14px;
+                }
+                QMessageBox QLabel {
+                    color: #333333;
+                }
+                QMessageBox QPushButton {
+                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                    color: white;
+                    border-radius: 5px;
+                    padding: 5px 10px;
+                }
+                QMessageBox QPushButton:hover {
+                    background-color: #073c6d;
+                }
+            """)
+
+            # Show the QMessageBox
+            msg_box.exec_()
+
     def settings_page(self):
         self.setWindow.show()
         self.setWindow.ui.autoSave_btn.toggled.connect(self.on_autoSave_toggled)   
@@ -957,7 +1103,7 @@ class MainWindow(QtWidgets.QMainWindow):
             confirm_dialog.setWindowFlags(Qt.FramelessWindowHint)
                 
             confirm_dialog.setStyleSheet("""
-                MessageBox {
+                QMessageBox {
                     background-color: #f0f0f0;
                     font-size: 14px;
                 }
@@ -994,8 +1140,38 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.display_captured_images_main()
         else:
             # Inform the user if no images are selected
-            QMessageBox.information(self, "No Selection",
-                                    "No images selected for deletion.")
+            # QMessageBox.information(self, "No Selection",
+            #                         "No images selected for deletion.")
+            msg_box = QMessageBox()
+            msg_box.setIcon(QMessageBox.Information)
+            msg_box.setText("No images selected for deletion.")
+            msg_box.setWindowTitle("No Selection")
+
+            # Make the QMessageBox frameless
+            msg_box.setWindowFlags(msg_box.windowFlags() | Qt.FramelessWindowHint)
+
+            # Set the stylesheet for the QMessageBox
+            msg_box.setStyleSheet("""
+                QMessageBox {
+                    background-color: #f0f0f0;
+                    font-size: 14px;
+                }
+                QMessageBox QLabel {
+                    color: #333333;
+                }
+                QMessageBox QPushButton {
+                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                    color: white;
+                    border-radius: 5px;
+                    padding: 5px 10px;
+                }
+                QMessageBox QPushButton:hover {
+                    background-color: #073c6d;
+                }
+            """)
+
+            # Show the QMessageBox
+            msg_box.exec_()
 
     def crop_settings(self):
         ret, frame = self.video_stream.video.read()

@@ -124,7 +124,7 @@ class Ui_MainWindow1(object):
         self.contrast_slider.setOrientation(1)  # Horizontal
         self.contrast_slider.setMinimum(0)
         self.contrast_slider.setMaximum(60)
-        self.contrast_slider.setValue(0)
+        self.contrast_slider.setValue(32)
         self.contrast_slider.setGeometry(20, 195, 360, 22)
         self.contrast_slider.setOrientation(Qt.Horizontal)
 

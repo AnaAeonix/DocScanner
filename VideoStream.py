@@ -21,7 +21,7 @@ class VideoStream:
         self.ai_crop = None
         self.current_focus = 0
         self.brightness = 0
-        self.contrast = 0
+        self.contrast = 32
         self.exposure = -5
         self.left = False
         self.right = False
@@ -40,6 +40,7 @@ class VideoStream:
         self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 2160)
         width = int(self.video.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(self.video.get(cv2.CAP_PROP_FRAME_HEIGHT))
+        print("CAP_PROP_CONTRAST : '{}'".format(self.video.get(cv2.CAP_PROP_CONTRAST))) 
 
         print(width)
         print(height)

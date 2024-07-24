@@ -18,7 +18,7 @@ import tempfile
 from pyusbcameraindex import enumerate_usb_video_devices_windows
 from rembg import remove
 # from paddleocr import PaddleOCR
-import easyocr 
+# import easyocr 
 # Remove the duplicate import statement
 from ariNewUi import Ui_MainWindow
 from VideoStream import VideoStream
@@ -127,7 +127,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # self.ui.autoSave_btn.toggled.connect(self.on_autoSave_toggled)
         self.ui.feed_rotate_left.clicked.connect(self.leftOn)
         self.ui.feed_rotate_right.clicked.connect(self.rightOn)
-        self.ui.ocr_btn.clicked.connect(self.ocr)
+        # self.ui.ocr_btn.clicked.connect(self.ocr)
 
         self.ui.original_btn.clicked.connect(self.original)
         self.ui.gray_btn.clicked.connect(self.gray)
@@ -207,6 +207,26 @@ class MainWindow(QtWidgets.QMainWindow):
             msg.setIcon(QMessageBox.Information)
             msg.setText("AI mode is on")
             msg.setWindowTitle("Alert")
+            msg.setWindowFlags(Qt.FramelessWindowHint)
+                
+            msg.setStyleSheet("""
+                QMessageBox {
+                    background-color: #f0f0f0;
+                    font-size: 14px;
+                }
+                QMessageBox QLabel {
+                    color: #333333;
+                }
+                QMessageBox QPushButton {
+                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                    color: white;
+                    border-radius: 5px;
+                    padding: 5px 10px;
+                }
+                QMessageBox QPushButton:hover {
+                    background-color: #073c6d;
+                }
+            """)
             msg.exec_()
 
     def getDpi(self, index):
@@ -277,7 +297,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 confirm_dialog.setWindowTitle("Confirmation")
                 confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
 
-                # Making the dialog frameless
                 confirm_dialog.setWindowFlags(Qt.FramelessWindowHint)
                 
                 confirm_dialog.setStyleSheet("""
@@ -289,13 +308,13 @@ class MainWindow(QtWidgets.QMainWindow):
                     color: #333333;
                 }
                 QMessageBox QPushButton {
-                    background-color: #4CAF50;
+                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
                     color: white;
                     border-radius: 5px;
                     padding: 5px 10px;
                 }
                 QMessageBox QPushButton:hover {
-                    background-color: #45a049;
+                    background-color: #073c6d;
                 }
             """)
 
@@ -514,65 +533,65 @@ class MainWindow(QtWidgets.QMainWindow):
     #     update_progress(100)
     #     self.show_alert("OCR process completed.")
         
-    def ocr(self):
-        if len(self.selected_images) != 1:
-            self.show_alert("Please select exactly one image.")
-            return
+    # def ocr(self):
+    #     if len(self.selected_images) != 1:
+    #         self.show_alert("Please select exactly one image.")
+    #         return
 
-        image_path = self.selected_images[0][1]
+    #     image_path = self.selected_images[0][1]
 
-        # Initialize and configure the progress dialog
-        self.progress_dialog = QProgressDialog(
-            "Processing image...", "Cancel", 0, 100, self)
-        self.progress_dialog.setWindowTitle("OCR Progress")
-        self.progress_dialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
-        self.progress_dialog.setValue(0)
-        self.progress_dialog.show()
+    #     # Initialize and configure the progress dialog
+    #     self.progress_dialog = QProgressDialog(
+    #         "Processing image...", "Cancel", 0, 100, self)
+    #     self.progress_dialog.setWindowTitle("OCR Progress")
+    #     self.progress_dialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
+    #     self.progress_dialog.setValue(0)
+    #     self.progress_dialog.show()
 
-        # Function to update the progress dialog
-        def update_progress(value):
-            self.progress_dialog.setValue(value)
-            QApplication.processEvents()  # Process pending events
-            if value >= 100:
-                self.progress_dialog.hide()
+    #     # Function to update the progress dialog
+    #     def update_progress(value):
+    #         self.progress_dialog.setValue(value)
+    #         QApplication.processEvents()  # Process pending events
+    #         if value >= 100:
+    #             self.progress_dialog.hide()
 
-        # Update progress to 10%
-        update_progress(10)
+    #     # Update progress to 10%
+    #     update_progress(10)
 
-        # Initialize EasyOCR reader
-        reader = easyocr.Reader(['en'])  # Add other languages if needed
-        update_progress(30)
+    #     # Initialize EasyOCR reader
+    #     reader = easyocr.Reader(['en'])  # Add other languages if needed
+    #     update_progress(30)
 
-        def preprocess_image(image_path):
-            image = cv2.imread(image_path)
-            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-            gray = cv2.threshold(
-                gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
-            gray = cv2.medianBlur(gray, 3)
-            return gray
+    #     def preprocess_image(image_path):
+    #         image = cv2.imread(image_path)
+    #         gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    #         gray = cv2.threshold(
+    #             gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+    #         gray = cv2.medianBlur(gray, 3)
+    #         return gray
 
-        # Read the image
-        image = preprocess_image(image_path)
-        update_progress(50)
+    #     # Read the image
+    #     image = preprocess_image(image_path)
+    #     update_progress(50)
 
-        # Perform OCR on the image with EasyOCR
-        result = reader.readtext(image, detail=0)
-        update_progress(70)
+    #     # Perform OCR on the image with EasyOCR
+    #     result = reader.readtext(image, detail=0)
+    #     update_progress(70)
 
-        # Extract text from the OCR result
-        extracted_text = '\n'.join(result)
-        update_progress(90)
+    #     # Extract text from the OCR result
+    #     extracted_text = '\n'.join(result)
+    #     update_progress(90)
 
-        # Ask the user where to save the extracted text
-        output_txt_path, _ = QFileDialog.getSaveFileName(
-            None, "Save Text File", "", "Text Files (*.txt)")
-        if output_txt_path:
-            with open(output_txt_path, 'w', encoding='utf-8') as f:
-                f.write(extracted_text)
-            print(f"Text extracted and saved to {output_txt_path}")
+    #     # Ask the user where to save the extracted text
+    #     output_txt_path, _ = QFileDialog.getSaveFileName(
+    #         None, "Save Text File", "", "Text Files (*.txt)")
+    #     if output_txt_path:
+    #         with open(output_txt_path, 'w', encoding='utf-8') as f:
+    #             f.write(extracted_text)
+    #         print(f"Text extracted and saved to {output_txt_path}")
 
-        update_progress(100)
-        self.show_alert("OCR process completed.")
+    #     update_progress(100)
+    #     self.show_alert("OCR process completed.")
 
 
     def exportToAutoSaveFolder(self, image_path):
@@ -934,6 +953,27 @@ class MainWindow(QtWidgets.QMainWindow):
                 "Are you sure you want to delete the selected image(s)?")
             confirm_dialog.setWindowTitle("Confirmation")
             confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            # Making the dialog frameless
+            confirm_dialog.setWindowFlags(Qt.FramelessWindowHint)
+                
+            confirm_dialog.setStyleSheet("""
+                MessageBox {
+                    background-color: #f0f0f0;
+                    font-size: 14px;
+                }
+                QMessageBox QLabel {
+                    color: #333333;
+                }
+                QMessageBox QPushButton {
+                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                    color: white;
+                    border-radius: 5px;
+                    padding: 5px 10px;
+                }
+                QMessageBox QPushButton:hover {
+                    background-color: #073c6d;
+                }
+            """)
 
             # Execute based on user's choice
             choice = confirm_dialog.exec_()
@@ -1489,16 +1529,59 @@ class MainWindow(QtWidgets.QMainWindow):
             msg.setIcon(QMessageBox.Information)
             msg.setText("Please select manual crop")
             msg.setWindowTitle("Alert")
-            msg.exec_()
+            # Set the window to be frameless
+            msg.setWindowFlags(msg.windowFlags() | Qt.FramelessWindowHint)
+             # Apply a stylesheet
+            msg.setStyleSheet("""
+                QMessageBox {
+                    background-color: #f0f0f0;
+                    font-size: 14px;
+                }
+                QMessageBox QLabel {
+                    color: #333333;
+                }
+                QMessageBox QPushButton {
+                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                    color: white;
+                    border-radius: 5px;
+                    padding: 5px 10px;
+                }
+                QMessageBox QPushButton:hover {
+                    background-color: #073c6d;
+                }
+            """)
+            msg.exec_()  
         if self.manual_crop == True:
             msgBox = QMessageBox()
+            msgBox.setIcon(QMessageBox.Question)
             msgBox.setWindowTitle("Crop Type")
             msgBox.setText("What type of crop do you want?")
             yes_button = msgBox.addButton(QMessageBox.Yes)
             yes_button.setText("Single Page Crop")
             yes_button1 = msgBox.addButton(QMessageBox.Yes)
             yes_button1.setText("Double Page Crop")
-            msgBox.addButton(QMessageBox.No)
+            no_button = msgBox.addButton(QMessageBox.No)
+            no_button.setText("Cancel")
+            msgBox.setWindowFlags(Qt.FramelessWindowHint)
+                
+            msgBox.setStyleSheet("""
+                QMessageBox {
+                    background-color: #f0f0f0;
+                    font-size: 14px;
+                }
+                QMessageBox QLabel {
+                    color: #333333;
+                }
+                QMessageBox QPushButton {
+                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                    color: white;
+                    border-radius: 5px;
+                    padding: 5px 10px;
+                }
+                QMessageBox QPushButton:hover {
+                    background-color: #073c6d;
+                }
+            """)
             msgBox.exec()
 
             if msgBox.clickedButton() == yes_button:
@@ -1510,11 +1593,35 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.captured_images_crop[self.imageIndex] == [0, 0]:
             msgBox = QMessageBox()
             msgBox.setWindowTitle("Crop Type")
+            msgBox.setIcon(QMessageBox.Question)
             msgBox.setText("What type of crop do you want?")
             yes_button = msgBox.addButton(QMessageBox.Yes)
             yes_button.setText("Single Page Crop")
+            yes_button1 = msgBox.addButton(QMessageBox.No)
+            yes_button1.setText("Double Page Crop")
             no_button = msgBox.addButton(QMessageBox.No)
-            no_button.setText("Double Page Crop")
+            no_button.setText("Cancel")
+            # Making the dialog frameless
+            msgBox.setWindowFlags(Qt.FramelessWindowHint)
+                
+            msgBox.setStyleSheet("""
+                QMessageBox {
+                    background-color: #f0f0f0;
+                    font-size: 14px;
+                }
+                QMessageBox QLabel {
+                    color: #333333;
+                }
+                QMessageBox QPushButton {
+                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                    color: white;
+                    border-radius: 5px;
+                    padding: 5px 10px;
+                }
+                QMessageBox QPushButton:hover {
+                    background-color: #073c6d;
+                }
+            """)
 
             msgBox.exec()
 
@@ -1522,7 +1629,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
             if msgBox.clickedButton() == yes_button:
                 self.crop_image_4()
-            elif msgBox.clickedButton() == no_button:
+            elif msgBox.clickedButton() == yes_button1:
                  self.crop_image_6()
         elif len(self.captured_images_crop[self.imageIndex]) == 6:
             self.crop_image_6()

@@ -36,7 +36,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.image_click_counter = {}
         self.crop_size = []
-        self.latestIlmage = []
+        self.latestImage = []
         self.devices = []
         self.sharpness = None
         self.contrast= None

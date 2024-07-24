@@ -208,6 +208,7 @@ class VideoStream:
 
     def detect_document(self,frame):
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        # _, gray = cv2.threshold(gray, 170, 255, cv2.THRESH_BINARY)
         gray = cv2.GaussianBlur(gray, (1, 1), 0)
         edged = cv2.Canny(gray, 75, 200)
         # Apply morphological operations

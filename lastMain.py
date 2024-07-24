@@ -17,7 +17,8 @@ from datetime import datetime
 import tempfile
 from pyusbcameraindex import enumerate_usb_video_devices_windows
 from rembg import remove
-from paddleocr import PaddleOCR
+# from paddleocr import PaddleOCR
+import easyocr 
 # Remove the duplicate import statement
 from ariNewUi import Ui_MainWindow
 from VideoStream import VideoStream
@@ -35,9 +36,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.setupUi(self)
         self.image_click_counter = {}
         self.crop_size = []
-        self.latestImage = []
+        self.latestIlmage = []
         self.devices = []
-        self.sharpness = 0
+        self.sharpness = None
+        self.contrast= None
         now = datetime.now()
         timestamp = now.strftime("%Y%m%d_%H%M%S")  # Format timestamp
         filename = f"captured_image_{timestamp}.jpg"
@@ -57,7 +59,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.selected_images = []  # Store selected images
         self.all_checkboxes = []   # Store references to all checkboxes
         self.current_camera_index = 0
-        self.captured_images = []
+        self.captured_images = [] #for the images which is now 
         self.captured_images_crop = []
         self.captured_images_main = []
         self.export = 0
@@ -231,24 +233,14 @@ class MainWindow(QtWidgets.QMainWindow):
             self.effect = "Optimized Document"
             
     def original(self):
-        self.undo()
-    # def gray(self):
-    #     # self.effect = "Gray"
-    #     # self.image = self.get_effects(self.image)
-    #     self.image = cv2.cvtColor(
-    #         self.image, cv2.COLOR_BGR2GRAY)
-    #     self.load_image()
-    # def binarized(self):
-    #     _, self.image = cv2.threshold(cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY),
-    #                                        127, 255, cv2.THRESH_BINARY)
-    #     self.load_image()
-    # def optimized(self):
-    #     self.image = cv2.adaptiveThreshold(cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY),
-    #                                             255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 10)
-    #     self.image = cv2.bitwise_not(self.image)
-    #     self.load_image()
+        self.image = self.latestImage[-1]
+        self.load_image()
+        # if len(self.image.shape) == 3:  # Check if the image is not already in grayscale
+        #     self.image = cv2.cvtColor(self.image, cv2.GRAY2COLOR_BGR)
+        # self.load_image()
     
     def gray(self):
+        # self.gray = true
         if len(self.image.shape) == 3:  # Check if the image is not already in grayscale
             self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
         self.load_image()
@@ -260,7 +252,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.load_image()
 
     def optimized(self):
-        if len(self.image.shape) == 3:  # Check if the image is not already in grayscale
+        if len(self.image.shape) == 3:  # Check if the image is not already in grayscale 
             self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
         self.image = cv2.adaptiveThreshold(
             self.image, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY_INV, 11, 10)
@@ -284,6 +276,28 @@ class MainWindow(QtWidgets.QMainWindow):
                     "Are you sure you want to reset the selected area?")
                 confirm_dialog.setWindowTitle("Confirmation")
                 confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+
+                # Making the dialog frameless
+                confirm_dialog.setWindowFlags(Qt.FramelessWindowHint)
+                
+                confirm_dialog.setStyleSheet("""
+                QMessageBox {
+                    background-color: #f0f0f0;
+                    font-size: 14px;
+                }
+                QMessageBox QLabel {
+                    color: #333333;
+                }
+                QMessageBox QPushButton {
+                    background-color: #4CAF50;
+                    color: white;
+                    border-radius: 5px;
+                    padding: 5px 10px;
+                }
+                QMessageBox QPushButton:hover {
+                    background-color: #45a049;
+                }
+            """)
 
                 # Execute based on user's choice
                 choice = confirm_dialog.exec_()
@@ -442,6 +456,64 @@ class MainWindow(QtWidgets.QMainWindow):
         alert = QLabel(message, self)
         # self.layout.addWidget(alert)
 
+    # def ocr(self):
+    #     if len(self.selected_images) != 1:
+    #         self.show_alert("Please select exactly one image.")
+    #         return
+
+    #     image_path = self.selected_images[0][1]
+
+    #     # Initialize and configure the progress dialog
+    #     self.progress_dialog = QProgressDialog(
+    #         "Processing image...", "Cancel", 0, 100, self)
+    #     self.progress_dialog.setWindowTitle("OCR Progress")
+    #     self.progress_dialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
+    #     # self.progress_dialog.setWindowModality(Qt.WindowModal)
+    #     self.progress_dialog.setValue(0)
+    #     self.progress_dialog.show()
+
+    #     # Function to update the progress dialog
+    #     def update_progress(value):
+    #         self.progress_dialog.setValue(value)
+    #         QApplication.processEvents()  # Process pending events
+    #         if value >= 100:
+    #             self.progress_dialog.hide()
+
+    #     # Update progress to 10%
+    #     update_progress(10)
+
+    #     # Initialize PaddleOCR
+    #     ocr = PaddleOCR(use_angle_cls=True, lang='en')
+    #     update_progress(30)
+
+    #     # Read the image
+    #     image = cv2.imread(image_path)
+    #     update_progress(50)
+
+    #     # Perform OCR on the image
+    #     result = ocr.ocr(image, cls=True)
+    #     update_progress(70)
+
+    #     # Extract text from the OCR result
+    #     extracted_text = ''
+    #     for line in result:
+    #         for element in line:
+    #             bbox, text = element[0], element[1][0]
+    #             extracted_text += f"{text}\n"
+
+    #     update_progress(90)
+
+    #     # Ask the user where to save the extracted text
+    #     output_txt_path, _ = QFileDialog.getSaveFileName(
+    #         None, "Save Text File", "", "Text Files (*.txt)")
+    #     if output_txt_path:
+    #         with open(output_txt_path, 'w') as f:
+    #             f.write(extracted_text)
+    #         print(f"Text extracted and saved to {output_txt_path}")
+
+    #     update_progress(100)
+    #     self.show_alert("OCR process completed.")
+        
     def ocr(self):
         if len(self.selected_images) != 1:
             self.show_alert("Please select exactly one image.")
@@ -454,7 +526,6 @@ class MainWindow(QtWidgets.QMainWindow):
             "Processing image...", "Cancel", 0, 100, self)
         self.progress_dialog.setWindowTitle("OCR Progress")
         self.progress_dialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
-        # self.progress_dialog.setWindowModality(Qt.WindowModal)
         self.progress_dialog.setValue(0)
         self.progress_dialog.show()
 
@@ -468,32 +539,35 @@ class MainWindow(QtWidgets.QMainWindow):
         # Update progress to 10%
         update_progress(10)
 
-        # Initialize PaddleOCR
-        ocr = PaddleOCR(use_angle_cls=True, lang='en')
+        # Initialize EasyOCR reader
+        reader = easyocr.Reader(['en'])  # Add other languages if needed
         update_progress(30)
 
+        def preprocess_image(image_path):
+            image = cv2.imread(image_path)
+            gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+            gray = cv2.threshold(
+                gray, 0, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)[1]
+            gray = cv2.medianBlur(gray, 3)
+            return gray
+
         # Read the image
-        image = cv2.imread(image_path)
+        image = preprocess_image(image_path)
         update_progress(50)
 
-        # Perform OCR on the image
-        result = ocr.ocr(image, cls=True)
+        # Perform OCR on the image with EasyOCR
+        result = reader.readtext(image, detail=0)
         update_progress(70)
 
         # Extract text from the OCR result
-        extracted_text = ''
-        for line in result:
-            for element in line:
-                bbox, text = element[0], element[1][0]
-                extracted_text += f"{text}\n"
-
+        extracted_text = '\n'.join(result)
         update_progress(90)
 
         # Ask the user where to save the extracted text
         output_txt_path, _ = QFileDialog.getSaveFileName(
             None, "Save Text File", "", "Text Files (*.txt)")
         if output_txt_path:
-            with open(output_txt_path, 'w') as f:
+            with open(output_txt_path, 'w', encoding='utf-8') as f:
                 f.write(extracted_text)
             print(f"Text extracted and saved to {output_txt_path}")
 
@@ -559,6 +633,10 @@ class MainWindow(QtWidgets.QMainWindow):
             self.write(self.selected_images[0][1])
             self.latestImage.clear()
             self.latestImage.append(self.image)
+            self.sharpness=None
+            self.contrast = None
+            self.ui.horizontalSlider.setValue(0)
+            self.ui.horizontalSlider_2.setValue(0)
             self.imageIndex = self.selected_images[0][0]
             self.ui.stackedWidget.setCurrentIndex(1)
             self.load_image()
@@ -599,6 +677,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.latestImage.append(self.image)
             self.ui.stackedWidget.setCurrentIndex(1)
             self.load_image()
+            self.sharpness=None
+            self.contrast = None
             self.ui.horizontalSlider.setValue(0)
             self.ui.horizontalSlider_2.setValue(0)
 
@@ -1151,7 +1231,14 @@ class MainWindow(QtWidgets.QMainWindow):
     #     self.ui.show_image.setAlignment(Qt.AlignCenter)
         
     def load_image(self):
-        image = self.image
+        image = np.copy(self.image)
+        # .copy()
+        if self.sharpness is not None:
+            image = self.sharpen_image(image, self.sharpness)
+            # self.sharpness = None
+        if self.contrast is not None:
+            image = self.adjust_contrast(image, self.contrast)
+            # self.contrast = None
 
         # Check if the image is 2D or 3D
         if image is not None:
@@ -1332,6 +1419,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def returntocamera(self):
         self.imageIndex = None
         self.image = None
+        self.sharpness=None
+        self.contrast = None
         self.ui.stackedWidget.setCurrentIndex(0)
         self.ui.horizontalSlider.setValue(0)
         self.ui.horizontalSlider_2.setValue(0)
@@ -1385,10 +1474,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.load_image()
 
     def discard(self):
+        self.sharpness=None
+        self.contrast = None
+        self.ui.horizontalSlider.setValue(0)
+        self.ui.horizontalSlider_2.setValue(0)
         self.image = self.latestImage[0]
         while len(self.latestImage) > 1:
             self.latestImage.pop()
-        self.load_image()
+        self.load_image()  
 
     def askQuestion_settings(self):
         if self.manual_crop == False:
@@ -1441,6 +1534,13 @@ class MainWindow(QtWidgets.QMainWindow):
         print("Message box closed without clicking any button")
 
     def crop_image_4(self):
+        image = np.copy(self.image)
+       # .copy()
+        if self.sharpness is not None:
+            image = self.sharpen_image(image, self.sharpness)
+            # self.sharpness = None
+        if self.contrast is not None:
+            image = self.adjust_contrast(image, self.contrast)
         root = tk.Tk()
         root.title("Crop")
         img_file_name = cv2.cvtColor(
@@ -1485,6 +1585,13 @@ class MainWindow(QtWidgets.QMainWindow):
             print(final)
 
     def crop_image_6(self):
+        image = np.copy(self.image)
+       # .copy()
+        if self.sharpness is not None:
+            image = self.sharpen_image(image, self.sharpness)
+            # self.sharpness = None
+        if self.contrast is not None:
+            image = self.adjust_contrast(image, self.contrast)
         image = Image.fromarray(cv2.cvtColor(
             self.captured_images_main[self.imageIndex], cv2.COLOR_BGR2RGB))
         root = tk.Tk()
@@ -1599,21 +1706,93 @@ class MainWindow(QtWidgets.QMainWindow):
         return np.concatenate((final1, final2), axis=1)
 
     def save(self):
-        self.latestImage.append(self.image)
+        image = np.copy(self.image)
+        # .copy()
+        if self.sharpness is not None:
+            image = self.sharpen_image(image, self.sharpness)
+            # self.sharpness = None
+        if self.contrast is not None:
+            image = self.adjust_contrast(image, self.contrast)
+            
+        self.latestImage.append(image)
+            
         if self.imageIndex is not None:
-            cv2.imwrite(self.captured_images[self.imageIndex], self.image)
+            cv2.imwrite(self.captured_images[self.imageIndex], image)
 
         self.selected_images.clear()
         self.display_captured_images_main()
         self.load_image()
 
     def update_sharpness(self, value):
-        # sharpness = value / 100.0
-        temp = abs(self.sharpness - value / 100.0)
-        self.sharp_img = self.sharpen_image(self.image, temp)
-        self.image = self.sharp_img
-        self.load_image()               #not using load image for the aspect ratio
-        # image = self.sharp_img
+        # if self.contrast is not None:
+        #     self.image = self.adjust_contrast(self.image, self.contrast)
+        #     self.contrast = None
+        if value != 0 and self.image is not None:
+            # self.sharpness = (value / 100.0) - self.sharpness
+            # self.sharpnessValue = self.sharpness
+            self.sharpness = value / 100.0
+            # image = self.sharpen_image(self.image, self.sharpness)
+            # self.image = self.sharp_img
+            self.load_image()               #not using load image for the aspect ratio
+            # image = self.image
+
+            # Check if the image is 2D or 3D
+            # if image is not None:
+            #     if len(image.shape) == 3:
+            #         height, width, channels = image.shape
+            #     elif len(image.shape) == 2:
+            #         height, width = image.shape
+            #         channels = 1
+            #     else:
+            #         raise ValueError("Unsupported image format")
+
+            #     if channels == 3:
+            #         # Convert BGR to RGB git
+            #         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+            #         bytes_per_line = 3 * width
+            #         qimage_format = QImage.Format_RGB888
+            #     elif channels == 2:
+            #         # For Grayscale with Alpha channel (though rare, you can handle it if needed)
+            #         bytes_per_line = 2 * width
+            #         qimage_format = QImage.Format_Grayscale8
+            #     elif channels == 1:
+            #         # For Grayscale image
+            #         bytes_per_line = width
+            #         qimage_format = QImage.Format_Grayscale8
+            #     else:
+            #         raise ValueError("Unsupported image format")
+
+            #     qimage = QImage(image.data, width, height,
+            #                     bytes_per_line, qimage_format)
+            #     pixmap = QPixmap.fromImage(qimage)
+            #     label_size = self.ui.show_image.size()
+            #     scaled_pixmap = pixmap.scaled(
+            #         label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+            #     self.ui.show_image.setPixmap(scaled_pixmap)
+            #     self.ui.show_image.setAlignment(Qt.AlignCenter)
+
+    def sharpen_image(self, image, sharpness):
+        blurred = cv2.GaussianBlur(image, (0, 0), 3)
+        sharpened = cv2.addWeighted(
+            image, 1.0 + sharpness, blurred, -sharpness, 0)
+        return sharpened 
+
+    def update_contrast(self, value):
+        # if self.sharpness is not None:
+        #     self.image = self.sharpen_image(self.image, self.sharpness)
+        #     self.sharpness = None
+        # if(value>self.contrast):
+        #     self.contrast = value - self.contrast
+        # else:
+        #     self.contrast = self.contrast - value
+        if self.image is not None: 
+            self.contrast = value
+            # self.contrastValue = self.contrast
+            # image = self.adjust_contrast(self.image, value)
+            # self.image = self.contrasted_image
+                    #not using load image for the aspect ratio
+            # image = self.image
+            self.load_image()
 
         # # Check if the image is 2D or 3D
         # if image is not None:
@@ -1650,55 +1829,13 @@ class MainWindow(QtWidgets.QMainWindow):
         #     self.ui.show_image.setPixmap(scaled_pixmap)
         #     self.ui.show_image.setAlignment(Qt.AlignCenter)
 
-    def sharpen_image(self, image, sharpness):
-        blurred = cv2.GaussianBlur(image, (0, 0), 3)
-        sharpened = cv2.addWeighted(
-            image, 1.0 + sharpness, blurred, -sharpness, 0)
-        return sharpened
-
-    def update_contrast(self, value):
-        contrast = value
-        self.contrasted_image = self.adjust_contrast(self.image, contrast)
-        # self.image = self.contrasted_image
-        self.load_image()             #not using load image for the aspect ratio
-        image = self.contrasted_image
-
-        # Check if the image is 2D or 3D
-        if image is not None:
-            if len(image.shape) == 3:
-                height, width, channels = image.shape
-            elif len(image.shape) == 2:
-                height, width = image.shape
-                channels = 1
-            else:
-                raise ValueError("Unsupported image format")
-
-            if channels == 3:
-                # Convert BGR to RGB git
-                image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-                bytes_per_line = 3 * width
-                qimage_format = QImage.Format_RGB888
-            elif channels == 2:
-                # For Grayscale with Alpha channel (though rare, you can handle it if needed)
-                bytes_per_line = 2 * width
-                qimage_format = QImage.Format_Grayscale8
-            elif channels == 1:
-                # For Grayscale image
-                bytes_per_line = width
-                qimage_format = QImage.Format_Grayscale8
-            else:
-                raise ValueError("Unsupported image format")
-
-            qimage = QImage(image.data, width, height,
-                            bytes_per_line, qimage_format)
-            pixmap = QPixmap.fromImage(qimage)
-            label_size = self.ui.show_image.size()
-            scaled_pixmap = pixmap.scaled(
-                label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            self.ui.show_image.setPixmap(scaled_pixmap)
-            self.ui.show_image.setAlignment(Qt.AlignCenter)
-
     def adjust_contrast(self, image, contrast):
+        # new_contrast = self.contrast + (contrast-self.contrast)
+        # if contrast<0 :
+        #     alpha = (100.0 - contrast)/100.0
+        # else:
+        #     new_contrast = self.contrast + (contrast-self.contrast)
+        #     alpha = (100.0 + new_contrast) / 100.0
         alpha = (100.0 + contrast) / 100.0
         adjusted = cv2.convertScaleAbs(image, alpha=alpha, beta=0)
         return adjusted

@@ -154,10 +154,6 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             super().keyPressEvent(event)
 
-    def delete(self):
-        print(self.captured_images_crop)
-        print(self.captured_images_main)
-        print(self.captured_images)
         
         
     def update_brightness_cam(self,brightness):
@@ -437,9 +433,11 @@ class MainWindow(QtWidgets.QMainWindow):
                             pil_image.save(save_path, dpi=(self.dpi, self.dpi))
 
                     except Exception as e:
-                        print(f"Error exporting images: {e}")
+                        # print(f"Error exporting images: {e}")
+                        pass
                 else:
-                    print("Save operation cancelled by the user.")
+                    # print("Save operation cancelled by the user.")
+                    pass
             else:
                 msg_box = QMessageBox()
                 msg_box.setIcon(QMessageBox.Information)
@@ -519,9 +517,11 @@ class MainWindow(QtWidgets.QMainWindow):
                                         dpi=(self.dpi, self.dpi))
 
                     except Exception as e:
-                        print(f"Error exporting images: {e}")
+                        # print(f"Error exporting images: {e}")
+                        pass
                 else:
-                    print("Save operation cancelled by the user.")
+                    # print("Save operation cancelled by the user.")
+                    pass
             else:
                 msg_box = QMessageBox()
                 msg_box.setIcon(QMessageBox.Information)
@@ -1130,7 +1130,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 # Clear the list of selected images
                 if any(index == self.imageIndex for index, _ in self.selected_images):
-                    print("ok")
+                    # print("ok")
                     self.ui.stackedWidget.setCurrentIndex(0)
                     self.imageIndex = None
                     self.image = None
@@ -1176,7 +1176,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def crop_settings(self):
         ret, frame = self.video_stream.video.read()
         show_window = True
-        print(tk.TkVersion)
+        # print(tk.TkVersion)
 
         if ret:
             self.video_stream.rotation_state =  0
@@ -1225,18 +1225,19 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.auto_crop = [A, B, C, D]
                     self.auto_crop = [(int(A[0]), int(A[1]))
                                       for A in self.auto_crop]
-                    print(self.auto_crop)
+                    # print(self.auto_crop)
                     self.video_stream.points = self.auto_crop
                     self.settings.setValue("points", self.video_stream.points)
-                    print(A)
-                    print(B)
-                    print(C)
-                    print(D)
+                    # print(A)
+                    # print(B)
+                    # print(C)
+                    # print(D)
                     root.destroy()
                 self.settings.setValue("autocrop", self.auto_crop)
                 
             except Exception as e:
-                print(f"Error saving image: {e}")
+                # print(f"Error saving image: {e}")
+                pass
 
     def crop_settings_6(self):
         ret, frame = self.video_stream.video.read()
@@ -1284,9 +1285,10 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.video_stream.points = corners
                     self.settings.setValue("points", self.video_stream.points)
                     self.settings.setValue("autocrop", self.video_stream.points)
-                    print(corners)
+                    # print(corners)
             except Exception as e:
-                print(f"Error saving image: {e}")
+                # print(f"Error saving image: {e}")
+                pass
 
 
 # camerafeed window
@@ -1298,11 +1300,14 @@ class MainWindow(QtWidgets.QMainWindow):
         while i > 0:
             cap = cv2.VideoCapture(index)
             c = cv2.VideoCapture
-            print(c)
+            # print(c)
+            c = cv2.VideoCapture
+            # print(c)
             if cap.read()[0]:
                 arr.append(index)
                 cap.release()
             index += 1
+            i -= 1  
             i -= 1  
         return arr
 
@@ -1565,8 +1570,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 # Append the filepath to the captured images list
                 if self.AutoSaveChecked:
                     self.AutoSaveFolder = self.setWindow.AutoSaveFolder
-                    print(self.AutoSaveFolder)
-                    print(filepath)
+                    # print(self.AutoSaveFolder)
+                    # print(filepath)
                     self.exportToAutoSaveFolder(filepath)
                 self.captured_images.insert(0, filepath)
                 self.selected_images.clear()
@@ -1574,7 +1579,8 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.display_captured_images_main()
 
             except Exception as e:
-                print(f"Error saving image: {e}")
+                # print(f"Error saving image: {e}")
+                pass
 
     def scale_crop_coordinates_6(self, crop, original_res, new_res):
         original_width, original_height = original_res
@@ -1814,7 +1820,8 @@ class MainWindow(QtWidgets.QMainWindow):
             
     def handle_msg_box_closed(self):
         # Implement this function to handle the case when the message box is closed without any button being clicked
-        print("Message box closed without clicking any button")
+        # print("Message box closed without clicking any button")
+        pass
 
     def crop_image_4(self):
         image = np.copy(self.image)
@@ -1846,18 +1853,18 @@ class MainWindow(QtWidgets.QMainWindow):
         # resize_button = tk.Button(root, text="Resize", command=resize_window)
         # resize_button.pack()
         root.mainloop()
-        print(App.crop_pressed)
+        # print(App.crop_pressed)
         if App.crop_pressed:
             A = np.asarray(App.NW.coords) * App.scale_factor
             B = np.asarray(App.NE.coords) * App.scale_factor
             C = np.asarray(App.SE.coords) * App.scale_factor
             D = np.asarray(App.SW.coords) * App.scale_factor
 
-            print(A)
-            print(B)
+            # print(A)
+            # print(B)
 
-            print(C)
-            print(D)
+            # print(C)
+            # print(D)
             coordinates = [A, B, C, D]
             final = self.crop_cutting(
                 self.captured_images_main[self.imageIndex], A, B, C, D)
@@ -1865,7 +1872,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.captured_images_crop[self.imageIndex] = coordinates
             self.image = final
             self.load_image()
-            print(final)
+            # print(final)
 
     def crop_image_6(self):
         image = np.copy(self.image)
@@ -1891,11 +1898,11 @@ class MainWindow(QtWidgets.QMainWindow):
             corners = obj.get_draggable_points()
 
             split1, split2, warpped_image = obj.get_warpped(corners)
-            print(corners)
+            # print(corners)
             self.captured_images_crop[self.imageIndex] = corners
             self.image = cv2.cvtColor(warpped_image, cv2.COLOR_RGB2BGR)
             self.load_image()
-            print(warpped_image)
+            # print(warpped_image)
 
     def crop_cutting(self, image_path, A, B, C, D):
         coordinates = [A, B, C, D]
@@ -2161,7 +2168,7 @@ class MainWindow(QtWidgets.QMainWindow):
             image = self.image
         # Check if the image was read successfully
         if image is None:
-            print("Error: Unable to read the image.")
+            # print("Error: Unable to read the image.")
             return None
 
         # Apply Gaussian blur to reduce noise
@@ -2197,9 +2204,11 @@ class MainWindow(QtWidgets.QMainWindow):
                 # Reload the image
                 self.load_image()
             else:
-                print("Error: Unable to load the image.")
+                # print("Error: Unable to load the image.")
+                pass
         except Exception as e:
-            print("Error:", e)
+            # print("Error:", e)
+            pass
 
     def closeEvent(self, event):
         if self.setWindow:

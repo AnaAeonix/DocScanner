@@ -41,6 +41,8 @@ class VideoStream:
         width = int(self.video.get(cv2.CAP_PROP_FRAME_WIDTH))
         height = int(self.video.get(cv2.CAP_PROP_FRAME_HEIGHT))
         print("CAP_PROP_CONTRAST : '{}'".format(self.video.get(cv2.CAP_PROP_CONTRAST))) 
+        print("CAP_PROP_CONTRAST : '{}'".format(
+            self.video.get(cv2.CAP_PROP_CONTRAST)))
 
         print(width)
         print(height)
@@ -56,6 +58,8 @@ class VideoStream:
         self.video.set(cv2.CAP_PROP_BRIGHTNESS, self.brightness)
         self.video.set(cv2.CAP_PROP_CONTRAST, self.contrast)
         self.video.set(cv2.CAP_PROP_EXPOSURE, float(self.exposure))
+        print("CAP_PROP_CONTRAST : '{}'".format(
+            self.video.get(cv2.CAP_PROP_CONTRAST)))
 
 
 

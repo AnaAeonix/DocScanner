@@ -119,6 +119,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.export_change)
         self.setFocusPolicy(Qt.StrongFocus)
         self.ui.save_btn.clicked.connect(self.save)
+        
         self.ui.undo_btn.clicked.connect(self.undo)
         self.ui.discard_btn.clicked.connect(self.discard)
         self.ui.camset_btn.clicked.connect(self.settings_page)
@@ -885,16 +886,21 @@ class MainWindow(QtWidgets.QMainWindow):
                 alpha = output_image.split()[3]  # Assuming RGBA mode
                 # Create a new image with a white background
                 output_with_white_bg = Image.new(
+                    
+                    
                     "RGB", output_image.size, (255, 255, 255))
                 # Paste the output image onto the white background using alpha as mask
                 output_with_white_bg.paste(output_image, (0, 0), mask=alpha)
+                # Remove black shadows by ensuring no leftover transparency
+                final_image = np.array(output_with_white_bg)
+                # Check for any black areas and set them to white
+                black_pixels = (final_image[:, :, 0] == 0) & (final_image[:, :, 1] == 0) & (final_image[:, :, 2] == 0)
+                final_image[black_pixels] = [255, 255, 255]
             else:
                 # If no transparency, paste directly
                 output_with_white_bg = output_image.copy()
-
-            # Convert the final image back to a NumPy array
-            final_image = np.array(output_with_white_bg)
-
+                final_image = np.array(output_with_white_bg)
+            print("image trimed")
             return final_image
     
     # def trim(self, img) :

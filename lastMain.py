@@ -6,6 +6,7 @@ from PIL import Image, ImageEnhance, ImageOps, ImageQt
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import threading
+import shutil
 import time
 import sys
 import os
@@ -26,7 +27,7 @@ from CropApp import CropApp
 from smartCrop import SmartCrop
 from SettingsMain import SetWindow
 from SettingsUi import Ui_MainWindow1
-
+#pyinstaller --noconsole --onefile  --collect-all scipy lastMain.py
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -183,7 +184,8 @@ class MainWindow(QtWidgets.QMainWindow):
         resolutions = {
             "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000": ["3264x2448", "4896x3672", "4656x3496", "4160x3120", "4000x3000", "4208x3120", "2592x1944", "2320x1744", "2304x1728"],
             "bc15": ["3264x2448", "2592x1944", "2560x1440", "1920x1080", "1280x720", "640x480"],
-            "bc07": ["3264x2448", "4896x3672", "4656x3496", "4160x3120", "4000x3000", "4208x3120", "2592x1944", "2320x1744", "2304x1728"]
+            "bc07": ["3264x2448", "4896x3672", "4656x3496", "4160x3120", "4000x3000", "4208x3120", "2592x1944", "2320x1744", "2304x1728"],
+            "bc01": ["4160x3120","4000x3000","3264x2448", "4896x3672", "4656x3496", "4160x3120", "4000x3000", "4208x3120", "2592x1944", "2320x1744", "2304x1728"]
         }
         res = ["1920x1080", "1280x720", "640x480"]
         res1 = resolutions.get(camera_id, [])
@@ -886,8 +888,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 alpha = output_image.split()[3]  # Assuming RGBA mode
                 # Create a new image with a white background
                 output_with_white_bg = Image.new(
-                    
-                    
                     "RGB", output_image.size, (255, 255, 255))
                 # Paste the output image onto the white background using alpha as mask
                 output_with_white_bg.paste(output_image, (0, 0), mask=alpha)
@@ -2229,9 +2229,25 @@ class MainWindow(QtWidgets.QMainWindow):
     def rightOn(self):
         self.video_stream.left = False
         self.video_stream.right = True
-        
+
+
+def copy_file_to_user_directory():
+    # Define the source and destination paths
+    # Assuming the file is in the current working directory
+    source_file = os.path.join(os.getcwd(), 'u2net.onnx')
+    destination_dir = os.path.join(os.path.expanduser('~'), '.u2net')
+    destination_file = os.path.join(destination_dir, 'u2net.onnx')
+
+    # Create the destination directory if it does not exist
+    os.makedirs(destination_dir, exist_ok=True)
+
+    # Copy the file
+    shutil.copyfile(source_file, destination_file)
+    print(f"File copied to {destination_file}")
+
 
 if __name__ == "__main__":
+    copy_file_to_user_directory()
     app = QApplication(sys.argv)
     # Predefined GIF path
     # Replace with your actual GIF file path
@@ -2251,6 +2267,7 @@ if __name__ == "__main__":
 
     splash_movie.start()
     splash.show()
+    
     window = MainWindow()
     def finish_splash():
         splash.close()

@@ -46,13 +46,6 @@ class VideoStream:
 
         print(width)
         print(height)
-        # if width == 3840 and height == 2160:
-        #     print("Using 4K resolution")
-        # else:
-        #     self.video.set(cv2.CAP_PROP_FRAME_WIDTH, 1920)
-        #     self.video.set(cv2.CAP_PROP_FRAME_HEIGHT, 1080)
-        #     print("Using 1080p resolution")
-        # ... (rest of your set_resolution logic)
         
     def update_display(self):
         self.video.set(cv2.CAP_PROP_BRIGHTNESS, self.brightness)

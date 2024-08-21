@@ -1,5 +1,4 @@
-import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QFileDialog
+from PyQt5.QtWidgets import QMainWindow, QFileDialog
 from PyQt5.QtCore import QSettings, Qt, QPoint, QStandardPaths
 from SettingsUi import Ui_MainWindow1
 

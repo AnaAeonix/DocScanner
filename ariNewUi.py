@@ -2,17 +2,9 @@ import Stackresource_rc
 import UiRes_rc
 import camResource_rc
 from PyQt5 import QtCore, QtGui, QtWidgets
-import threading
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import QtCore, QtGui, QtWidgets
-import cv2
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QVBoxLayout, QScrollArea, QWidget, QLabel
-from PyQt5.QtGui import QImage, QPixmap, QFont
-from PyQt5.QtCore import Qt, QTimer
-from PyQt5.QtWidgets import QLabel
-import numpy as np
-
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -78,48 +70,6 @@ class Ui_MainWindow(object):
         self.buttons_layout = QtWidgets.QVBoxLayout()
         # Add QLabel to layout
         self.layout.addWidget(self.show_page, alignment=QtCore.Qt.AlignRight)
-        # Set layout to central widget
-        # self.centralwidget.setLayout(self.layout)
-        # self.btn_label = QtWidgets.QLabel(self.centralwidget)
-        # self.btn_label.setGeometry(QtCore.QRect(206, 479, 381, 41))
-        # self.btn_label.setFrameShape(QtWidgets.QFrame.NoFrame)
-        # self.btn_label.setText("")
-        # self.btn_label.setObjectName("btn_label")
-        # self.buttons_layout.addWidget(self.btn_label)
-        # self.pdf_btn = QtWidgets.QPushButton(self.centralwidget)
-        # self.pdf_btn.setGeometry(QtCore.QRect(610, 20, 211, 31))
-        # self.pdf_btn.setStyleSheet("QPushButton {\n"
-        #                            "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
-        #                            "        border-radius: 20px; \n"
-        #                            "    color: white; /* Text color */\n"
-        #                            "    font-weight: bold;\n"
-        #                            "border:none; /* Border color */\n"
-        #                            "    padding: 10px 10px; /* Adjust padding as needed */\n"
-        #                            "    margin:0px; /* Margin to create distance between buttons */\n"
-        #                            "}\n"
-        #                            " QPushButton {\n"
-        #                            "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-        #                            "    color: white; /* Text color */\n"
-        #                            "    font-weight: bold;\n"
-        #                            "\n"
-        #                            "    padding: 10px 20px;\n"
-        #                            "        /*height:50px;*/\n"
-        #                            "margin: 0px;\n"
-        #                            "        \n"
-        #                            "        /* border-bottom: 1px solid #b0b0b0; */\n"
-        #                            "    }\n"
-        #                            "QPushButton:hover {\n"
-        #                            "        background-color:#073c6d;\n"
-        #                            "    }")
-        # icon = QtGui.QIcon()
-        # icon.addPixmap(QtGui.QPixmap(":/newPrefix/pdf.svg"),
-        #                QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        # self.pdf_btn.setIcon(icon)
-        # self.pdf_btn.setIconSize(QtCore.QSize(20, 20))
-        # self.pdf_btn.setCheckable(True)
-        # self.pdf_btn.setAutoExclusive(True)
-        # self.pdf_btn.setFlat(False)
-        # self.pdf_btn.setObjectName("pdf_btn")
         self.buttons_layout.addWidget(
             self.export_btn, alignment=QtCore.Qt.AlignTop)
         self.ocr_btn = QtWidgets.QPushButton(self.centralwidget)
@@ -187,38 +137,7 @@ class Ui_MainWindow(object):
         self.edit_btn.setObjectName("edit_btn")
         self.buttons_layout.addWidget(
             self.edit_btn, alignment=QtCore.Qt.AlignTop)
-        # self.settings_btn = QtWidgets.QPushButton(self.centralwidget)
-        # self.settings_btn.setGeometry(QtCore.QRect(820, 60, 101, 31))
-        # self.settings_btn.setStyleSheet("QPushButton {\n"
-        #                                 "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
-        #                                 "        border-radius: 20px; \n"
-        #                                 "    color: white; /* Text color */\n"
-        #                                 "    font-weight: bold;\n"
-        #                                 "border:none; /* Border color */\n"
-        #                                 "    padding: 10px 10px; /* Adjust padding as needed */\n"
-        #                                 "    margin:0px; /* Margin to create distance between buttons */\n"
-        #                                 "}\n"
-        #                                 " QPushButton {\n"
-        #                                 "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-        #                                 "    color: white; /* Text color */\n"
-        #                                 "    font-weight: bold;\n"
-        #                                 "\n"
-        #                                 "    padding: 10px 20px;\n"
-        #                                 "        /*height:50px;*/\n"
-        #                                 "margin: 0px;\n"
-        #                                 "        \n"
-        #                                 "        /* border-bottom: 1px solid #b0b0b0; */\n"
-        #                                 "    }\n"
-        #                                 " QPushButton:hover {\n"
-        #                                 "        background-color:#073c6d\n"
-        #                                 "    }")
-        # icon1 = QtGui.QIcon()
-        # icon1.addPixmap(QtGui.QPixmap(":/newPrefix/crop1.svg"),
-        #                 QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        # self.settings_btn.setIcon(icon1)
-        # self.settings_btn.setObjectName("settings_btn")
-        # self.buttons_layout.addWidget(
-        #     self.settings_btn, alignment=QtCore.Qt.AlignTop)
+
         self.delete_btn = QtWidgets.QPushButton(self.centralwidget)
         self.delete_btn.setGeometry(QtCore.QRect(920, 60, 101, 31))
         self.delete_btn.setStyleSheet("QPushButton {\n"
@@ -268,11 +187,7 @@ class Ui_MainWindow(object):
         self.additional_label = QtWidgets.QLabel(self.centralwidget)
         self.additional_label.setGeometry(QtCore.QRect(
             730, 120, 171, 950))  # Adjust geometry as needed
-        # self.additional_label.setFrameShape(QtWidgets.QFrame.Box)
-        # self.additional_label.setStyleSheet("QLabel {"
-        #                                      "border: 2px solid #0e86f6;"  # Change '#0e86f6' to desired border color
-        #                                      "border-radius: 10px;"   # Adjust the value for desired curve
-        #                                      "}")
+
         self.additional_label.setObjectName("additional_label")
         self.additional_label.setStyleSheet("#additional_label {"
                                             #  "border: 2px solid #0e86f6;"  # Change 'red' to desired border color
@@ -348,42 +263,7 @@ class Ui_MainWindow(object):
         self.shutter_btn.setAutoExclusive(True)
         self.shutter_btn.setFlat(True)
         self.shutter_btn.setObjectName("shutter_btn") 
-        # self.ai_btn = QtWidgets.QRadioButton(self.page)
-        # self.ai_btn.setGeometry(QtCore.QRect(60, 30, 100, 57))
-        # self.ai_btn.setCheckable(True)
-        # self.ai_btn.setAutoExclusive(False)
-        # self.ai_btn.setObjectName("ai_btn")
 
-        # # Create a QFont object
-        # font = QtGui.QFont()
-        # font.setPointSize(10)  # Set the desired font size
-
-        # # Apply the font to the button
-        # self.ai_btn.setFont(font)
-        # self.autoSave_btn = QtWidgets.QRadioButton(self.page)
-        # self.autoSave_btn.setGeometry(QtCore.QRect(150, 30, 80, 57))
-        # self.autoSave_btn.setCheckable(True)
-        # self.autoSave_btn.setAutoExclusive(False)
-        # self.autoSave_btn.setObjectName("autoSave_btn")
-
-        # # Create a QFont object
-        # font = QtGui.QFont()
-        # font.setPointSize(10)  # Set the desired font size
-
-        # # Apply the font to the button
-        # self.autoSave_btn.setFont(font)
-        # self.trim_btn = QtWidgets.QRadioButton(self.page)
-        # self.trim_btn.setGeometry(QtCore.QRect(610, 3, 80, 57))
-        # self.trim_btn.setCheckable(True)
-        # self.trim_btn.setAutoExclusive(False)
-        # self.trim_btn.setObjectName("trim_btn")
-
-        # # Create a QFont object
-        # font = QtGui.QFont()
-        # font.setPointSize(10)  # Set the desired font size
-
-        # Apply the font to the button
-        # self.trim_btn.setFont(font)
         self.foc_drop = QtWidgets.QComboBox(self.page)
         self.foc_drop.setGeometry(QtCore.QRect(450, 20, 111, 22))
         self.foc_drop.addItems(["Auto Focus", "Fixed Focus"])
@@ -851,7 +731,7 @@ class Ui_MainWindow(object):
         self.page_5 = QtWidgets.QWidget()
         self.page_5.setObjectName("page_5")
         self.rotateleft_btn = QtWidgets.QPushButton(self.page_5)
-        self.rotateleft_btn.setGeometry(QtCore.QRect(100, 30, 211, 41))
+        self.rotateleft_btn.setGeometry(QtCore.QRect(50, 30, 211, 41))
         self.rotateleft_btn.setStyleSheet("QPushButton {\n"
                                           "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                           "        border-radius: 20px; \n"
@@ -881,7 +761,7 @@ class Ui_MainWindow(object):
         self.rotateleft_btn.setIcon(icon9)
         self.rotateleft_btn.setObjectName("rotateleft_btn")
         self.rotateright_btn = QtWidgets.QPushButton(self.page_5)
-        self.rotateright_btn.setGeometry(QtCore.QRect(604, 30, 211, 41))
+        self.rotateright_btn.setGeometry(QtCore.QRect(654, 30, 211, 41))
         self.rotateright_btn.setStyleSheet("QPushButton {\n"
                                            "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                            "        border-radius: 20px; \n"
@@ -945,7 +825,7 @@ class Ui_MainWindow(object):
         self.undo_btn.setIcon(icon8)
         self.undo_btn.setObjectName("undo_btn")
         self.discard_btn = QtWidgets.QPushButton(self.page_2)
-        self.discard_btn.setGeometry(QtCore.QRect(840, 850, 211, 41))
+        self.discard_btn.setGeometry(QtCore.QRect(700, 850, 211, 41))
         self.discard_btn.setStyleSheet("QPushButton {\n"
                                        "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
                                        "        border-radius: 20px; \n"
@@ -1005,6 +885,37 @@ class Ui_MainWindow(object):
                          QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.save_btn.setIcon(icon10)
         self.save_btn.setObjectName("save_btn")
+        
+        self.a = QtWidgets.QPushButton(self.page_2)
+        self.a.setGeometry(QtCore.QRect(1000, 850, 211, 41))
+        self.a.setStyleSheet("QPushButton {\n"
+                                    "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
+                                    "        border-radius: 20px; \n"
+                                    "    color: white; /* Text color */\n"
+                                    "    font-weight: bold;\n"
+                                    "border:none; /* Border color */\n"
+                                    "    padding: 10px 10px; /* Adjust padding as needed */\n"
+                                    "    margin:0px; /* Margin to create distance between buttons */\n"
+                                    "}\n"
+                                    " QPushButton {\n"
+                                    "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
+                                    "    color: white; /* Text color */\n"
+                                    "    font-weight: bold;\n"
+                                    "\n"
+                                    "    padding: 10px 20px;\n"
+                                    "        /*height:50px;*/\n"
+                                    "margin: 0px;\n"
+                                    "        \n"
+                                    "        /* border-bottom: 1px solid #b0b0b0; */\n"
+                                    "    }\n"
+                                    "\n"
+                                    " QPushButton:hover {\n"
+                                    "        background-color:#073c6d\n"
+                                    "    }")
+        self.a.setObjectName("a")
+        
+        
+        
         self.stackedWidget.addWidget(self.page_2)
         self.nav = QtWidgets.QWidget(self.centralwidget)
         self.nav.setGeometry(QtCore.QRect(0, 0, 1980, 40))
@@ -1111,18 +1022,17 @@ class Ui_MainWindow(object):
         self.undo_btn.setText(_translate("MainWindow", "Undo"))
         self.discard_btn.setText(_translate("MainWindow", "Discard"))
         self.save_btn.setText(_translate("MainWindow", "Save"))
+        self.a.setText(_translate("MainWindow", "rescan"))
         self.ok_btn.setText(_translate("MainWindow", "OK"))
         self.ok1_btn.setText(_translate("MainWindow", "OK"))
-        # self.settings_btn.setText(_translate("MainWindow", "Manual Crop"))
         self.name.setText(_translate("MainWindow", "Aeonix Document Scanner"))
-        # self.ai_btn.setText(_translate("MainWindow", "AI Mode"))
         self.foc_label.setText(_translate("MainWindow", "Set Focus:"))
         self.export_label.setText(_translate("MainWindow", "Export to:"))
         self.choosecam_label.setText(_translate("MainWindow", "Select Camera:"))
         self.dpi_label.setText(_translate("MainWindow", "Select DPI:"))
         self.resolution_label.setText(_translate("MainWindow", "Resolution:"))
         self.effect_label.setText(_translate("MainWindow", "Effect:"))
-        # self.autoSave_btn.setText(_translate("MainWindow", "Auto Save"))
+
         self.trim_label.setText(_translate("MainWindow", "Trim:"))
         self.crop_label.setText(_translate("MainWindow", "Crop:"))
 

@@ -1,9 +1,8 @@
 from PyQt5.QtWidgets import QApplication, QFileDialog, QMessageBox, QSplashScreen, QLabel, QProgressDialog
-from PyQt5.QtCore import QSettings, Qt, QPoint, QStandardPaths,QTimer
+from PyQt5.QtCore import QSettings, Qt, QTimer
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtGui import QImage, QPixmap, QMovie, QTransform
-from PIL import Image, ImageEnhance, ImageOps, ImageQt
-from reportlab.lib.pagesizes import letter
+from PyQt5.QtGui import QImage, QPixmap, QMovie
+from PIL import Image, ImageEnhance
 from reportlab.pdfgen import canvas
 import threading
 import shutil
@@ -13,21 +12,52 @@ import os
 import cv2
 import tkinter as tk
 import numpy as np
-# import win32com.client
 from datetime import datetime
 import tempfile
 from pyusbcameraindex import enumerate_usb_video_devices_windows
 from rembg import remove
-# from paddleocr import PaddleOCR
-from easyocr import Reader
-# Remove the duplicate import statement
+import easyocr 
 from ariNewUi import Ui_MainWindow
 from VideoStream import VideoStream
 from CropApp import CropApp
 from smartCrop import SmartCrop
 from SettingsMain import SetWindow
-from SettingsUi import Ui_MainWindow1
 #pyinstaller --noconsole --onefile  --collect-all scipy lastMain.py
+
+
+class ChangePositionDialog(QtWidgets.QDialog):
+    def __init__(self, parent, current_index):
+        super().__init__(parent)
+        self.current_index = current_index
+        self.new_position = None
+        self.replace_image = False
+        self.init_ui()
+
+    def init_ui(self):
+        self.setWindowTitle("Change Position")
+        layout = QtWidgets.QVBoxLayout(self)
+
+        position_label = QtWidgets.QLabel("New Position:")
+        self.position_input = QtWidgets.QSpinBox()
+        self.position_input.setRange(0, len(self.parent().captured_images) - 1)
+        self.position_input.setValue(self.current_index)
+
+        self.replace_checkbox = QtWidgets.QCheckBox(
+            "Replace with image at this position")
+
+        layout.addWidget(position_label)
+        layout.addWidget(self.position_input)
+        layout.addWidget(self.replace_checkbox)
+
+        buttons = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.Ok | QtWidgets.QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+    def get_inputs(self):
+        return self.position_input.value(), self.replace_checkbox.isChecked()
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -50,6 +80,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.image = None  # Track the currently displayed image
         self.imageIndex = None
         self.AutoSaveChecked = False
+        self.rotate = 0
         self.AutoSaveFolder = None
         self.setWindow = SetWindow()
         self.sharp_img = None
@@ -63,6 +94,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.captured_images = [] #for the images which is now 
         self.captured_images_crop = []
         self.captured_images_main = []
+        self.replaceindex = None
         self.export = 0
         self.trimmed = False
         self.manual_crop = True
@@ -93,7 +125,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.rotate_btn.clicked.connect(self.clicked_rotate_btn)
         self.ui.export_btn.clicked.connect(self.exportTo)
         self.ui.cam_back.clicked.connect(self.returntocamera)
-        # self.ui.enhance_btn.clicked.connect(self.AutoEnhance)
         self.ui.crop_btn.clicked.connect(self.askQuestion)
 
         self.ui.settings_btn.clicked.connect(self.check_mode)
@@ -101,9 +132,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.horizontalSlider_2.valueChanged.connect(self.update_sharpness)
         self.ui.horizontalSlider.valueChanged.connect(self.update_contrast)
         self.ui.cam_drop_down.currentIndexChanged.connect(lambda:self._handle_index_change())
-        # self.ui.delete_btn.clicked.connect(self.delete)
-        # self.ui.ai_btn.toggled.connect(
-        #     self.video_stream.toggle_contour_detection)
         self.ui.trim_drop.currentIndexChanged.connect(self.trim_condition)
         self.ui.foc_drop.currentIndexChanged.connect(
             self.video_stream.set_focus)
@@ -115,6 +143,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.resolution_set)
         self.ui.crop_drop.currentIndexChanged.connect(
             self.crop_type)
+        self.ui.a.clicked.connect(self.replace)
         
         self.ui.export_drop.currentIndexChanged.connect(
             self.export_change)
@@ -126,7 +155,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.camset_btn.clicked.connect(self.settings_page)
         self.ui.ok_btn.clicked.connect(self.ok_btn_clicked)
         self.ui.ok1_btn.clicked.connect(self.ok1_btn_clicked)
-        # self.ui.autoSave_btn.toggled.connect(self.on_autoSave_toggled)
         self.ui.feed_rotate_left.clicked.connect(self.leftOn)
         self.ui.feed_rotate_right.clicked.connect(self.rightOn)
         self.ui.ocr_btn.clicked.connect(self.ocr)
@@ -146,6 +174,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.cap = None
         self.populate_camera_dropdown()
+        
+        
+    def replace(self):
+        self.replaceindex = self.imageIndex
+
+        self.returntocamera()
+        
     
     def write(self, imagee):
         self.image = cv2.imread(imagee)
@@ -161,18 +196,15 @@ class MainWindow(QtWidgets.QMainWindow):
     def update_brightness_cam(self,brightness):
         self.video_stream.brightness = brightness
         self.video_stream.update_display()
-        # self.setWindow.ui.brightness_slider.setValue(self.video_stream.brightness)
 
         
     def update_contrast_cam(self,contrast):
         self.video_stream.contrast = contrast
         self.video_stream.update_display()
-        # self.setWindow.ui.contrast_slider.setValue(self.video_stream.contrast)
     
     def update_exposure_cam(self,exposure):
         self.video_stream.exposure = exposure
         self.video_stream.update_display()
-        # self.setWindow.ui.exposure_slider.setValue(self.video_stream.exposure)
     def default(self):
         self.video_stream.brightness = 0
         self.video_stream.contrast = 32
@@ -241,7 +273,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.dpi = 300
     
     def geteffect(self, index):
-        # (["Original","Gray", "Binarized", "Optimized Document"])
         if index == 0:
             self.effect = "Original"
         if index == 1:
@@ -254,12 +285,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def original(self):
         self.image = self.latestImage[-1]
         self.load_image()
-        # if len(self.image.shape) == 3:  # Check if the image is not already in grayscale
-        #     self.image = cv2.cvtColor(self.image, cv2.GRAY2COLOR_BGR)
-        # self.load_image()
     
     def gray(self):
-        # self.gray = true
         if len(self.image.shape) == 3:  # Check if the image is not already in grayscale
             self.image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
         self.load_image()
@@ -474,9 +501,6 @@ class MainWindow(QtWidgets.QMainWindow):
                 msg_box.exec_()
 
         elif export_format == 2:
-            # Export as TIFF
-            # save_path, _ = QFileDialog.getSaveFileName(
-            #     None, "Save TIFF", "", "TIFF Files (*.tiff *.tif)")
             if len(self.selected_images) == 1:
                 save_path, _ = QFileDialog.getSaveFileName(
                     None, "Save TIFF", "", "TIFF Files (*.tiff *.tif)")
@@ -562,66 +586,34 @@ class MainWindow(QtWidgets.QMainWindow):
                                     "The specified format is not supported.")
             
     def show_alert(self, message):
-        alert = QLabel(message, self)
-        # self.layout.addWidget(alert)
+                msg_box = QMessageBox()
+                msg_box.setIcon(QMessageBox.Information)
+                msg_box.setText(message)
+                # Make the QMessageBox frameless
+                msg_box.setWindowFlags(msg_box.windowFlags() | Qt.FramelessWindowHint)
 
-    # def ocr(self):
-    #     if len(self.selected_images) != 1:
-    #         self.show_alert("Please select exactly one image.")
-    #         return
+                # Set the stylesheet for the QMessageBox
+                msg_box.setStyleSheet("""
+                    QMessageBox {
+                        background-color: #f0f0f0;
+                        font-size: 14px;
+                    }
+                    QMessageBox QLabel {
+                        color: #333333;
+                    }
+                    QMessageBox QPushButton {
+                        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                        color: white;
+                        border-radius: 5px;
+                        padding: 5px 10px;
+                    }
+                    QMessageBox QPushButton:hover {
+                        background-color: #073c6d;
+                    }
+                """)
 
-    #     image_path = self.selected_images[0][1]
-
-    #     # Initialize and configure the progress dialog
-    #     self.progress_dialog = QProgressDialog(
-    #         "Processing image...", "Cancel", 0, 100, self)
-    #     self.progress_dialog.setWindowTitle("OCR Progress")
-    #     self.progress_dialog.setWindowFlags(Qt.FramelessWindowHint | Qt.Dialog)
-    #     # self.progress_dialog.setWindowModality(Qt.WindowModal)
-    #     self.progress_dialog.setValue(0)
-    #     self.progress_dialog.show()
-
-    #     # Function to update the progress dialog
-    #     def update_progress(value):
-    #         self.progress_dialog.setValue(value)
-    #         QApplication.processEvents()  # Process pending events
-    #         if value >= 100:
-    #             self.progress_dialog.hide()
-
-    #     # Update progress to 10%
-    #     update_progress(10)
-
-    #     # Initialize PaddleOCR
-    #     ocr = PaddleOCR(use_angle_cls=True, lang='en')
-    #     update_progress(30)
-
-    #     # Read the image
-    #     image = cv2.imread(image_path)
-    #     update_progress(50)
-
-    #     # Perform OCR on the image
-    #     result = ocr.ocr(image, cls=True)
-    #     update_progress(70)
-
-    #     # Extract text from the OCR result
-    #     extracted_text = ''
-    #     for line in result:
-    #         for element in line:
-    #             bbox, text = element[0], element[1][0]
-    #             extracted_text += f"{text}\n"
-
-    #     update_progress(90)
-
-    #     # Ask the user where to save the extracted text
-    #     output_txt_path, _ = QFileDialog.getSaveFileName(
-    #         None, "Save Text File", "", "Text Files (*.txt)")
-    #     if output_txt_path:
-    #         with open(output_txt_path, 'w') as f:
-    #             f.write(extracted_text)
-    #         print(f"Text extracted and saved to {output_txt_path}")
-
-    #     update_progress(100)
-    #     self.show_alert("OCR process completed.")
+                # Show the QMessageBox
+                msg_box.exec_()
         
     def ocr(self):
         if len(self.selected_images) != 1:
@@ -649,7 +641,7 @@ class MainWindow(QtWidgets.QMainWindow):
         update_progress(10)
 
         # Initialize EasyOCR reader
-        reader = Reader(['en'])  # Add other languages if needed
+        reader = easyocr.Reader(['en'])  # Add other languages if needed
         update_progress(30)
 
         def preprocess_image(image_path):
@@ -753,70 +745,10 @@ class MainWindow(QtWidgets.QMainWindow):
             # # Inform the user if no images are selected
             # QMessageBox.information(self, " Selection",
             #                         "More than one image is selected")
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setText("More than one image is selected")
-            msg_box.setWindowTitle("No Selection")
-
-            # Make the QMessageBox frameless
-            msg_box.setWindowFlags(msg_box.windowFlags() | Qt.FramelessWindowHint)
-
-            # Set the stylesheet for the QMessageBox
-            msg_box.setStyleSheet("""
-                QMessageBox {
-                    background-color: #f0f0f0;
-                    font-size: 14px;
-                }
-                QMessageBox QLabel {
-                    color: #333333;
-                }
-                QMessageBox QPushButton {
-                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
-                    color: white;
-                    border-radius: 5px;
-                    padding: 5px 10px;
-                }
-                QMessageBox QPushButton:hover {
-                    background-color: #073c6d;
-                }
-            """)
-
-            # Show the QMessageBox
-            msg_box.exec_()
+            self.show_alert("More than one image is selected")
 
         else:
-
-            # Inform the user if no images are selected
-            msg_box = QMessageBox()
-            msg_box.setIcon(QMessageBox.Information)
-            msg_box.setText("More than one image is selected")
-            msg_box.setWindowTitle("No Selection")
-
-            # Make the QMessageBox frameless
-            msg_box.setWindowFlags(msg_box.windowFlags() | Qt.FramelessWindowHint)
-
-            # Set the stylesheet for the QMessageBox
-            msg_box.setStyleSheet("""
-                QMessageBox {
-                    background-color: #f0f0f0;
-                    font-size: 14px;
-                }
-                QMessageBox QLabel {
-                    color: #333333;
-                }
-                QMessageBox QPushButton {
-                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
-                    color: white;
-                    border-radius: 5px;
-                    padding: 5px 10px;
-                }
-                QMessageBox QPushButton:hover {
-                    background-color: #073c6d;
-                }
-            """)
-
-            # Show the QMessageBox
-            msg_box.exec_()
+            self.show_alert("More than one image is selected")
 
     def settings_page(self):
         self.setWindow.show()
@@ -902,68 +834,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 final_image = np.array(output_with_white_bg)
             print("image trimed")
             return final_image
-    
-    # def trim(self, img) :
-    #     if img is not None:
-    #         original = img.copy()
-
-    #         l = int(max(30, 10))  # (5, 6)
-    #         u = int(min(20, 10))  # 6, 6
-
-    #         ed = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    #         edges = cv2.GaussianBlur(img, (21, 51), 3)  # 21,51
-    #         edges = cv2.cvtColor(edges, cv2.COLOR_BGR2GRAY)
-    #         edges = cv2.Canny(edges, l, u)
-
-    #         _, thresh = cv2.threshold(
-    #             edges, 180, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)  # 0  180
-    #         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))  # 5,5
-    #         mask = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=4)  # 4
-
-    #         data = mask.tolist()
-
-    #         sys.setrecursionlimit(10**8)
-    #         for i in range(len(data)):
-    #             for j in range(len(data[i])):
-    #                 if data[i][j] != 255:
-    #                     data[i][j] = -1
-    #                 else:
-    #                     break
-    #             for j in range(len(data[i])-1, -1, -1):
-    #                 if data[i][j] != 255:
-    #                     data[i][j] = -1
-    #                 else:
-    #                     break
-    #         image = np.array(data)
-    #         image[image != -1] = 255
-    #         image[image == -1] = 0
-
-    #         mask = np.array(image, np.uint8)
-
-    #         result = cv2.bitwise_and(original, original, mask=mask)
-    #         result[mask == 0] = 255
-
-    #         # Convert to RGBA
-    #         img = Image.fromarray(cv2.cvtColor(result, cv2.COLOR_BGR2RGB))
-    #         img = img.convert("RGBA")
-    #         datas = img.getdata()
-
-    #         newData = []
-    #         for item in datas:
-    #             if item[0] == 255 and item[1] == 255 and item[2] == 255:
-    #                 newData.append((255, 255, 255, 0))
-    #             else:
-    #                 newData.append(item)
-
-    #         img.putdata(newData)
-
-    #         return np.array(img)
  
     def display_captured_images_main(self):
         self.all_checkboxes = []
         # Clear existing images and checkboxes
         layout = self.ui.additional_label.layout()
         if layout is not None:
+            
             for i in reversed(range(layout.count())):
                 widget = layout.itemAt(i).widget()
                 if isinstance(widget, QtWidgets.QWidget):
@@ -997,7 +874,7 @@ class MainWindow(QtWidgets.QMainWindow):
             select_all_checkbox = QtWidgets.QCheckBox("Select All")
             select_all_checkbox.stateChanged.connect(self.select_all_images)
             select_all_checkbox.setStyleSheet(
-                "color: #3020ee; font-weight: bold; font-family: Arial;")  # Add this line   
+                "color: #3020ee; font-weight: bold; font-family: Arial;")  # Add this line
             select_all_layout.addWidget(
                 select_all_checkbox, alignment=QtCore.Qt.AlignLeft)
 
@@ -1059,6 +936,134 @@ class MainWindow(QtWidgets.QMainWindow):
 
             # Add the scroll area to additional_label
             layout.addWidget(scroll_area)
+
+    def display_captured_images_main(self):
+        self.all_checkboxes = []
+        layout = self.ui.additional_label.layout()
+        if layout is not None:
+            for i in reversed(range(layout.count())):
+                widget = layout.itemAt(i).widget()
+                if isinstance(widget, QtWidgets.QWidget):
+                    widget.setParent(None)
+
+        if layout is None:
+            layout = QtWidgets.QVBoxLayout()
+            self.ui.additional_label.setLayout(layout)
+
+        if self.captured_images:
+            displayed_images = [layout.itemAt(i).widget().findChild(
+                QtWidgets.QLabel) for i in range(layout.count())]
+
+            scroll_area = QtWidgets.QScrollArea()
+            scroll_area.setWidgetResizable(True)
+            scroll_area.setFrameShape(QtWidgets.QFrame.NoFrame)
+
+            scroll_content = QtWidgets.QWidget()
+            scroll_layout = QtWidgets.QVBoxLayout(scroll_content)
+            scroll_layout.setAlignment(QtCore.Qt.AlignTop)
+
+            select_all_widget = QtWidgets.QWidget()
+            select_all_layout = QtWidgets.QHBoxLayout(select_all_widget)
+
+            select_all_checkbox = QtWidgets.QCheckBox("Select All")
+            select_all_checkbox.stateChanged.connect(self.select_all_images)
+            select_all_checkbox.setStyleSheet(
+                "color: #3020ee; font-weight: bold; font-family: Arial;")
+            select_all_layout.addWidget(
+                select_all_checkbox, alignment=QtCore.Qt.AlignLeft)
+
+            num_images_label = QtWidgets.QLabel(
+                f" ({len(self.captured_images)} images)")
+            num_images_label.setStyleSheet(
+                "color: #808080; font-family: Arial;")
+            select_all_layout.addWidget(
+                num_images_label, alignment=QtCore.Qt.AlignLeft)
+
+            scroll_layout.addWidget(select_all_widget)
+
+            for index, image_path in enumerate(self.captured_images):
+                if image_path not in displayed_images:
+                    image_widget = QtWidgets.QWidget()
+                    label = QtWidgets.QLabel()
+                    pixmap = QtGui.QPixmap(image_path)
+                    pixmap = pixmap.scaledToHeight(
+                        150, QtCore.Qt.SmoothTransformation)
+                    pixmap = pixmap.scaledToWidth(
+                        150, QtCore.Qt.SmoothTransformation)
+                    label.setPixmap(pixmap)
+
+                    # Add context menu to the label
+                    label.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
+                    label.customContextMenuRequested.connect(
+                        lambda pos, ind=index, lab=label: self.show_context_menu(lab, ind, pos))
+
+                    checkbox = QtWidgets.QCheckBox("Select")
+                    checkbox.stateChanged.connect(
+                        lambda state, idx=index: self.update_selected_images(state, idx))
+                    self.all_checkboxes.append(checkbox)
+                    checkbox.setStyleSheet(
+                        "color: #3020ee; font-weight: bold; font-family: Arial;")
+
+                    checkbox_layout = QtWidgets.QHBoxLayout()
+                    checkbox_layout.addWidget(
+                        checkbox, alignment=QtCore.Qt.AlignLeft)
+
+                    layout_image_checkbox = QtWidgets.QVBoxLayout()
+                    layout_image_checkbox.addLayout(checkbox_layout)
+                    layout_image_checkbox.addWidget(label)
+                    image_widget.setLayout(layout_image_checkbox)
+
+                    scroll_layout.addWidget(image_widget)
+                    label.mouseDoubleClickEvent = lambda state, ind=index, lab=label, path=image_path: self.image_double_clicked(lab,
+                                                                                                                                 path, ind)
+
+            scroll_area.setWidget(scroll_content)
+            layout.addWidget(scroll_area)
+
+    def show_context_menu(self, label, index, pos):
+        context_menu = QtWidgets.QMenu(self)
+        change_position_action = context_menu.addAction("Change Position")
+        action = context_menu.exec_(label.mapToGlobal(pos))
+
+        if action == change_position_action:
+            if self.ui.stackedWidget.currentIndex() == 1:
+            # Show an alert if the index is 1
+                self.show_alert("Action is not allowed in the editing section please go to the camera section")
+                return  # Exit the function without executing the context menu
+            else:
+                self.open_change_position_dialog(label, index)
+
+    def open_change_position_dialog(self, label, index):
+        dialog = ChangePositionDialog(self, index)
+        if dialog.exec_() == QtWidgets.QDialog.Accepted:
+            new_position, replace_image = dialog.get_inputs()
+
+            if replace_image:
+                # Replace the image at the new position
+                self.captured_images[new_position], self.captured_images[
+                    index] = self.captured_images[index], self.captured_images[new_position]
+                self.captured_images_crop[new_position], self.captured_images_crop[
+                    index] = self.captured_images_crop[index], self.captured_images_crop[new_position]
+                self.captured_images_main[new_position], self.captured_images_main[
+                    index] = self.captured_images_main[index], self.captured_images_main[new_position]
+            else:
+                # Move the image to the new position
+                self.captured_images.insert(
+                    new_position, self.captured_images.pop(index))
+                
+                self.captured_images_crop.insert(
+                    new_position, self.captured_images_crop.pop(index))
+                
+                self.captured_images_main.insert(
+                    new_position, self.captured_images_main.pop(index))
+
+            self.display_captured_images_main()  # Refresh the display
+
+
+
+
+
+
 
     def update_selected_images(self, state, index):
         image_path = self.captured_images[index]
@@ -1202,19 +1207,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
                 root = tk.Tk()
                 root.title("Auto Crop")
-                # if frame is not None:
-                #     # Apply cumulative rotation based on rotation_state
-                #     if self.video_stream.rotation_state == 90:
-                #             frame = cv2.rotate(
-                #                 frame, cv2.ROTATE_90_CLOCKWISE)
-                #     elif self.video_stream.rotation_state == 180:
-                #             frame = cv2.rotate(frame, cv2.ROTATE_180)
-                #     elif self.video_stream.rotation_state == 270:
-                #             frame = cv2.rotate(
-                #                 frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
                 img_file_name = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 cv2.imwrite("Hello2.jpg", img_file_name)
-                # coordinates = [[5, 5], [1029, 5], [742, 209], [5, 773]]
                 if self.auto_crop == None or len(self.auto_crop) == 6:
                     App = CropApp(root, img_file_name)
                 else:
@@ -1231,18 +1225,12 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.auto_crop = [A, B, C, D]
                     self.auto_crop = [(int(A[0]), int(A[1]))
                                       for A in self.auto_crop]
-                    # print(self.auto_crop)
                     self.video_stream.points = self.auto_crop
                     self.settings.setValue("points", self.video_stream.points)
-                    # print(A)
-                    # print(B)
-                    # print(C)
-                    # print(D)
                     root.destroy()
                 self.settings.setValue("autocrop", self.auto_crop)
                 
             except Exception as e:
-                # print(f"Error saving image: {e}")
                 pass
 
     def crop_settings_6(self):
@@ -1281,19 +1269,11 @@ class MainWindow(QtWidgets.QMainWindow):
                     
 
                     split1, split2, warpped_image = obj.get_warpped(corners)
-                    # cv2.imwrite("1714054747202_warpped_1.jpg",
-                    #             cv2.cvtColor(split1, cv2.COLOR_BGR2RGB))
-                    # cv2.imwrite("1714054747202_warpped_2.jpg",
-                    #             cv2.cvtColor(split2, cv2.COLOR_BGR2RGB))
-                    # cv2.imwrite("1714054747202_warpped.jpg", cv2.cvtColor(
-                    #     warpped_image, cv2.COLOR_BGR2RGB))
                     self.auto_crop = corners
                     self.video_stream.points = corners
                     self.settings.setValue("points", self.video_stream.points)
                     self.settings.setValue("autocrop", self.video_stream.points)
-                    # print(corners)
             except Exception as e:
-                # print(f"Error saving image: {e}")
                 pass
 
 
@@ -1316,77 +1296,6 @@ class MainWindow(QtWidgets.QMainWindow):
             i -= 1  
             i -= 1  
         return arr
-
-    # def list_usb_cameras(self):
-    #     strComputer = "."
-    #     objWMIService = win32com.client.Dispatch("WbemScripting.SWbemLocator")
-    #     objSWbemServices = objWMIService.ConnectServer(
-    #         strComputer, "root\\cimv2")
-
-    #     colItems = objSWbemServices.ExecQuery(
-    #         "Select * from Win32_PnPEntity where DeviceID like '%VID_%&PID_%'")
-
-    #     cameras = []
-    #     for objItem in colItems:
-    #         if "camera" in objItem.Description.lower() or "video" in objItem.Description.lower():
-    #             camera_info = {
-    #                 'description': objItem.Description,
-    #                 'device_id': objItem.DeviceID,
-    #                 'manufacturer': objItem.Manufacturer,
-    #                 'name': objItem.Name,
-    #                 'status': objItem.Status
-    #             }
-    #             cameras.append(camera_info)
-    #     return cameras
-
-    
-    # def populate_camera_dropdown(self):
-    #     global available_cameras
-    #     available_cameras = []
-
-    #     # List available camera indices
-    #     camera_indices = self.list_cameras()
-    #     global usb_cameras
-    #     usb_cameras = self.list_usb_cameras()
-
-    #     # Creating a dictionary for USB camera details keyed by name
-    #     camera_details = {camera['device_id']: camera for camera in usb_cameras}
-
-    #     i = 0
-    #     for index in camera_indices:
-    #         cap = cv2.VideoCapture(index, cv2.CAP_DSHOW)
-    #         if cap.isOpened():
-    #             backend_id = cap.get(cv2.CAP_PROP_BACKEND)
-    #             name = usb_cameras[index]['device_id']
-    #             details = camera_details.get(name, {})
-    #             description = details.get('device_id', 'Unknown')
-    #             manufacturer = details.get('manufacturer', 'Unknown')
-
-    #             # Assign custom name based on the device ID
-    #             if name == "USB\\VID_BC07&PID_1801&MI_00\\7&647E327&0&0000":
-    #                 custom_name = 'A2 Scanner'
-    #             elif name == "USB\\VID_BC15&PID_2C1B&MI_00\\6&23BABD32&0&0000":
-    #                 custom_name = 'A4 Scanner'
-    #             # Add more conditions as needed
-    #             # elif name == "USB\\VID_30C9&PID_0013&MI_00\\6&2E17A80F&0&0000":
-    #             #     custom_name = 'A2 Scanner'
-    #             else:
-    #                 custom_name = f"{name} ({description})"
-
-    #             camera_name = custom_name
-
-    #             available_cameras.append((index, camera_name))
-    #             self.video_stream.available_cameras.append((index, camera_name))
-    #             cap.release()
-
-    #     self.ui.cam_drop_down.clear()
-    #     self.ui.cam_drop_down.setPlaceholderText("Please select a camera")
-
-    #     camera_names = [camera_name for _, camera_name in available_cameras]
-    #     self.ui.cam_drop_down.addItems(camera_names)
-
-    #     self.ui.cam_drop_down.currentIndexChanged.connect(
-    #         lambda: self._handle_index_change())
 
     def populate_camera_dropdown(self):
         # Clear the existing list
@@ -1442,24 +1351,20 @@ class MainWindow(QtWidgets.QMainWindow):
             # Add new items
             camera_names = [camera_name for _, camera_name in available_cameras]
             self.ui.cam_drop_down.addItems(camera_names)
-
-
-    # def load_image(self):
-    #     image = self.image
-    #     height, width, channel = image.shape
-    #     bytes_per_line = 3 * width
-    #     qimage = QImage(image.data, width, height,
-    #                     bytes_per_line, QImage.Format_RGB888)
-    #     pixmap = QPixmap.fromImage(qimage)
-    #     label_size = self.ui.show_image.size()
-    #     scaled_pixmap = pixmap.scaled(
-    #         label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-    #     self.ui.show_image.setPixmap(scaled_pixmap)
-    #     self.ui.show_image.setAlignment(Qt.AlignCenter)
         
     def load_image(self):
         image = np.copy(self.image)
         # .copy()
+        (h, w) = self.image.shape[:2]
+        center = (w // 2, h // 2)
+        matrix = cv2.getRotationMatrix2D(center, self.rotate, 1.0)
+
+        # Rotate the image with a white background
+        image = cv2.warpAffine(image, matrix, (w, h), borderValue=(255, 255, 255))
+
+    
+
+        
         if self.sharpness is not None:
             image = self.sharpen_image(image, self.sharpness)
             # self.sharpness = None
@@ -1528,8 +1433,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
             try:
                 frame = self.get_effects(frame)
-                # if self.trimmed== True:
-                #     frame = self.trim(frame)
                 original_res = (frame.shape[1], frame.shape[0])
                 height, width = self.getRes()
                 if (height is None):
@@ -1539,7 +1442,11 @@ class MainWindow(QtWidgets.QMainWindow):
                     frame, (width, height), interpolation=cv2.INTER_AREA)
                 if self.trimmed == True:
                     frame = self.trim(frame)
-                self.captured_images_main.insert(0, frame)
+                
+                if self.replaceindex is not None:
+                    self.captured_images_main[self.replaceindex] = frame
+                else:
+                    self.captured_images_main.insert(0, frame)
                 if self.video_stream.checked == True:
                     self.auto_crop = None
                     if self.video_stream.ai_crop is not None:
@@ -1568,18 +1475,26 @@ class MainWindow(QtWidgets.QMainWindow):
                         frame = cv2.rotate(
                             frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
                 cv2.imwrite(filepath, frame)
-
-                if (self.auto_crop != None):
-                    self.captured_images_crop.insert(0, self.auto_crop)
+                if self.replaceindex is not None:
+                    if (self.auto_crop != None):
+                        self.captured_images_crop[self.replaceindex ] = self.auto_crop
+                    else:
+                        self.captured_images_crop[self.replaceindex ] = [0, 0]
                 else:
-                    self.captured_images_crop.insert(0, [0, 0])
+                    if (self.auto_crop != None):
+                        self.captured_images_crop.insert(0, self.auto_crop)
+                    else:
+                        self.captured_images_crop.insert(0, [0, 0])
                 # Append the filepath to the captured images list
                 if self.AutoSaveChecked:
                     self.AutoSaveFolder = self.setWindow.AutoSaveFolder
-                    # print(self.AutoSaveFolder)
-                    # print(filepath)
+
                     self.exportToAutoSaveFolder(filepath)
-                self.captured_images.insert(0, filepath)
+                if self.replaceindex is not None:
+                    self.captured_images[self.replaceindex] = filepath
+                    self.replaceindex = None
+                else:
+                    self.captured_images.insert(0, filepath)
                 self.selected_images.clear()
                 # Call display_captured_images to update the display
                 self.display_captured_images_main()
@@ -1645,13 +1560,45 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def returntocamera(self):
-        self.imageIndex = None
-        self.image = None
-        self.sharpness=None
-        self.contrast = None
-        self.ui.stackedWidget.setCurrentIndex(0)
-        self.ui.horizontalSlider.setValue(0)
-        self.ui.horizontalSlider_2.setValue(0)
+            confirm_dialog = QMessageBox()
+            confirm_dialog.setIcon(QMessageBox.Question)
+            confirm_dialog.setText(
+                "Editing history will be deleted . Are you ok with it?")
+            confirm_dialog.setWindowTitle("Confirmation")
+            confirm_dialog.setStandardButtons(QMessageBox.Yes | QMessageBox.No)
+            # Making the dialog frameless
+            confirm_dialog.setWindowFlags(Qt.FramelessWindowHint)
+                
+            confirm_dialog.setStyleSheet("""
+                QMessageBox {
+                    background-color: #f0f0f0;
+                    font-size: 14px;
+                }
+                QMessageBox QLabel {
+                    color: #333333;
+                }
+                QMessageBox QPushButton {
+                    background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                    color: white;
+                    border-radius: 5px;
+                    padding: 5px 10px;
+                }
+                QMessageBox QPushButton:hover {
+                    background-color: #073c6d;
+                }
+            """)
+
+            # Execute based on user's choice
+            choice = confirm_dialog.exec_()
+            if choice == QMessageBox.Yes:
+
+                self.image = None
+                self.imageIndex = None
+                self.sharpness=None
+                self.contrast = None
+                self.ui.stackedWidget.setCurrentIndex(0)
+                self.ui.horizontalSlider.setValue(0)
+                self.ui.horizontalSlider_2.setValue(0)
 
     def clicked_adjust_btn(self):
         self.ui.edit_stack.setCurrentIndex(0)
@@ -1664,30 +1611,145 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def rotate_image_right(self):
         if self.image is not None:
-            self.rotation_state -= 90
-            if self.rotation_state < 0:
-                self.rotation_state = 270
-            rotated_image = self.image
-            rotated_image = cv2.rotate(
-                rotated_image, cv2.ROTATE_90_CLOCKWISE)
-            # self.latestImage.append(rotated_image)
-            # self.image = rotated_image
-            self.image = rotated_image
-            self.load_image()
+            choice = None
+
+            while choice != "c":
+                # Create a QMessageBox to ask for the rotation angle
+                msg_box = QMessageBox()
+                msg_box.setWindowTitle("Rotate Image")
+                msg_box.setText("Rotate the image right by 90 degrees or 1 degree?")
+
+                # Add custom buttons
+                rotate_90_button = msg_box.addButton(
+                    "90 degrees", QMessageBox.AcceptRole)
+                rotate_1_button = msg_box.addButton(
+                    "1 degree", QMessageBox.AcceptRole)
+                rotate_ca_button = msg_box.addButton(
+                    "cancel", QMessageBox.AcceptRole)
+
+                msg_box.setWindowFlags(Qt.FramelessWindowHint)
+
+                msg_box.setStyleSheet("""
+                    QMessageBox {
+                        background-color: #f0f0f0;
+                        font-size: 14px;
+                    }
+                    QMessageBox QLabel {
+                        color: #333333;
+                    }
+                    QMessageBox QPushButton {
+                        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                        color: white;
+                        border-radius: 5px;
+                        padding: 5px 10px;
+                    }
+                    QMessageBox QPushButton:hover {
+                        background-color: #073c6d;
+                    }
+                """)
+
+                # Execute the message box and check the user's choice
+                msg_box.exec_()
+
+                if msg_box.clickedButton() == rotate_90_button:
+                    choice = "90"
+                elif msg_box.clickedButton() == rotate_1_button:
+                    choice = "1"
+                else:
+                    choice = "c"
+
+                if choice == "90":
+                    rotated_image = self.image.copy()
+                    rotated_image = cv2.rotate(
+                        rotated_image, cv2.ROTATE_90_CLOCKWISE)
+                    self.rotation_state = (self.rotation_state - 90) % 360
+                    self.image = rotated_image
+                elif choice == "1":
+                    # Rotate by 1 degree clockwise
+                    self.rotate -= 1
+
+                # Update the image and display
+                # self.image = rotated_image
+                self.load_image()
+
+
 
     def rotate_image_left(self):
         if self.image is not None:
-            if self.rotation_state == 270:
-                self.rotation_state = 0
-            else:
-                self.rotation_state += 90
-            rotated_image = self.image.copy()
-            rotated_image = cv2.rotate(
-                rotated_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
-            # self.latestImage.append(rotated_image)
-            self.image = rotated_image
-            # self.display_captured_images_main()
-            self.load_image()
+            choice = None
+
+
+
+            while choice is not "c":
+                # Create a QMessageBox to ask for the rotation angle
+                msg_box = QMessageBox()
+                msg_box.close
+                msg_box.setWindowTitle("Rotate Image")
+                msg_box.setText("Rotate the image left by 90 degrees or 1 degree?")
+
+                # Add custom buttons
+                rotate_90_button = msg_box.addButton(
+                    "90 degrees", QMessageBox.AcceptRole)
+                rotate_1_button = msg_box.addButton(
+                    "1 degree", QMessageBox.AcceptRole)
+                rotate_ca_button = msg_box.addButton(
+                    "cancel", QMessageBox.AcceptRole)
+
+                msg_box.setWindowFlags(Qt.FramelessWindowHint)
+
+                msg_box.setStyleSheet("""
+                    QMessageBox {
+                        background-color: #f0f0f0;
+                        font-size: 14px;
+                    }
+                    QMessageBox QLabel {
+                        color: #333333;
+                    }
+                    QMessageBox QPushButton {
+                        background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);
+                        color: white;
+                        border-radius: 5px;
+                        padding: 5px 10px;
+                    }
+                    QMessageBox QPushButton:hover {
+                        background-color: #073c6d;
+                    }
+                """)
+
+
+                # Execute the message box and check the user's choice
+                msg_box.exec_()
+
+                if msg_box.clickedButton() == rotate_90_button:
+                    choice = "90"
+                elif msg_box.clickedButton() == rotate_1_button:
+                    choice = "1"
+                else:
+                    choice = "c"
+                
+
+                if choice == "90":
+                    if self.rotation_state == 270:
+                        self.rotation_state = 0
+                    else:
+                        self.rotation_state += 90
+                    rotated_image = self.image.copy()
+                    rotated_image = cv2.rotate(
+                        rotated_image, cv2.ROTATE_90_COUNTERCLOCKWISE)
+                    self.image = rotated_image
+                elif choice == "1":
+                    # Rotate by 1 degree counterclockwise
+                    self.rotate += 1
+                    # (h, w) = self.image.shape[:2]
+                    # center = (w // 2, h // 2)
+                    # matrix = cv2.getRotationMatrix2D(center, 1, 1.0)
+                    # rotated_image = cv2.warpAffine(self.image, matrix, (w, h))
+                    # self.rotation_state = (self.rotation_state - 1) % 360
+
+                # Update the image and display
+                
+                self.load_image()
+
 
     def display_image(self, image):
         pixmap = QPixmap.fromImage(QImage(
@@ -1825,16 +1887,12 @@ class MainWindow(QtWidgets.QMainWindow):
             self.crop_image_4()
             
     def handle_msg_box_closed(self):
-        # Implement this function to handle the case when the message box is closed without any button being clicked
-        # print("Message box closed without clicking any button")
         pass
 
     def crop_image_4(self):
         image = np.copy(self.image)
-       # .copy()
         if self.sharpness is not None:
             image = self.sharpen_image(image, self.sharpness)
-            # self.sharpness = None
         if self.contrast is not None:
             image = self.adjust_contrast(image, self.contrast)
         root = tk.Tk()
@@ -1855,9 +1913,6 @@ class MainWindow(QtWidgets.QMainWindow):
             new_height = int(current_height * 0.8)  # Scale height to 80% of current height
             root.geometry(f"{new_width}x{new_height}")  # Set the new size
 
-        # Button to trigger resizing
-        # resize_button = tk.Button(root, text="Resize", command=resize_window)
-        # resize_button.pack()
         root.mainloop()
         # print(App.crop_pressed)
         if App.crop_pressed:
@@ -1866,11 +1921,6 @@ class MainWindow(QtWidgets.QMainWindow):
             C = np.asarray(App.SE.coords) * App.scale_factor
             D = np.asarray(App.SW.coords) * App.scale_factor
 
-            # print(A)
-            # print(B)
-
-            # print(C)
-            # print(D)
             coordinates = [A, B, C, D]
             final = self.crop_cutting(
                 self.captured_images_main[self.imageIndex], A, B, C, D)
@@ -2004,6 +2054,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def save(self):
         image = np.copy(self.image)
         # .copy()
+        
+        (h, w) = self.image.shape[:2]
+        center = (w // 2, h // 2)
+        matrix = cv2.getRotationMatrix2D(center, self.rotate, 1.0)
+
+        # Rotate the image with a white background
+        image = cv2.warpAffine(image, matrix, (w, h),
+                               borderValue=(255, 255, 255))
         if self.sharpness is not None:
             image = self.sharpen_image(image, self.sharpness)
             # self.sharpness = None
@@ -2020,52 +2078,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.load_image()
 
     def update_sharpness(self, value):
-        # if self.contrast is not None:
-        #     self.image = self.adjust_contrast(self.image, self.contrast)
-        #     self.contrast = None
+
         if value != 0 and self.image is not None:
-            # self.sharpness = (value / 100.0) - self.sharpness
-            # self.sharpnessValue = self.sharpness
             self.sharpness = value / 100.0
-            # image = self.sharpen_image(self.image, self.sharpness)
-            # self.image = self.sharp_img
             self.load_image()               #not using load image for the aspect ratio
-            # image = self.image
-
-            # Check if the image is 2D or 3D
-            # if image is not None:
-            #     if len(image.shape) == 3:
-            #         height, width, channels = image.shape
-            #     elif len(image.shape) == 2:
-            #         height, width = image.shape
-            #         channels = 1
-            #     else:
-            #         raise ValueError("Unsupported image format")
-
-            #     if channels == 3:
-            #         # Convert BGR to RGB git
-            #         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            #         bytes_per_line = 3 * width
-            #         qimage_format = QImage.Format_RGB888
-            #     elif channels == 2:
-            #         # For Grayscale with Alpha channel (though rare, you can handle it if needed)
-            #         bytes_per_line = 2 * width
-            #         qimage_format = QImage.Format_Grayscale8
-            #     elif channels == 1:
-            #         # For Grayscale image
-            #         bytes_per_line = width
-            #         qimage_format = QImage.Format_Grayscale8
-            #     else:
-            #         raise ValueError("Unsupported image format")
-
-            #     qimage = QImage(image.data, width, height,
-            #                     bytes_per_line, qimage_format)
-            #     pixmap = QPixmap.fromImage(qimage)
-            #     label_size = self.ui.show_image.size()
-            #     scaled_pixmap = pixmap.scaled(
-            #         label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-            #     self.ui.show_image.setPixmap(scaled_pixmap)
-            #     self.ui.show_image.setAlignment(Qt.AlignCenter)
 
     def sharpen_image(self, image, sharpness):
         blurred = cv2.GaussianBlur(image, (0, 0), 3)
@@ -2074,64 +2090,11 @@ class MainWindow(QtWidgets.QMainWindow):
         return sharpened 
 
     def update_contrast(self, value):
-        # if self.sharpness is not None:
-        #     self.image = self.sharpen_image(self.image, self.sharpness)
-        #     self.sharpness = None
-        # if(value>self.contrast):
-        #     self.contrast = value - self.contrast
-        # else:
-        #     self.contrast = self.contrast - value
         if self.image is not None: 
             self.contrast = value
-            # self.contrastValue = self.contrast
-            # image = self.adjust_contrast(self.image, value)
-            # self.image = self.contrasted_image
-                    #not using load image for the aspect ratio
-            # image = self.image
             self.load_image()
 
-        # # Check if the image is 2D or 3D
-        # if image is not None:
-        #     if len(image.shape) == 3:
-        #         height, width, channels = image.shape
-        #     elif len(image.shape) == 2:
-        #         height, width = image.shape
-        #         channels = 1
-        #     else:
-        #         raise ValueError("Unsupported image format")
-
-        #     if channels == 3:
-        #         # Convert BGR to RGB git
-        #         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-        #         bytes_per_line = 3 * width
-        #         qimage_format = QImage.Format_RGB888
-        #     elif channels == 2:
-        #         # For Grayscale with Alpha channel (though rare, you can handle it if needed)
-        #         bytes_per_line = 2 * width
-        #         qimage_format = QImage.Format_Grayscale8
-        #     elif channels == 1:
-        #         # For Grayscale image
-        #         bytes_per_line = width
-        #         qimage_format = QImage.Format_Grayscale8
-        #     else:
-        #         raise ValueError("Unsupported image format")
-
-        #     qimage = QImage(image.data, width, height,
-        #                     bytes_per_line, qimage_format)
-        #     pixmap = QPixmap.fromImage(qimage)
-        #     label_size = self.ui.show_image.size()
-        #     scaled_pixmap = pixmap.scaled(
-        #         label_size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        #     self.ui.show_image.setPixmap(scaled_pixmap)
-        #     self.ui.show_image.setAlignment(Qt.AlignCenter)
-
     def adjust_contrast(self, image, contrast):
-        # new_contrast = self.contrast + (contrast-self.contrast)
-        # if contrast<0 :
-        #     alpha = (100.0 - contrast)/100.0
-        # else:
-        #     new_contrast = self.contrast + (contrast-self.contrast)
-        #     alpha = (100.0 + new_contrast) / 100.0
         alpha = (100.0 + contrast) / 100.0
         adjusted = cv2.convertScaleAbs(image, alpha=alpha, beta=0)
         return adjusted
@@ -2163,8 +2126,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.load_image()
 
     def magic1(self, image_path):
-        # Read the image
-        # image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
         if len(self.image.shape) == 3 and self.image.shape[2] == 3:
             # Image is in BGR format, convert to grayscale
             image = cv2.cvtColor(self.image, cv2.COLOR_BGR2GRAY)
@@ -2229,21 +2190,24 @@ class MainWindow(QtWidgets.QMainWindow):
     def rightOn(self):
         self.video_stream.left = False
         self.video_stream.right = True
-
-
+    
+    
 def copy_file_to_user_directory():
     # Define the source and destination paths
-    # Assuming the file is in the current working directory
     source_file = os.path.join(os.getcwd(), 'u2net.onnx')
     destination_dir = os.path.join(os.path.expanduser('~'), '.u2net')
     destination_file = os.path.join(destination_dir, 'u2net.onnx')
 
-    # Create the destination directory if it does not exist
-    os.makedirs(destination_dir, exist_ok=True)
+    # Check if the file already exists in the destination
+    if not os.path.exists(destination_file):
+        # Create the destination directory if it does not exist
+        os.makedirs(destination_dir, exist_ok=True)
 
-    # Copy the file
-    shutil.copyfile(source_file, destination_file)
-    print(f"File copied to {destination_file}")
+        # Copy the file
+        shutil.copyfile(source_file, destination_file)
+        print(f"File copied to {destination_file}")
+    else:
+        print(f"File already exists at {destination_file}")
 
 
 if __name__ == "__main__":
@@ -2267,13 +2231,12 @@ if __name__ == "__main__":
 
     splash_movie.start()
     splash.show()
-    
+
     window = MainWindow()
+
     def finish_splash():
         splash.close()
         window.showMaximized()
 
     QTimer.singleShot(3000, finish_splash)  # Delay in milliseconds
-    # window = MainWindow()
-    # window.showMaximized()
     sys.exit(app.exec())

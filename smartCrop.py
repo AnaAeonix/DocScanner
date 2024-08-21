@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import ttk
-from PIL import Image, ImageTk
+from PIL import ImageTk
 import cv2
 import numpy as np
 
@@ -80,10 +80,6 @@ class SmartCrop:
             self.root, text="Reset", style='TButton', command=self.reset_points)
         self.reset_button.pack(side=LEFT, padx=5, pady=5)
 
-        # # Add Rotate button
-        # self.rotate_button = ttk.Button(
-        #     self.root, text="Rotate", style='TButton', command=self.rotate_image)
-        # self.rotate_button.pack(side=LEFT, padx=5, pady=5)
 
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -182,29 +178,8 @@ class SmartCrop:
             homography2), (maxWidth, maxHeight), flags=cv2.INTER_LINEAR)
         return final1, final2, np.concatenate((final1, final2), axis=1)
 
-    # def get_stitched_wrapped(self,corners):
-    #     img1 = self.get_warpped([corners[0],corners[1],corners[4],corners[5]])
-    #     img2 = self.get_warpped([corners[1],corners[2],corners[3],corners[4]])
-    #     return np.concatenate((img1,img2), axis=1)
-
     def on_closing(self):
         for itemA, itemB in zip(self.pre, self.draggable_points):
             itemB['x'] = itemA['x']
             itemB['y'] = itemA['y']
         self.root.destroy()
-
-
-# def main():
-#     image = Image.open(r"C:\Users\sdas\OneDrive\Desktop\aeonix\DocScanner\test.jpg")
-#     obj = SmartCrop(image)
-#     obj.run()
-#     corners = obj.get_draggable_points()
-
-#     split1,split2,warpped_image  = obj.get_warpped(corners)
-#     cv2.imwrite("1714054747202_warpped_1.jpg",cv2.cvtColor(split1, cv2.COLOR_BGR2RGB))
-#     cv2.imwrite("1714054747202_warpped_2.jpg",cv2.cvtColor(split2, cv2.COLOR_BGR2RGB))
-#     cv2.imwrite("1714054747202_warpped.jpg",cv2.cvtColor(warpped_image, cv2.COLOR_BGR2RGB))
-#     print(corners)
-
-# if __name__ == "__main__":
-#     main()

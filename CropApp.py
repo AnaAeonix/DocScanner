@@ -2,8 +2,6 @@ import tkinter as tk
 from tkinter import ttk
 
 from PIL import Image, ImageTk
-import numpy as np
-import cv2
 
 
 class CornerBox():
@@ -228,22 +226,3 @@ class CropApp:
         self.canvas.tag_raise(self.SW.cb_id, 'all')
 
         self.canvas.after(1, self.drawBox)
-
-
-# if __name__ == "__main__":
-#     root = tk.Tk()
-#     img_file_name = cv2.imread(r'C:\Users\sdas\OneDrive\Desktop\aeonix\DocScanner\test.jpg')
-#     coordinates = [[5,5], [1029, 5], [742, 209], [5,773]]
-#     App = CropApp(root, img_file_name)
-
-#     root.mainloop()
-
-#     A = App.NW.coords
-#     B = App.NE.coords
-#     C = App.SE.coords
-#     D = App.SW.coords
-
-#     print(A)
-#     print(B)
-#     print(C)
-#     print(D)

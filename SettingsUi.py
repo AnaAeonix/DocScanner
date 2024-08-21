@@ -1,14 +1,11 @@
 
 
 from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QCheckBox, QLabel, QMainWindow, QPushButton, QSlider, QWidget, QApplication, QFrame
+from PyQt5.QtWidgets import  QLabel, QPushButton, QSlider, QWidget, QApplication, QFrame
 from PyQt5 import QtCore, QtWidgets, QtGui
-
-
 import Stackresource_rc
 import UiRes_rc
 import camResource_rc
-
 
 class Ui_MainWindow1(object):
     def setupUi(self, MainWindow):
@@ -79,9 +76,6 @@ class Ui_MainWindow1(object):
                          QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.close_btn.setIcon(icon14)
         self.close_btn.setIconSize(QtCore.QSize(20, 20))
-        # self.close_btn.setStyleSheet("  QPushButton:hover {\n"
-        #                        "        background-color:#073c6d\n"
-        #                        "    }\n")
 
         self.minimize_btn = QPushButton(self.nav)
         self.minimize_btn.setObjectName("minimize_btn")
@@ -106,7 +100,6 @@ class Ui_MainWindow1(object):
         self.brightness_slider.setOrientation(1)  # Horizontal
         self.brightness_slider.setMinimum(-60)
         self.brightness_slider.setMaximum(60)
-        # self.brightness_slider.setValue(0)
         self.brightness_slider.setGeometry(20, 100, 360, 22)
         self.brightness_slider.setOrientation(Qt.Horizontal)
 
@@ -146,13 +139,6 @@ class Ui_MainWindow1(object):
         self.exposure_slider.setGeometry(20,295, 360, 22)
         self.exposure_slider.setOrientation(Qt.Horizontal)
 
-        # self.exposure_checkBox = QCheckBox(self.centralwidget)
-        # self.exposure_checkBox.setStyleSheet(
-        #     "color: #3020ee; font-weight: bold; font-family: Arial;")  # Add this line
-        # self.exposure_checkBox.setObjectName("exposure_checkBox")
-        # self.exposure_checkBox.setGeometry(20, 335, 131, 17)
-        # self.exposure_checkBox.setFont(font)
-
         self.default_btn = QPushButton(self.centralwidget)
         self.default_btn.setStyleSheet("QPushButton {\n"
                                     "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
@@ -180,33 +166,6 @@ class Ui_MainWindow1(object):
         self.default_btn.setObjectName("more_btn")
         self.default_btn.setGeometry(300, 340, 95, 35)
         self.default_btn.setFont(font)
-
-        # self.save_btn = QPushButton(self.centralwidget)
-        # self.save_btn.setStyleSheet("QPushButton {\n"
-        #                             "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
-        #                             "        border-radius: 20px; \n"
-        #                             "    color: white; /* Text color */\n"
-        #                             "    font-weight: bold;\n"
-        #                             "border:none; /* Border color */\n"
-        #                             "    padding: 10px 10px; /* Adjust padding as needed */\n"
-        #                             "    margin:0px; /* Margin to create distance between buttons */\n"
-        #                             "}\n"
-        #                             " QPushButton {\n"
-        #                             "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-        #                             "    color: white; /* Text color */\n"
-        #                             "    font-weight: bold;\n"
-        #                             "\n"
-        #                             "    padding: 10px 20px;\n"
-        #                             "        /*height:50px;*/\n"
-        #                             "margin: 0px;\n"
-        #                             "        \n"
-        #                             "        /* border-bottom: 1px solid #b0b0b0; */\n"
-        #                             "    }\n"
-        #                             "QPushButton:hover {\n"
-        #                             "        background-color:#073c6d;\n"
-        #                             "    }")
-        # self.save_btn.setObjectName("save_btn")
-        # self.save_btn.setGeometry(30, 400, 71, 31)
         self.autoSave_btn = QtWidgets.QRadioButton(self.centralwidget)
         self.autoSave_btn.setGeometry(QtCore.QRect(30, 330, 120, 57))
         self.autoSave_btn.setCheckable(True)
@@ -233,11 +192,6 @@ class Ui_MainWindow1(object):
         self.hor_line.setGeometry(20, 380, 351, 20)
         self.hor_line.setFrameShadow(QFrame.Plain)
         self.hor_line.setFrameShape(QFrame.HLine)
-        # self.hor_line.setStyleSheet("#hor_line {"
-        #                             # "border: 2px solid #0e86f6;"  # Change '#0e86f6' to desired border color
-        #                             "border: 1px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);"
-        #                               # Adjust the value for desired curve
-        #                             "}")
         self.hor_line.setStyleSheet(
             "QFrame#hor_line { color: blue }")
         
@@ -286,33 +240,6 @@ class Ui_MainWindow1(object):
                                      "border: 2px solid qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);"
                                      "/*border-radius: 10px;*/"   # Adjust the value for desired curve
                                      "}")
-        # self.open_btn = QPushButton(self.centralwidget)
-        # self.open_btn.setObjectName("open_btn")
-        # self.open_btn.setGeometry(320, 432, 80, 35)
-        # self.open_btn.setStyleSheet("QPushButton {\n"
-        #                               "background-color: qlineargradient(x1:0, y1:0, x2:1, y2:1, stop:0 #8a2be2, stop:0.5 #0e86f6, stop:1 #a78bfa);\n"
-        #                               "        border-radius: 20px; \n"
-        #                               "    color: white; /* Text color */\n"
-        #                               "    font-weight: bold;\n"
-        #                               "border:none; /* Border color */\n"
-        #                               "    padding: 10px 10px; /* Adjust padding as needed */\n"
-        #                               "    margin:0px; /* Margin to create distance between buttons */\n"
-        #                               "}\n"
-        #                               " QPushButton {\n"
-        #                               "        border-radius: 10px; /* Adjust the value to change the curve radius */\n"
-        #                               "    color: white; /* Text color */\n"
-        #                               "    font-weight: bold;\n"
-        #                               "\n"
-        #                               "    padding: 10px 20px;\n"
-        #                               "        /*height:50px;*/\n"
-        #                               "margin: 0px;\n"
-        #                               "        \n"
-        #                               "        /* border-bottom: 1px solid #b0b0b0; */\n"
-        #                               "    }\n"
-        #                               "QPushButton:hover {\n"
-        #                               "        background-color:#073c6d;\n"
-        #                               "    }")
-
 
         MainWindow.setCentralWidget(self.centralwidget)
 

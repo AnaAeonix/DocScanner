@@ -19,7 +19,7 @@ import tempfile
 from pyusbcameraindex import enumerate_usb_video_devices_windows
 from rembg import remove
 # from paddleocr import PaddleOCR
-import easyocr 
+from easyocr import Reader
 # Remove the duplicate import statement
 from ariNewUi import Ui_MainWindow
 from VideoStream import VideoStream
@@ -649,7 +649,7 @@ class MainWindow(QtWidgets.QMainWindow):
         update_progress(10)
 
         # Initialize EasyOCR reader
-        reader = easyocr.Reader(['en'])  # Add other languages if needed
+        reader = Reader(['en'])  # Add other languages if needed
         update_progress(30)
 
         def preprocess_image(image_path):
